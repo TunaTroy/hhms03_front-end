@@ -1,11 +1,9 @@
 "use client";
 
-import { Modal, Input, Button, Select, DatePicker } from "antd";
+import { Modal, Input, Button, Select, DatePicker, List } from "antd";
 import { FC, useState, useEffect } from "react";
 
 const { Option } = Select;
-
-
 
 interface RoomModalProps {
   isModalOpen: boolean;
@@ -28,12 +26,10 @@ const RoomModal: FC<RoomModalProps> = ({
   setIsModalOpen,
   roomData,
 }) => {
-  // Hàm đóng modal
   const handleClose = () => {
     setIsModalOpen(false);
   };
 
-  // Thêm state để lưu trữ thời gian nhận và trả phòng
   const [checkInTime, setCheckInTime] = useState<Date | null>(
     roomData?.check_in_time ? new Date(roomData.check_in_time) : null
   );
@@ -41,7 +37,6 @@ const RoomModal: FC<RoomModalProps> = ({
     roomData?.check_out_time ? new Date(roomData.check_out_time) : null
   );
 
-  // Thêm state để lưu trữ hình thức
   const [bookingType, setBookingType] = useState("Giờ");
   const [estimatedTime, setEstimatedTime] = useState<string>("");
 
@@ -53,11 +48,11 @@ const RoomModal: FC<RoomModalProps> = ({
       !isNaN(checkOutTime.getTime())
     ) {
       const duration =
-        (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60); // Thời gian tính bằng giờ
+        (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60);
       if (bookingType === "Giờ") {
         setEstimatedTime(`${duration} Giờ`);
       } else {
-        const days = Math.ceil(duration / 24); // Chia cho 24 để chuyển thành ngày
+        const days = Math.ceil(duration / 24);
         setEstimatedTime(`${days} Ngày`);
       }
     } else {
@@ -65,12 +60,10 @@ const RoomModal: FC<RoomModalProps> = ({
     }
   };
 
-  // Cập nhật giá trị dự kiến khi thay đổi thời gian hoặc hình thức
   useEffect(() => {
     calculateEstimatedTime();
   }, [checkInTime, checkOutTime, bookingType]);
 
-  // Hàm cập nhật thời gian nhận và trả phòng
   const handleUpdateTime = () => {
     fetch("/api/update-room", {
       method: "POST",
@@ -90,6 +83,42 @@ const RoomModal: FC<RoomModalProps> = ({
       .catch((error) => {
         console.error("Error updating room:", error);
       });
+  };
+
+  // State for customer search
+  const [customerName, setCustomerName] = useState<string>("");
+  const [filteredCustomers, setFilteredCustomers] = useState<string[]>([]);
+
+  // Sample data for customer names
+  const customerData = [
+    "Nguyễn Văn A",
+    "Trần Thị B",
+    "Lê Văn C",
+    "Phạm Thị D",
+    "Đỗ Văn E",
+  ];
+
+  // Function to handle search input
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setCustomerName(searchValue);
+
+    if (searchValue) {
+      const results = customerData.filter((customer) =>
+        customer.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredCustomers(results);
+    } else {
+      setFilteredCustomers([]);
+    }
+  };
+
+  // State for note
+  const [note, setNote] = useState<string>(roomData?.note || "");
+
+  // Function to handle note input
+  const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNote(e.target.value);
   };
 
   return (
@@ -115,6 +144,45 @@ const RoomModal: FC<RoomModalProps> = ({
             padding: "16px",
           }}
         >
+          {/* Input and suggestions for Customer Search */}
+          <div
+            style={{ width: "28%", textAlign: "left", position: "relative" }}
+          >
+            <Input
+              placeholder="Tìm kiếm khách hàng"
+              value={customerName}
+              onChange={handleSearch}
+              style={{ marginBottom: "16px" }}
+            />
+
+            {/* Display search results */}
+            {filteredCustomers.length > 0 && (
+              <List
+                bordered
+                dataSource={filteredCustomers}
+                renderItem={(item) => (
+                  <List.Item
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setCustomerName(item)}
+                  >
+                    {item}
+                  </List.Item>
+                )}
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  width: "100%",
+                  backgroundColor: "#fff",
+                  zIndex: 1,
+                  border: "1px solid #d9d9d9",
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                }}
+              />
+            )}
+          </div>
+
           <div
             style={{
               display: "flex",
@@ -243,7 +311,7 @@ const RoomModal: FC<RoomModalProps> = ({
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Input.TextArea
+            {/* <Input.TextArea
               placeholder="Ghi chú"
               value={roomData.note || "Nhập ghi chú..."}
               style={{
@@ -252,7 +320,20 @@ const RoomModal: FC<RoomModalProps> = ({
                 padding: "16px",
                 textAlign: "left",
               }}
+            /> */}
+
+            <Input
+              placeholder="Nhập ghi chú ..."
+              value={note}
+              onChange={handleNoteChange}
+              style={{
+                width: "40%",
+                marginTop: "16px",
+                padding: "16px",
+                textAlign: "left",
+              }}
             />
+
             <div
               style={{
                 width: "28%",
@@ -267,27 +348,26 @@ const RoomModal: FC<RoomModalProps> = ({
               </p>
               <p>Khách thanh toán: 0</p>
             </div>
-         
           </div>
-          <div style={{ display: "flex", justifyContent: "flex"}}>
-              <Button
-                type="primary"
-                style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
-                onClick={handleUpdateTime}
-              >
-                Nhận phòng
-              </Button>
-              <Button
-                type="default"
-                style={{
-                  backgroundColor: "#FF9800",
-                  borderColor: "#FF9800",
-                  marginLeft: "8px",
-                }}
-              >
-                Đặt trước
-              </Button>
-            </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
+            <Button
+              type="primary"
+              style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
+              onClick={handleUpdateTime}
+            >
+              Nhận phòng
+            </Button>
+            <Button
+              type="default"
+              style={{
+                backgroundColor: "#FF9800",
+                borderColor: "#FF9800",
+                marginLeft: "8px",
+              }}
+            >
+              Đặt trước
+            </Button>
+          </div>
         </div>
       ) : (
         <p>No room data available.</p>

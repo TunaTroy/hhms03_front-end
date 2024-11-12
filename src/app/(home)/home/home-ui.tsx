@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, message } from "antd";
+import { Button, Card } from "antd";
 import { signOut, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
@@ -10,6 +10,7 @@ import {
   MoneyCollectOutlined,
 } from "@ant-design/icons";
 import RoomModal from "@/components/roomModal";
+import RoomBooked from "@/components/roomBooked";
 
 interface Room {
   room_id: string;
@@ -38,6 +39,10 @@ export default function HomePage() {
   const [availableRoomNumber, setAvailableRoomNumber] = useState<number>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
+  const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
+  const [selectedBookedRoom, setSelectedBookedRoom] = useState<
+    Room | undefined
+  >(undefined);
 
   useEffect(() => {
     const mockData: Room[] = [
@@ -82,21 +87,46 @@ export default function HomePage() {
 
     setFloor(categorizedFloors);
 
-    const availableRoom = mockData.filter((room) => room.status === "available").length;
+    const availableRoom = mockData.filter(
+      (room) => room.status === "available"
+    ).length;
     setAvailableRoomNumber(availableRoom);
 
     setRoomsList(mockData);
   }, []);
 
+  const handleRoomClick = (room: Room) => {
+    if (room.status === "available") {
+      setSelectedRoom(room);
+      setIsModalOpen(true);
+    } else if (room.status === "booked") {
+      setSelectedBookedRoom(room);
+      setIsRoomBookedOpen(true);
+    }
+  };
+
   return (
     <div className="bg-[#F0F2F5] h-screen px-[20px]">
-      <RoomModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        roomData={selectedRoom}
-      />
+      {isModalOpen && selectedRoom && (
+        <RoomModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          roomData={selectedRoom}
+        />
+      )}
+      {isRoomBookedOpen && selectedBookedRoom && (
+        <RoomBooked
+          roomName={selectedBookedRoom.room_name}
+          roomType={selectedBookedRoom.type_id} // Assuming type_id is the room type
+          guest={selectedBookedRoom.current_guest}
+          checkInTime={selectedBookedRoom.check_in_time}
+          checkOutTime={selectedBookedRoom.check_out_time}
+          numGuests={1} // Replace with the actual number of guests if available
+          onClose={() => setIsRoomBookedOpen(false)}
+        />
+      )}
       <div className="flex w-full justify-between items-center h-[80px]">
-        <div className="flex justify-between  items-center">
+        <div className="flex justify-between items-center">
           {roomStatus.map((status, index) => (
             <div
               className="flex justify-between w-[130px] items-center bg-white p-2 rounded-2xl shadow mr-5"
@@ -136,10 +166,7 @@ export default function HomePage() {
                 {item.children.map((room, index) => {
                   return (
                     <Card
-                      onClick={() => {
-                        setSelectedRoom(room);
-                        setIsModalOpen(true);
-                      }}
+                      onClick={() => handleRoomClick(room)}
                       key={index}
                       title={room.room_name}
                       className={`w-[15%] mr-4 cursor-pointer ${
@@ -177,50 +204,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-// // Call API
-  // useEffect(() => {
-  //   async function getRoomsList() {
-  //     const url = "http://localhost:1912/rooms";
-  //     try {
-  //       const response = await fetch(url, {
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`,
-  //         },
-  //       });
-  //       if (!response.ok) {
-  //         if (response.status === 401) {
-  //           await signOut();
-  //         }
-  //         throw new Error(`Response status: ${response.status}`);
-  //       }
-
-  //       const res = await response.json();
-
-  //       const categorizedFloors = [
-  //         {
-  //           label: "Floor 1",
-  //           children: res.data.filter((room: Room) => room.floor === 1),
-  //         },
-  //         {
-  //           label: "Floor 2",
-  //           children: res.data.filter((room: Room) => room.floor === 2),
-  //         },
-  //       ];
-  //       setFloor(categorizedFloors);
-
-  //       const availableRoom = res.data.filter(
-  //         (room: Room) => room.status === "available"
-  //       ).length;
-  //       setAvailableRoomNumber(availableRoom);
-
-  //       setRoomsList(res.data);
-  //     } catch (error) {
-  //       message.error("Failed to get rooms list");
-  //     }
-  //   }
-  //   if (accessToken) {
-  //     getRoomsList();
-  //   }
-  // }, [accessToken]);
