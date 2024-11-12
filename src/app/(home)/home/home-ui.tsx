@@ -40,9 +40,7 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
   const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
-  const [selectedBookedRoom, setSelectedBookedRoom] = useState<
-    Room | undefined
-  >(undefined);
+  const [selectedBookedRoom, setSelectedBookedRoom] = useState<Room | undefined>(undefined);
 
   useEffect(() => {
     const mockData: Room[] = [
@@ -51,7 +49,7 @@ export default function HomePage() {
         room_name: "Room 101",
         status: "available",
         floor: 1,
-        type_id: "single",
+        type_id: "Single",
         check_in_time: "",
         check_out_time: "",
         cleaning_status: "clean",
@@ -64,7 +62,7 @@ export default function HomePage() {
         room_name: "Room 102",
         status: "booked",
         floor: 1,
-        type_id: "double",
+        type_id: "Double",
         check_in_time: "2024-11-07 10:00",
         check_out_time: "2024-11-08 10:00",
         cleaning_status: "dirty",
@@ -86,12 +84,8 @@ export default function HomePage() {
     ];
 
     setFloor(categorizedFloors);
-
-    const availableRoom = mockData.filter(
-      (room) => room.status === "available"
-    ).length;
+    const availableRoom = mockData.filter((room) => room.status === "available").length;
     setAvailableRoomNumber(availableRoom);
-
     setRoomsList(mockData);
   }, []);
 
@@ -120,12 +114,18 @@ export default function HomePage() {
           setIsModalOpen={setIsRoomBookedOpen}
           roomData={{
             roomName: selectedBookedRoom.room_name,
-            roomType: selectedBookedRoom.type_id, // Assuming type_id is the room type
+            roomType: selectedBookedRoom.type_id,
             guest: selectedBookedRoom.current_guest,
             checkInTime: selectedBookedRoom.check_in_time,
             checkOutTime: selectedBookedRoom.check_out_time,
-            numGuests: 1, // Replace with the actual number of guests if available
-            priceOverride: selectedBookedRoom.price_override || 0, // Assuming a default value if not available
+            numGuests: 1, // Replace with actual number if available
+            numChildren: 0, // Replace with actual data if available
+            numPapers: 0, // Replace with actual data if available
+            bookingCode: "DP000004", // Assuming example value
+            stayDuration: "24 giờ", // Replace with actual data if available
+            checkInNotice: "9 giờ nữa nhận phòng", // Replace with actual data if available
+            note: selectedBookedRoom.note || "",
+            priceOverride: selectedBookedRoom.price_override || 0,
           }}
         />
       )}
@@ -150,60 +150,52 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-
         <Button type="primary" shape="round">
           <PlusOutlined /> Add Room
         </Button>
       </div>
-
       <div>
-        {floor.map((item, index) => {
-          return (
-            <div key={index}>
-              <div className="flex items-end px-[50px] mt-4">
-                <h1 className="text-[30px] font-semibold w-[120px]">
-                  {item.label}
-                </h1>
-                <div className="h-[1px] w-full bg-black"></div>
-              </div>
-              <div className="flex flex-wrap mt-4 px-[50px]">
-                {item.children.map((room, index) => {
-                  return (
-                    <Card
-                      onClick={() => handleRoomClick(room)}
-                      key={index}
-                      title={room.room_name}
-                      className={`w-[15%] mr-4 cursor-pointer ${
-                        room.status === "booked"
-                          ? "bg-[#D9D9D9]"
-                          : "bg-[#4DE804]"
-                      }`}
-                    >
-                      <p>
-                        <label className="mr-2 font-medium">Clean:</label>
-                        <span className="mr-1">{room.cleaning_status}</span>
-                        {room.cleaning_status === "clean" ? (
-                          <CheckCircleOutlined />
-                        ) : (
-                          <CloseCircleOutlined />
-                        )}
-                      </p>
-                      <p className="mr-2">
-                        <label className="mr-2 font-medium">Room: </label>
-                        <span>{room.status}</span>
-                      </p>
-                      <p>
-                        <label className="mr-2 font-medium">Price:</label>
-                        <span className="mr-1">{room.price_override}</span>
-                        <MoneyCollectOutlined />
-                      </p>
-                    </Card>
-                  );
-                })}
-              </div>
+        {floor.map((item, index) => (
+          <div key={index}>
+            <div className="flex items-end px-[50px] mt-4">
+              <h1 className="text-[30px] font-semibold w-[120px]">
+                {item.label}
+              </h1>
+              <div className="h-[1px] w-full bg-black"></div>
             </div>
-          );
-        })}
+            <div className="flex flex-wrap mt-4 px-[50px]">
+              {item.children.map((room, index) => (
+                <Card
+                  onClick={() => handleRoomClick(room)}
+                  key={index}
+                  title={room.room_name}
+                  className={`w-[15%] mr-4 cursor-pointer ${
+                    room.status === "booked" ? "bg-[#D9D9D9]" : "bg-[#4DE804]"
+                  }`}
+                >
+                  <p>
+                    <label className="mr-2 font-medium">Clean:</label>
+                    <span className="mr-1">{room.cleaning_status}</span>
+                    {room.cleaning_status === "clean" ? (
+                      <CheckCircleOutlined />
+                    ) : (
+                      <CloseCircleOutlined />
+                    )}
+                  </p>
+                  <p className="mr-2">
+                    <label className="mr-2 font-medium">Room: </label>
+                    <span>{room.status}</span>
+                  </p>
+                  <p>
+                    <label className="mr-2 font-medium">Price:</label>
+                    <span className="mr-1">{room.price_override}</span>
+                    <MoneyCollectOutlined />
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

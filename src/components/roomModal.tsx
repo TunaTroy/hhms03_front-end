@@ -2,6 +2,7 @@
 
 import { Modal, Input, Button, Select, DatePicker, List } from "antd";
 import { FC, useState, useEffect } from "react";
+import moment, { Moment } from "moment";
 
 const { Option } = Select;
 
@@ -30,27 +31,22 @@ const RoomModal: FC<RoomModalProps> = ({
     setIsModalOpen(false);
   };
 
-  const [checkInTime, setCheckInTime] = useState<Date | null>(
-    roomData?.check_in_time ? new Date(roomData.check_in_time) : null
+  // Sử dụng moment để xử lý thời gian
+  const [checkInTime, setCheckInTime] = useState<Moment | null>(
+    roomData?.check_in_time ? moment(roomData.check_in_time) : null
   );
-  const [checkOutTime, setCheckOutTime] = useState<Date | null>(
-    roomData?.check_out_time ? new Date(roomData.check_out_time) : null
+  const [checkOutTime, setCheckOutTime] = useState<Moment | null>(
+    roomData?.check_out_time ? moment(roomData.check_out_time) : null
   );
 
   const [bookingType, setBookingType] = useState("Giờ");
   const [estimatedTime, setEstimatedTime] = useState<string>("");
 
   const calculateEstimatedTime = () => {
-    if (
-      checkInTime instanceof Date &&
-      !isNaN(checkInTime.getTime()) &&
-      checkOutTime instanceof Date &&
-      !isNaN(checkOutTime.getTime())
-    ) {
-      const duration =
-        (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60);
+    if (checkInTime && checkOutTime) {
+      const duration = checkOutTime.diff(checkInTime, "hours", true);
       if (bookingType === "Giờ") {
-        setEstimatedTime(`${duration} Giờ`);
+        setEstimatedTime(`${duration.toFixed(2)} Giờ`);
       } else {
         const days = Math.ceil(duration / 24);
         setEstimatedTime(`${days} Ngày`);
@@ -72,8 +68,8 @@ const RoomModal: FC<RoomModalProps> = ({
       },
       body: JSON.stringify({
         room: roomData?.room_name,
-        checkInTime: checkInTime,
-        checkOutTime: checkOutTime,
+        checkInTime: checkInTime ? checkInTime.toISOString() : null,
+        checkOutTime: checkOutTime ? checkOutTime.toISOString() : null,
         bookingType: bookingType,
       }),
     })
@@ -278,7 +274,7 @@ const RoomModal: FC<RoomModalProps> = ({
               <DatePicker
                 showTime
                 value={checkInTime}
-                onChange={setCheckInTime}
+                onChange={(date) => setCheckInTime(date)}
                 format="YYYY-MM-DD HH:mm"
                 style={{ width: "100%" }}
               />
@@ -294,7 +290,7 @@ const RoomModal: FC<RoomModalProps> = ({
               <DatePicker
                 showTime
                 value={checkOutTime}
-                onChange={setCheckOutTime}
+                onChange={(date) => setCheckOutTime(date)}
                 format="YYYY-MM-DD HH:mm"
                 style={{ width: "100%" }}
               />
@@ -349,7 +345,13 @@ const RoomModal: FC<RoomModalProps> = ({
               <p>Khách thanh toán: 0</p>
             </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "16px",
+            }}
+          >
             <Button
               type="primary"
               style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
