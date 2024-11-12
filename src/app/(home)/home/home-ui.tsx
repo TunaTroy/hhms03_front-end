@@ -116,13 +116,17 @@ export default function HomePage() {
       )}
       {isRoomBookedOpen && selectedBookedRoom && (
         <RoomBooked
-          roomName={selectedBookedRoom.room_name}
-          roomType={selectedBookedRoom.type_id} // Assuming type_id is the room type
-          guest={selectedBookedRoom.current_guest}
-          checkInTime={selectedBookedRoom.check_in_time}
-          checkOutTime={selectedBookedRoom.check_out_time}
-          numGuests={1} // Replace with the actual number of guests if available
-          onClose={() => setIsRoomBookedOpen(false)}
+          isModalOpen={isRoomBookedOpen}
+          setIsModalOpen={setIsRoomBookedOpen}
+          roomData={{
+            roomName: selectedBookedRoom.room_name,
+            roomType: selectedBookedRoom.type_id, // Assuming type_id is the room type
+            guest: selectedBookedRoom.current_guest,
+            checkInTime: selectedBookedRoom.check_in_time,
+            checkOutTime: selectedBookedRoom.check_out_time,
+            numGuests: 1, // Replace with the actual number of guests if available
+            priceOverride: selectedBookedRoom.price_override || 0, // Assuming a default value if not available
+          }}
         />
       )}
       <div className="flex w-full justify-between items-center h-[80px]">

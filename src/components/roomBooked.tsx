@@ -1,148 +1,213 @@
-import React from 'react';
+import { Modal, Input, Button, Select, DatePicker, List } from "antd";
+import { FC, useState } from "react";
+import moment, { Moment } from "moment";
+
+const { Option } = Select;
 
 interface RoomBookedProps {
-  roomName: string;
-  roomType: string;
-  guest: string;
-  checkInTime: string;
-  checkOutTime: string;
-  numGuests: number;
-  onClose: () => void;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  roomData: {
+    roomName: string;
+    roomType: string;
+    guest: string;
+    checkInTime: string;
+    checkOutTime: string;
+    numGuests: number;
+    note?: string;
+    priceOverride: number;
+  };
 }
 
-const RoomBooked: React.FC<RoomBookedProps> = ({
-  roomName,
-  roomType,
-  guest,
-  checkInTime,
-  checkOutTime,
-  numGuests,
-  onClose,
+const RoomBooked: FC<RoomBookedProps> = ({
+  isModalOpen,
+  setIsModalOpen,
+  roomData,
 }) => {
-  return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h2>Chi tiết {roomName}</h2>
-        <button style={styles.closeButton} onClick={onClose}>✖</button>
-      </div>
-      <div style={styles.roomInfo}>
-        <h3 style={styles.roomType}>{roomType} <span style={styles.status}>Đã đặt trước</span></h3>
-        <div style={styles.details}>
-          <div>
-            <p>Khách hàng</p>
-            <p>{guest}</p>
-          </div>
-          <div>
-            <p>Khách lưu trú</p>
-            <p>{numGuests} người lớn, 0 trẻ em, 0 giường</p>
-          </div>
-          <div>
-            <p>Mã đặt phòng</p>
-            <p>DP000004</p>
-          </div>
-          <div>
-            <p>Nhận phòng</p>
-            <p>{checkInTime}</p>
-          </div>
-          <div>
-            <p>Trả phòng</p>
-            <p>{checkOutTime}</p>
-          </div>
-          <div>
-            <p>Thời gian lưu trú</p>
-            <p>24 giờ <span style={styles.highlight}>9 giờ nữa nhận phòng</span></p>
-          </div>
-        </div>
-      </div>
-      <div style={styles.footer}>
-        <div>
-          <p>Chưa có ghi chú</p>
-        </div>
-        <div style={styles.priceInfo}>
-          <p>P.301</p>
-          <p>1,800,000</p>
-          <p>Khách đã trả: 0</p>
-        </div>
-        <div style={styles.buttons}>
-          <button style={styles.editButton}>Sửa đặt phòng</button>
-          <button style={styles.confirmButton}>Nhận phòng</button>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
 
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    padding: '16px',
-    backgroundColor: '#fff',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '24px',
-    cursor: 'pointer',
-  },
-  roomInfo: {
-    border: '1px solid #f0a500',
-    borderRadius: '8px',
-    padding: '16px',
-    marginTop: '16px',
-  },
-  roomType: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  status: {
-    backgroundColor: '#f0a500',
-    color: '#fff',
-    padding: '2px 8px',
-    borderRadius: '4px',
-  },
-  details: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '16px',
-  },
-  highlight: {
-    color: '#f0a500',
-  },
-  footer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '16px',
-  },
-  priceInfo: {
-    textAlign: 'right',
-  },
-  buttons: {
-    display: 'flex',
-    gap: '8px',
-  },
-  editButton: {
-    backgroundColor: '#ccc',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  confirmButton: {
-    backgroundColor: '#4caf50',
-    color: '#fff',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
+  const [checkInTime, setCheckInTime] = useState<Moment | null>(
+    roomData.checkInTime ? moment(roomData.checkInTime) : null
+  );
+  const [checkOutTime, setCheckOutTime] = useState<Moment | null>(
+    roomData.checkOutTime ? moment(roomData.checkOutTime) : null
+  );
+
+  const [note, setNote] = useState<string>(roomData.note || "");
+
+  // State for customer search
+  const [customerName, setCustomerName] = useState<string>("");
+  const [filteredCustomers, setFilteredCustomers] = useState<string[]>([]);
+
+  // Sample data for customer names
+  const customerData = [
+    "Nguyễn Văn A",
+    "Trần Thị B",
+    "Lê Văn C",
+    "Phạm Thị D",
+    "Đỗ Văn E",
+  ];
+
+  // Function to handle search input
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setCustomerName(searchValue);
+
+    if (searchValue) {
+      const results = customerData.filter((customer) =>
+        customer.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredCustomers(results);
+    } else {
+      setFilteredCustomers([]);
+    }
+  };
+
+  const handleUpdateBooking = () => {
+    fetch("/api/update-booking", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        room: roomData.roomName,
+        checkInTime: checkInTime ? checkInTime.toISOString() : null,
+        checkOutTime: checkOutTime ? checkOutTime.toISOString() : null,
+        note,
+      }),
+    })
+      .then((response) => {
+        console.log("Booking updated successfully");
+        handleClose();
+      })
+      .catch((error) => {
+        console.error("Error updating booking:", error);
+      });
+  };
+
+  return (
+    <Modal
+      title={<span style={{ fontWeight: "bold", fontSize: "18px", color: "#4CAF50" }}>Chi tiết đặt phòng</span>}
+      open={isModalOpen}
+      footer={null}
+      onCancel={handleClose}
+      width={1000}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "16px" }}>
+        {/* Input and suggestions for Customer Search */}
+        <div style={{ width: "28%", textAlign: "left", position: "relative" }}>
+          <Input
+            placeholder="Tìm kiếm khách hàng"
+            value={customerName}
+            onChange={handleSearch}
+            style={{ marginBottom: "16px" }}
+          />
+          {/* Display search results */}
+          {filteredCustomers.length > 0 && (
+            <List
+              bordered
+              dataSource={filteredCustomers}
+              renderItem={(item) => (
+                <List.Item
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setCustomerName(item)}
+                >
+                  {item}
+                </List.Item>
+              )}
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                width: "100%",
+                backgroundColor: "#fff",
+                zIndex: 1,
+                border: "1px solid #d9d9d9",
+                maxHeight: "200px",
+                overflowY: "auto",
+              }}
+            />
+          )}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", padding: "10px", border: "1px solid #d9d9d9", borderRadius: "4px", backgroundColor: "#f9f9f9" }}>
+          <Input
+            style={{ width: "12%", textAlign: "center" }}
+            value={`Hạng phòng: ${roomData.roomType}`}
+            readOnly
+          />
+          <Input
+            style={{ width: "12%", textAlign: "center" }}
+            value={roomData.roomName}
+            readOnly
+          />
+          <div style={{ width: "12%", textAlign: "center" }}>
+            <Select style={{ width: "100%" }} defaultValue="Giờ">
+              <Option value="Giờ">Giờ</Option>
+              <Option value="Ngày">Ngày</Option>
+            </Select>
+          </div>
+          <div style={{ width: "18%", textAlign: "center" }}>
+            <DatePicker
+              showTime
+              value={checkInTime}
+              onChange={(date) => setCheckInTime(date)}
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div style={{ width: "18%", textAlign: "center" }}>
+            <DatePicker
+              showTime
+              value={checkOutTime}
+              onChange={(date) => setCheckOutTime(date)}
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <Input
+            style={{ width: "12%", textAlign: "center" }}
+            value={`${Math.ceil(((checkOutTime?.valueOf() || 0) - (checkInTime?.valueOf() || 0)) / (1000 * 60 * 60 * 24))} Ngày`}
+            readOnly
+          />
+          <Input
+            style={{ width: "14%", textAlign: "center" }}
+            value={`$${roomData.priceOverride}`}
+            readOnly
+          />
+        </div>
+
+        <Input
+          placeholder="Nhập ghi chú ..."
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          style={{ width: "40%", marginTop: "16px", padding: "16px", textAlign: "left" }}
+        />
+
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
+          <Button
+            type="primary"
+            style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
+            onClick={handleUpdateBooking}
+          >
+            Nhận phòng
+          </Button>
+          <Button
+            type="default"
+            style={{
+              backgroundColor: "#FF9800",
+              borderColor: "#FF9800",
+              marginLeft: "8px",
+            }}
+          >
+            Đặt trước
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
 };
 
 export default RoomBooked;
