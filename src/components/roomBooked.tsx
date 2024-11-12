@@ -1,5 +1,5 @@
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
-import { FC } from "react";
+import React, { FC, useState } from "react";
 
 const { Text } = Typography;
 
@@ -34,6 +34,14 @@ const RoomBooked: FC<RoomBookedProps> = ({
     setIsModalOpen(false);
   };
 
+  // State for note
+  const [note, setNote] = useState<string>(roomData?.note || "");
+
+  // Function to handle note input
+  const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNote(e.target.value);
+  };
+
   return (
     <Modal
       title={
@@ -62,29 +70,16 @@ const RoomBooked: FC<RoomBookedProps> = ({
               Hạng phòng: {roomData.roomType}
             </Text>
             <Text
-              style={{ fontSize: "14px", color: "#FFA500", marginLeft: "8px", fontWeight: "bold" }}
+              style={{
+                fontSize: "14px",
+                color: "#FFA500",
+                marginLeft: "8px",
+                fontWeight: "bold",
+              }}
             >
               Đã đặt trước
             </Text>
           </div>
-          <div
-            style={{
-              padding: "8px 16px",
-              borderRadius: "4px",
-              backgroundColor: "#f0f0f0",
-            }}
-          >
-            <Text>{roomData.priceOverride.toLocaleString()} VND</Text>
-          </div>
-          <Button type="default" style={{ marginRight: "8px" }}>
-            Sửa đặt phòng
-          </Button>
-          <Button
-            type="primary"
-            style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
-          >
-            Nhận phòng
-          </Button>
         </div>
 
         <div
@@ -123,14 +118,78 @@ const RoomBooked: FC<RoomBookedProps> = ({
             </Col>
           </Row>
         </div>
-
-        <Input.TextArea
-          placeholder="Chưa có ghi chú"
-          value={roomData.note || ""}
-          style={{ width: "100%", padding: "8px" }}
-          rows={3}
-          disabled
-        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <Input
+            placeholder="Nhập ghi chú ..."
+            value={note}
+            onChange={handleNoteChange}
+            style={{
+              width: "40%",
+              marginTop: "16px",
+              padding: "16px",
+              textAlign: "left",
+            }}
+          />
+          <div
+            style={{
+              padding: "8px 16px",
+              borderRadius: "4px",
+              backgroundColor: "#f0f0f0",
+              marginTop: "16px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "8px",
+              }}
+            >
+              <Text>Khách cần trả:</Text>
+              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
+                {roomData.priceOverride.toLocaleString()} 
+              </Text>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text>Khách thanh toán:</Text>
+              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>2,500,000</Text>
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            marginTop: "16px",
+          }}
+        >
+          <div style={{ display: "flex", marginTop: "8px" }}>
+            <Button type="default" style={{ marginRight: "8px" }}>
+              Sửa đặt phòng
+            </Button>
+            <Button
+              type="primary"
+              style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
+            >
+              Nhận phòng
+            </Button>
+          </div>
+        </div>
       </div>
     </Modal>
   );

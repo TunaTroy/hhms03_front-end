@@ -67,8 +67,8 @@ export default function HomePage() {
         check_out_time: "2024-11-08 10:00",
         cleaning_status: "dirty",
         current_guest: "John Doe",
-        note: "Ghi chú",
-        price_override: 120,
+        note: "",
+        price_override: 2500000,
       },
     ];
 
