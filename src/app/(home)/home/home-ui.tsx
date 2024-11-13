@@ -441,7 +441,7 @@ export default function HomePage() {
                         className={`mr-1 font-bold ${
                           room.cleaning_status === "clean"
                             ? "text-white"
-                            : "text-red-800y"
+                            : "text-red-800"
                         }`}
                       >
                         {room.cleaning_status.toUpperCase()}
