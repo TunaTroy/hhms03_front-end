@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card } from "antd";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   PlusOutlined,
@@ -37,21 +37,18 @@ const roomStatus = ["Available", "Booked", "Using", "Time's Up"];
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const accessToken = session?.user?.accessToken;
   const [RoomsList, setRoomsList] = useState<Room[]>([]);
   const [floor, setFloor] = useState<{ label: string; children: Room[] }[]>([
     { label: "Floor 1", children: [] },
     { label: "Floor 2", children: [] },
   ]);
-  const [availableRoomNumber, setAvailableRoomNumber] = useState<number>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
   const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
   const [isRoomUsingOpen, setIsRoomUsingOpen] = useState(false);
   const [isRoomFinalOpen, setIsRoomFinalOpen] = useState(false);
-  const [selectedRoomData, setSelectedRoomData] = useState<Room | undefined>(
-    undefined
-  );
+  const [selectedRoomData, setSelectedRoomData] = useState<Room | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = useState("All");
 
   useEffect(() => {
     const mockData: Room[] = [
@@ -141,10 +138,6 @@ export default function HomePage() {
     ];
 
     setFloor(categorizedFloors);
-    const availableRoomCount = mockData.filter(
-      (room) => room.status === "available"
-    ).length;
-    setAvailableRoomNumber(availableRoomCount);
     setRoomsList(mockData);
   }, []);
 
@@ -162,6 +155,19 @@ export default function HomePage() {
       setIsRoomFinalOpen(true);
     }
   };
+
+  const handleStatusClick = (status: string) => {
+    setSelectedStatus(status);
+  };
+
+  const filteredRooms = selectedStatus === "All"
+    ? RoomsList
+    : RoomsList.filter(room => room.status.toLowerCase() === selectedStatus.toLowerCase());
+
+  const availableRoomCount = RoomsList.filter(room => room.status === "available").length;
+  const bookedRoomCount = RoomsList.filter(room => room.status === "booked").length;
+  const usingRoomCount = RoomsList.filter(room => room.status === "using").length;
+  const timeUpRoomCount = RoomsList.filter(room => room.status === "time's up").length;
 
   return (
     <div className="bg-[#F0F2F5] h-screen px-[20px]">
@@ -195,10 +201,11 @@ export default function HomePage() {
       )}
       <div className="flex w-full justify-between items-center h-[80px]">
         <div className="flex justify-between items-center">
-          {roomStatus.map((status, index) => (
+          {["All", "Available", "Booked", "Using", "Time's Up"].map((status, index) => (
             <div
-              className="flex justify-between w-[130px] items-center bg-white p-2 rounded-2xl shadow mr-5"
+              className="flex justify-between w-[130px] items-center bg-white p-2 rounded-2xl shadow mr-5 cursor-pointer"
               key={index}
+              onClick={() => handleStatusClick(status)}
             >
               <div
                 className={`w-4 h-4 ${
@@ -208,15 +215,21 @@ export default function HomePage() {
                     ? "bg-[#32CD32]"
                     : status === "Time's Up"
                     ? "bg-[#06BE92]"
+                    : status === "Available"
+                    ? "bg-[#D9D9D9]"
                     : "bg-[#D9D9D9]"
                 } rounded-full`}
               ></div>
               {status}{" "}
-              {availableRoomNumber
-                ? status === "Available"
-                  ? `(${availableRoomNumber})`
-                  : `(${RoomsList.length - availableRoomNumber})`
-                : null}
+              {status === "Available"
+                ? `(${availableRoomCount})`
+                : status === "Booked"
+                ? `(${bookedRoomCount})`
+                : status === "Using"
+                ? `(${usingRoomCount})`
+                : status === "Time's Up"
+                ? `(${timeUpRoomCount})`
+                : `(${RoomsList.length})`}
             </div>
           ))}
         </div>
@@ -234,10 +247,10 @@ export default function HomePage() {
               <div className="h-[1px] w-full bg-black"></div>
             </div>
             <div className="flex flex-wrap mt-4 px-[50px]">
-              {item.children.map((room, index) => (
+              {filteredRooms.map((room) => (
                 <Card
                   onClick={() => handleRoomClick(room)}
-                  key={index}
+                  key={room.room_id}
                   title={room.room_name}
                   className={`w-[15%] mr-4 cursor-pointer ${
                     room.status === "booked"

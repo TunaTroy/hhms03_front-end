@@ -3,6 +3,8 @@
 import { Modal, Input, Button, Select, DatePicker, List } from "antd";
 import { FC, useState, useEffect } from "react";
 import moment, { Moment } from "moment";
+import { PlusCircleOutlined } from "@ant-design/icons";
+import NewCustomers from "./newCustomer";
 
 const { Option } = Select;
 
@@ -29,6 +31,17 @@ const RoomModal: FC<RoomModalProps> = ({
 }) => {
   const handleClose = () => {
     setIsModalOpen(false);
+  };
+
+  // State for adding new customer
+  const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
+
+  const handleAddNewCustomer = () => {
+    setShowNewCustomersModal(true);
+  };
+
+  const handleNewCustomersModalClose = () => {
+    setShowNewCustomersModal(false);
   };
 
   // Sử dụng moment để xử lý thời gian
@@ -117,6 +130,8 @@ const RoomModal: FC<RoomModalProps> = ({
     setNote(e.target.value);
   };
 
+  // add Icon Plus to Search
+
   return (
     <Modal
       title={
@@ -149,8 +164,13 @@ const RoomModal: FC<RoomModalProps> = ({
               value={customerName}
               onChange={handleSearch}
               style={{ marginBottom: "16px" }}
+              addonAfter={
+                <PlusCircleOutlined
+                  onClick={handleAddNewCustomer}
+                  style={{ color: "#999999", cursor: "pointer" }}
+                />
+              }
             />
-
             {/* Display search results */}
             {filteredCustomers.length > 0 && (
               <List
@@ -176,6 +196,9 @@ const RoomModal: FC<RoomModalProps> = ({
                   overflowY: "auto",
                 }}
               />
+            )}
+            {showNewCustomersModal && (
+              <NewCustomers onClose={handleNewCustomersModalClose} />
             )}
           </div>
 
@@ -307,8 +330,6 @@ const RoomModal: FC<RoomModalProps> = ({
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-         
-
             <Input
               placeholder="Nhập ghi chú ..."
               value={note}
