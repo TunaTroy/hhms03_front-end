@@ -1,28 +1,28 @@
+"use client";
+
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
 import React, { FC, useState } from "react";
 
 const { Text } = Typography;
 
-interface RoomData {
-  roomName: string;
-  roomType: string;
-  guest: string;
-  checkInTime: string;
-  checkOutTime: string;
-  numGuests: number;
-  numChildren: number;
-  numPapers: number;
-  bookingCode: string;
-  stayDuration: string;
-  checkInNotice: string;
-  note: string;
-  priceOverride: number;
-}
-
 interface RoomFinalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
-  roomData: RoomData;
+  roomData?: {
+    room_name: string;
+    type_id: string;
+    current_guest: string;
+    check_in_time: string;
+    check_out_time: string;
+    num_guests: number;
+    num_children: number;
+    num_papers: number;
+    room_id: string;
+    stay_duration: string;
+    check_in_notice: string;
+    note: string;
+    price_override: number;
+  };
 }
 
 const RoomFinal: FC<RoomFinalProps> = ({
@@ -41,9 +41,10 @@ const RoomFinal: FC<RoomFinalProps> = ({
   };
 
   // Calculate remaining time in hours
-  const checkInDate = new Date(roomData.checkInTime);
-  const checkOutDate = new Date(roomData.checkOutTime);
-  const remainingTime = (checkOutDate.getTime() - Date.now()) / (1000 * 60 * 60); // hours
+  const checkInDate = new Date(roomData?.check_in_time || "");
+  const checkOutDate = new Date(roomData?.check_out_time || "");
+  const remainingTime = // hours
+    (checkOutDate.getTime() - Date.now()) / (1000 * 60 * 60);
 
   return (
     <Modal
@@ -52,10 +53,10 @@ const RoomFinal: FC<RoomFinalProps> = ({
           style={{
             fontWeight: "bold",
             fontSize: "20px",
-            color: remainingTime < 5 ? "#4CAF50" : "#06BE92", // Màu khác nếu dưới 5 giờ
+            color: remainingTime < 5 ? "#4CAF50" : "#06BE92",
           }}
         >
-          {remainingTime < 5 ? "Time's up!" : `Chi tiết ${roomData.roomName}`}
+          {remainingTime < 5 ? "Time's up!" : `Chi tiết ${roomData?.room_name}`}
         </span>
       }
       open={isModalOpen}
@@ -74,12 +75,12 @@ const RoomFinal: FC<RoomFinalProps> = ({
         >
           <div>
             <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
-              Hạng phòng: {roomData.roomType}
+              Hạng phòng: {roomData?.type_id}
             </Text>
             <Text
               style={{
                 fontSize: "14px",
-                color: "#06BE92", // Màu đỏ cho trạng thái Time's up
+                color: "#06BE92",
                 marginLeft: "8px",
                 fontWeight: "bold",
               }}
@@ -100,26 +101,27 @@ const RoomFinal: FC<RoomFinalProps> = ({
         >
           <Row gutter={[16, 16]}>
             <Col span={12}>
-              <Text strong>Khách hàng:</Text> {roomData.guest}
+              <Text strong>Khách hàng:</Text> {roomData?.current_guest}{" "}
             </Col>
             <Col span={12}>
-              <Text strong>Khách lưu trú:</Text> {roomData.numGuests} người lớn,{" "}
-              {roomData.numChildren} trẻ em, {roomData.numPapers} giấy tờ
+              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
+              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
+              tờ
             </Col>
             <Col span={12}>
-              <Text strong>Nhận phòng:</Text> {roomData.checkInTime}
+              <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}{" "}
             </Col>
             <Col span={12}>
-              <Text strong>Trả phòng:</Text> {roomData.checkOutTime}
+              <Text strong>Trả phòng:</Text> {roomData?.check_out_time}{" "}
             </Col>
             <Col span={12}>
-              <Text strong>Mã đặt phòng:</Text> {roomData.bookingCode}
+              <Text strong>Mã đặt phòng:</Text> {roomData?.room_id}{" "}
             </Col>
             <Col span={12}>
-              <Text strong>Thời gian lưu trú:</Text> {roomData.stayDuration}
+              <Text strong>Thời gian lưu trú:</Text> {roomData?.stay_duration}{" "}
               <div>
                 <span style={{ color: "#06BE92", fontWeight: "bold" }}>
-                  {roomData.checkInNotice}
+                  {roomData?.check_in_notice}
                 </span>
               </div>
             </Col>
@@ -162,7 +164,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             >
               <Text>Khách cần trả:</Text>
               <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
-                {roomData.priceOverride.toLocaleString()} 
+                {roomData?.price_override.toLocaleString()}
               </Text>
             </div>
             <div
@@ -191,7 +193,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             </Button>
             <Button
               type="primary"
-              style={{ backgroundColor: "#06B392", borderColor: "#06BE92" }} // Màu đỏ cho nút
+              style={{ backgroundColor: "#06B392", borderColor: "#06BE92" }}
             >
               Trả phòng
             </Button>

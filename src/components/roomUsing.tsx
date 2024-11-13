@@ -3,26 +3,25 @@ import React, { FC, useState } from "react";
 
 const { Text } = Typography;
 
-interface RoomData {
-  roomName: string;
-  roomType: string;
-  guest: string;
-  checkInTime: string;
-  checkOutTime: string;
-  numGuests: number;
-  numChildren: number;
-  numPapers: number;
-  bookingCode: string;
-  stayDuration: string;
-  checkInNotice: string;
-  note: string;
-  priceOverride: number;
-}
 
 interface RoomUsingProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
-  roomData: RoomData;
+  roomData?: {
+    room_name: string; // Đổi tên thành room_name
+    type_id: string; // Đổi tên thành type_id
+    current_guest: string; // Đổi tên thành current_guest
+    check_in_time: string; // Đổi tên thành check_in_time
+    check_out_time: string; // Đổi tên thành check_out_time
+    num_guests: number; // Đổi tên thành num_guests
+    num_children: number; // Đổi tên thành num_children
+    num_papers: number; // Đổi tên thành num_papers
+    room_id: string; // Đổi tên thành room_id
+    stay_duration: string; // Đổi tên thành stay_duration
+    check_in_notice: string; // Đổi tên thành check_in_notice
+    note: string; // Giữ nguyên
+    price_override: number; // Đổi tên thành price_override
+  } 
 }
 
 const RoomUsing: FC<RoomUsingProps> = ({
@@ -48,7 +47,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
         <span
           style={{ fontWeight: "bold", fontSize: "20px", color: "#32CD32" }} // Màu xanh lá cây cho tiêu đề
         >
-          {`Chi tiết ${roomData.roomName}`}
+          {`Chi tiết ${roomData?.room_name}`}
         </span>
       }
       open={isModalOpen}
@@ -67,7 +66,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
         >
           <div>
             <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
-              Hạng phòng: {roomData.roomType}
+              Hạng phòng: {roomData?.type_id}
             </Text>
             <Text
               style={{
@@ -93,26 +92,26 @@ const RoomUsing: FC<RoomUsingProps> = ({
         >
           <Row gutter={[16, 16]}>
             <Col span={12}>
-              <Text strong>Khách hàng:</Text> {roomData.guest}
+              <Text strong>Khách hàng:</Text> {roomData?.current_guest}
             </Col>
             <Col span={12}>
-              <Text strong>Khách lưu trú:</Text> {roomData.numGuests} người lớn,{" "}
-              {roomData.numChildren} trẻ em, {roomData.numPapers} giấy tờ
+              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người lớn,{" "}
+              {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy tờ
             </Col>
             <Col span={12}>
-              <Text strong>Nhận phòng:</Text> {roomData.checkInTime}
+              <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}
             </Col>
             <Col span={12}>
-              <Text strong>Trả phòng:</Text> {roomData.checkOutTime}
+              <Text strong>Trả phòng:</Text> {roomData?.check_out_time}
             </Col>
             <Col span={12}>
-              <Text strong>Mã đặt phòng:</Text> {roomData.bookingCode}
+              <Text strong>Mã đặt phòng:</Text> {roomData?.room_id}
             </Col>
             <Col span={12}>
-              <Text strong>Thời gian lưu trú:</Text> {roomData.stayDuration}
+              <Text strong>Thời gian lưu trú:</Text> {roomData?.stay_duration}
               <div>
                 <span style={{ color: "#32CD32", fontWeight: "bold" }}>
-                  {roomData.checkInNotice}
+                  {roomData?.check_in_notice}
                 </span>
               </div>
             </Col>
@@ -155,7 +154,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             >
               <Text>Khách cần trả:</Text>
               <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
-                {roomData.priceOverride.toLocaleString()} 
+                {roomData?.price_override.toLocaleString()} 
               </Text>
             </div>
             <div

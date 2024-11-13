@@ -11,8 +11,8 @@ import {
 } from "@ant-design/icons";
 import RoomModal from "@/components/roomModal";
 import RoomBooked from "@/components/roomBooked";
-import RoomUsing from "@/components/roomUsing"; // Import component RoomUsing
-import RoomFinal from "@/components/roomFinal"; // Import component RoomFinal
+import RoomUsing from "@/components/roomUsing";
+import RoomFinal from "@/components/roomFinal";
 
 interface Room {
   room_id: string;
@@ -26,6 +26,11 @@ interface Room {
   current_guest: string;
   note: string;
   price_override: number;
+  num_guests: number; 
+  num_children: number; 
+  num_papers: number; 
+  stay_duration: string;
+  check_in_notice: string; 
 }
 
 const roomStatus = ["Available", "Booked", "Using", "Time's Up"];
@@ -42,11 +47,11 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
   const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
-  const [selectedBookedRoom, setSelectedBookedRoom] = useState<Room | undefined>(undefined);
-  const [isRoomUsingOpen, setIsRoomUsingOpen] = useState(false); // Trạng thái cho RoomUsing
-  const [selectedUsingRoom, setSelectedUsingRoom] = useState<Room | undefined>(undefined); // Phòng đang sử dụng
-  const [isRoomFinalOpen, setIsRoomFinalOpen] = useState(false); // Trạng thái cho RoomFinal
-  const [selectedFinalRoom, setSelectedFinalRoom] = useState<Room | undefined>(undefined); // Phòng Time's Up
+  const [isRoomUsingOpen, setIsRoomUsingOpen] = useState(false);
+  const [isRoomFinalOpen, setIsRoomFinalOpen] = useState(false);
+  const [selectedRoomData, setSelectedRoomData] = useState<Room | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const mockData: Room[] = [
@@ -62,6 +67,11 @@ export default function HomePage() {
         current_guest: "",
         note: "",
         price_override: 100,
+        num_guests: 0, 
+        num_children: 0, 
+        num_papers: 0, 
+        stay_duration: "",
+        check_in_notice: "",
       },
       {
         room_id: "2",
@@ -75,6 +85,11 @@ export default function HomePage() {
         current_guest: "John Doe",
         note: "",
         price_override: 500,
+        num_guests: 2,
+        num_children: 1, 
+        num_papers: 2,
+        stay_duration: "1 day",
+        check_in_notice: "Check-in at 10:00", 
       },
       {
         room_id: "3",
@@ -88,6 +103,11 @@ export default function HomePage() {
         current_guest: "Troy",
         note: "",
         price_override: 600,
+        num_guests: 1, 
+        num_children: 0, 
+        num_papers: 1, 
+        stay_duration: "5 days", 
+        check_in_notice: "Check-in at 12:00", 
       },
       {
         room_id: "4",
@@ -101,6 +121,11 @@ export default function HomePage() {
         current_guest: "Tao dep trai",
         note: "",
         price_override: 600,
+        num_guests: 1,
+        num_children: 0, 
+        num_papers: 1, 
+        stay_duration: "2 hours", 
+        check_in_notice: "Còn 2 giờ", 
       },
     ];
 
@@ -116,24 +141,25 @@ export default function HomePage() {
     ];
 
     setFloor(categorizedFloors);
-    const availableRoom = mockData.filter((room) => room.status === "available").length;
-    setAvailableRoomNumber(availableRoom);
+    const availableRoomCount = mockData.filter(
+      (room) => room.status === "available"
+    ).length;
+    setAvailableRoomNumber(availableRoomCount);
     setRoomsList(mockData);
   }, []);
 
   const handleRoomClick = (room: Room) => {
+    setSelectedRoom(room);
+    setSelectedRoomData(room);
+
     if (room.status === "available") {
-      setSelectedRoom(room);
       setIsModalOpen(true);
     } else if (room.status === "booked") {
-      setSelectedBookedRoom(room);
       setIsRoomBookedOpen(true);
     } else if (room.status === "Using") {
-      setSelectedUsingRoom(room); // Set phòng đang sử dụng
-      setIsRoomUsingOpen(true); // Mở modal RoomUsing
+      setIsRoomUsingOpen(true);
     } else if (room.status === "Time's Up") {
-      setSelectedFinalRoom(room); // Set phòng Time's Up
-      setIsRoomFinalOpen(true); // Mở modal RoomFinal
+      setIsRoomFinalOpen(true);
     }
   };
 
@@ -146,67 +172,25 @@ export default function HomePage() {
           roomData={selectedRoom}
         />
       )}
-      {isRoomBookedOpen && selectedBookedRoom && (
+      {isRoomBookedOpen && selectedRoomData && (
         <RoomBooked
           isModalOpen={isRoomBookedOpen}
           setIsModalOpen={setIsRoomBookedOpen}
-          roomData={{
-            roomName: selectedBookedRoom.room_name,
-            roomType: selectedBookedRoom.type_id,
-            guest: selectedBookedRoom.current_guest,
-            checkInTime: selectedBookedRoom.check_in_time,
-            checkOutTime: selectedBookedRoom.check_out_time,
-            numGuests: 1, // Replace with actual number if available
-            numChildren: 0, // Replace with actual data if available
-            numPapers: 0, // Replace with actual data if available
-            bookingCode: "DP000002", // Assuming example value
-            stayDuration: "24 giờ", // Replace with actual data if available
-            checkInNotice: "9 giờ nữa nhận phòng", // Replace with actual data if available
-            note: selectedBookedRoom.note || "",
-            priceOverride: selectedBookedRoom.price_override || 0,
-          }}
+          roomData={selectedRoomData}
         />
       )}
-      {isRoomUsingOpen && selectedUsingRoom && (
+      {isRoomUsingOpen && selectedRoomData && (
         <RoomUsing
           isModalOpen={isRoomUsingOpen}
           setIsModalOpen={setIsRoomUsingOpen}
-          roomData={{
-            roomName: selectedUsingRoom.room_name,
-            roomType: selectedUsingRoom.type_id,
-            guest: selectedUsingRoom.current_guest,
-            checkInTime: selectedUsingRoom.check_in_time,
-            checkOutTime: selectedUsingRoom.check_out_time,
-            numGuests: 1, // Replace with actual number if available
-            numChildren: 0, // Replace with actual data if available
-            numPapers: 0, // Replace with actual data if available
-            bookingCode: "DP000003", // Assuming example value
-            stayDuration: "24 giờ", // Replace with actual data if available
-            checkInNotice: "9 giờ nữa trả phòng", // Replace with actual data if available
-            note: selectedUsingRoom.note || "",
-            priceOverride: selectedUsingRoom.price_override || 0,
-          }}
+          roomData={selectedRoomData}
         />
       )}
-      {isRoomFinalOpen && selectedFinalRoom && ( // Thêm RoomFinal
+      {isRoomFinalOpen && selectedRoomData && (
         <RoomFinal
           isModalOpen={isRoomFinalOpen}
           setIsModalOpen={setIsRoomFinalOpen}
-          roomData={{
-            roomName: selectedFinalRoom.room_name,
-            roomType: selectedFinalRoom.type_id,
-            guest: selectedFinalRoom.current_guest,
-            checkInTime: selectedFinalRoom.check_in_time,
-            checkOutTime: selectedFinalRoom.check_out_time,
-            numGuests: 1, // Replace with actual number if available
-            numChildren: 0, // Replace with actual data if available
-            numPapers: 0, // Replace with actual data if available
-            bookingCode: "DP000004", // Assuming example value
-            stayDuration: "24 giờ", // Replace with actual data if available
-            checkInNotice: "2 giờ nữa trả phòng", // Replace with actual data if available
-            note: selectedFinalRoom.note || "",
-            priceOverride: selectedFinalRoom.price_override || 0,
-          }}
+          roomData={selectedRoomData}
         />
       )}
       <div className="flex w-full justify-between items-center h-[80px]">
@@ -218,10 +202,13 @@ export default function HomePage() {
             >
               <div
                 className={`w-4 h-4 ${
-                  status === "Booked" ? "bg-[#FFA500]" : 
-                  status === "Using" ? "bg-[#32CD32]" : 
-                  status === "Time's Up" ? "bg-[#06BE92]" : 
-                  "bg-[#D9D9D9]"
+                  status === "Booked"
+                    ? "bg-[#FFA500]"
+                    : status === "Using"
+                    ? "bg-[#32CD32]"
+                    : status === "Time's Up"
+                    ? "bg-[#06BE92]"
+                    : "bg-[#D9D9D9]"
                 } rounded-full`}
               ></div>
               {status}{" "}
@@ -234,7 +221,7 @@ export default function HomePage() {
           ))}
         </div>
         <Button type="primary" shape="round">
-          <PlusOutlined /> Add Room
+          <PlusOutlined /> Thêm phòng
         </Button>
       </div>
       <div>
@@ -253,14 +240,17 @@ export default function HomePage() {
                   key={index}
                   title={room.room_name}
                   className={`w-[15%] mr-4 cursor-pointer ${
-                    room.status === "booked" ? "bg-[#FFA500]" : 
-                    room.status === "Using" ? "bg-[#32CD32]" : 
-                    room.status === "Time's Up" ? "bg-[#06BE92]" : 
-                    "bg-[#D9D9D9]"
+                    room.status === "booked"
+                      ? "bg-[#FFA500]"
+                      : room.status === "Using"
+                      ? "bg-[#32CD32]"
+                      : room.status === "Time's Up"
+                      ? "bg-[#06BE92]"
+                      : "bg-[#D9D9D9]"
                   }`}
                 >
                   <p>
-                    <label className="mr-2 font-medium">Clean:</label>
+                    <label className="mr-2 font-medium">Dọn dẹp:</label>
                     <span className="mr-1">{room.cleaning_status}</span>
                     {room.cleaning_status === "clean" ? (
                       <CheckCircleOutlined />
@@ -269,11 +259,11 @@ export default function HomePage() {
                     )}
                   </p>
                   <p className="mr-2">
-                    <label className="mr-2 font-medium">Room: </label>
+                    <label className="mr-2 font-medium">Trạng thái: </label>
                     <span>{room.status}</span>
                   </p>
                   <p>
-                    <label className="mr-2 font-medium">Price:</label>
+                    <label className="mr-2 font-medium">Giá:</label>
                     <span className="mr-1">{room.price_override}</span>
                     <MoneyCollectOutlined />
                   </p>

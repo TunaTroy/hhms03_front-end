@@ -1,28 +1,28 @@
+"use client";
+
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
 import React, { FC, useState } from "react";
 
 const { Text } = Typography;
 
-interface RoomData {
-  roomName: string;
-  roomType: string;
-  guest: string;
-  checkInTime: string;
-  checkOutTime: string;
-  numGuests: number;
-  numChildren: number;
-  numPapers: number;
-  bookingCode: string;
-  stayDuration: string;
-  checkInNotice: string;
-  note: string;
-  priceOverride: number;
-}
-
 interface RoomBookedProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
-  roomData: RoomData;
+  roomData?: {
+    room_name: string;
+    type_id: string;
+    current_guest: string;
+    check_in_time: string;
+    check_out_time: string;
+    num_guests: number;
+    num_children: number;
+    num_papers: number;
+    room_id: string;
+    stay_duration: string;
+    check_in_notice: string;
+    note: string;
+    price_override: number;
+  };
 }
 
 const RoomBooked: FC<RoomBookedProps> = ({
@@ -34,10 +34,8 @@ const RoomBooked: FC<RoomBookedProps> = ({
     setIsModalOpen(false);
   };
 
-  // State for note
   const [note, setNote] = useState<string>(roomData?.note || "");
 
-  // Function to handle note input
   const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNote(e.target.value);
   };
@@ -45,10 +43,8 @@ const RoomBooked: FC<RoomBookedProps> = ({
   return (
     <Modal
       title={
-        <span
-          style={{ fontWeight: "bold", fontSize: "20px", color: "#FFA500" }}
-        >
-          {`Chi tiết ${roomData.roomName}`}
+        <span style={{ fontWeight: "bold", fontSize: "20px", color: "#FFA500" }}>
+          {`Chi tiết ${roomData?.room_name}`}
         </span>
       }
       open={isModalOpen}
@@ -67,7 +63,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
         >
           <div>
             <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
-              Hạng phòng: {roomData.roomType}
+              Hạng phòng: {roomData?.type_id}
             </Text>
             <Text
               style={{
@@ -93,31 +89,32 @@ const RoomBooked: FC<RoomBookedProps> = ({
         >
           <Row gutter={[16, 16]}>
             <Col span={12}>
-              <Text strong>Khách hàng:</Text> {roomData.guest}
+              <Text strong>Khách hàng:</Text> {roomData?.current_guest}
             </Col>
             <Col span={12}>
-              <Text strong>Khách lưu trú:</Text> {roomData.numGuests} người lớn,{" "}
-              {roomData.numChildren} trẻ em, {roomData.numPapers} giấy tờ
+              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người lớn,{" "}
+              {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy tờ
             </Col>
             <Col span={12}>
-              <Text strong>Nhận phòng:</Text> {roomData.checkInTime}
+              <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}
             </Col>
             <Col span={12}>
-              <Text strong>Trả phòng:</Text> {roomData.checkOutTime}
+              <Text strong>Trả phòng:</Text> {roomData?.check_out_time}
             </Col>
             <Col span={12}>
-              <Text strong>Mã đặt phòng:</Text> {roomData.bookingCode}
+              <Text strong>Mã đặt phòng:</Text> {roomData?.room_id}
             </Col>
             <Col span={12}>
-              <Text strong>Thời gian lưu trú:</Text> {roomData.stayDuration}
+              <Text strong>Thời gian lưu trú:</Text> {roomData?.stay_duration}
               <div>
                 <span style={{ color: "#FFA500", fontWeight: "bold" }}>
-                  {roomData.checkInNotice}
+                  {roomData?.check_in_notice}
                 </span>
               </div>
             </Col>
           </Row>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -155,7 +152,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
             >
               <Text>Khách cần trả:</Text>
               <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
-                {roomData.priceOverride.toLocaleString()} 
+                {roomData?.price_override.toLocaleString()}
               </Text>
             </div>
             <div
@@ -166,10 +163,13 @@ const RoomBooked: FC<RoomBookedProps> = ({
               }}
             >
               <Text>Khách thanh toán:</Text>
-              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>2,500.000</Text>
+              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
+                2,500.000
+              </Text>
             </div>
           </div>
         </div>
+        
         <div
           style={{
             display: "flex",

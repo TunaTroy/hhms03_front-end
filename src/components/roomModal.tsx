@@ -307,16 +307,7 @@ const RoomModal: FC<RoomModalProps> = ({
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            {/* <Input.TextArea
-              placeholder="Ghi chú"
-              value={roomData.note || "Nhập ghi chú..."}
-              style={{
-                width: "40%",
-                marginTop: "16px",
-                padding: "16px",
-                textAlign: "left",
-              }}
-            /> */}
+         
 
             <Input
               placeholder="Nhập ghi chú ..."
