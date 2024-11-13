@@ -11,6 +11,8 @@ import {
 } from "@ant-design/icons";
 import RoomModal from "@/components/roomModal";
 import RoomBooked from "@/components/roomBooked";
+import RoomUsing from "@/components/roomUsing"; // Import component RoomUsing
+import RoomFinal from "@/components/roomFinal"; // Import component RoomFinal
 
 interface Room {
   room_id: string;
@@ -26,7 +28,7 @@ interface Room {
   price_override: number;
 }
 
-const roomStatus = ["Available", "Booked"];
+const roomStatus = ["Available", "Booked", "Using", "Time's Up"];
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -41,6 +43,10 @@ export default function HomePage() {
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
   const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
   const [selectedBookedRoom, setSelectedBookedRoom] = useState<Room | undefined>(undefined);
+  const [isRoomUsingOpen, setIsRoomUsingOpen] = useState(false); // Trạng thái cho RoomUsing
+  const [selectedUsingRoom, setSelectedUsingRoom] = useState<Room | undefined>(undefined); // Phòng đang sử dụng
+  const [isRoomFinalOpen, setIsRoomFinalOpen] = useState(false); // Trạng thái cho RoomFinal
+  const [selectedFinalRoom, setSelectedFinalRoom] = useState<Room | undefined>(undefined); // Phòng Time's Up
 
   useEffect(() => {
     const mockData: Room[] = [
@@ -68,7 +74,33 @@ export default function HomePage() {
         cleaning_status: "dirty",
         current_guest: "John Doe",
         note: "",
-        price_override: 2500000,
+        price_override: 500,
+      },
+      {
+        room_id: "3",
+        room_name: "Room 103",
+        status: "Using",
+        floor: 1,
+        type_id: "VIP",
+        check_in_time: "2024-11-23 12:00",
+        check_out_time: "2024-11-28 12:00",
+        cleaning_status: "clean",
+        current_guest: "Troy",
+        note: "",
+        price_override: 600,
+      },
+      {
+        room_id: "4",
+        room_name: "Room 104",
+        status: "Time's Up",
+        floor: 1,
+        type_id: "VIP",
+        check_in_time: "2024-11-28 21:00",
+        check_out_time: "2024-11-28 23:00",
+        cleaning_status: "clean",
+        current_guest: "Tao dep trai",
+        note: "",
+        price_override: 600,
       },
     ];
 
@@ -96,6 +128,12 @@ export default function HomePage() {
     } else if (room.status === "booked") {
       setSelectedBookedRoom(room);
       setIsRoomBookedOpen(true);
+    } else if (room.status === "Using") {
+      setSelectedUsingRoom(room); // Set phòng đang sử dụng
+      setIsRoomUsingOpen(true); // Mở modal RoomUsing
+    } else if (room.status === "Time's Up") {
+      setSelectedFinalRoom(room); // Set phòng Time's Up
+      setIsRoomFinalOpen(true); // Mở modal RoomFinal
     }
   };
 
@@ -121,11 +159,53 @@ export default function HomePage() {
             numGuests: 1, // Replace with actual number if available
             numChildren: 0, // Replace with actual data if available
             numPapers: 0, // Replace with actual data if available
-            bookingCode: "DP000004", // Assuming example value
+            bookingCode: "DP000002", // Assuming example value
             stayDuration: "24 giờ", // Replace with actual data if available
             checkInNotice: "9 giờ nữa nhận phòng", // Replace with actual data if available
             note: selectedBookedRoom.note || "",
             priceOverride: selectedBookedRoom.price_override || 0,
+          }}
+        />
+      )}
+      {isRoomUsingOpen && selectedUsingRoom && (
+        <RoomUsing
+          isModalOpen={isRoomUsingOpen}
+          setIsModalOpen={setIsRoomUsingOpen}
+          roomData={{
+            roomName: selectedUsingRoom.room_name,
+            roomType: selectedUsingRoom.type_id,
+            guest: selectedUsingRoom.current_guest,
+            checkInTime: selectedUsingRoom.check_in_time,
+            checkOutTime: selectedUsingRoom.check_out_time,
+            numGuests: 1, // Replace with actual number if available
+            numChildren: 0, // Replace with actual data if available
+            numPapers: 0, // Replace with actual data if available
+            bookingCode: "DP000003", // Assuming example value
+            stayDuration: "24 giờ", // Replace with actual data if available
+            checkInNotice: "9 giờ nữa trả phòng", // Replace with actual data if available
+            note: selectedUsingRoom.note || "",
+            priceOverride: selectedUsingRoom.price_override || 0,
+          }}
+        />
+      )}
+      {isRoomFinalOpen && selectedFinalRoom && ( // Thêm RoomFinal
+        <RoomFinal
+          isModalOpen={isRoomFinalOpen}
+          setIsModalOpen={setIsRoomFinalOpen}
+          roomData={{
+            roomName: selectedFinalRoom.room_name,
+            roomType: selectedFinalRoom.type_id,
+            guest: selectedFinalRoom.current_guest,
+            checkInTime: selectedFinalRoom.check_in_time,
+            checkOutTime: selectedFinalRoom.check_out_time,
+            numGuests: 1, // Replace with actual number if available
+            numChildren: 0, // Replace with actual data if available
+            numPapers: 0, // Replace with actual data if available
+            bookingCode: "DP000004", // Assuming example value
+            stayDuration: "24 giờ", // Replace with actual data if available
+            checkInNotice: "2 giờ nữa trả phòng", // Replace with actual data if available
+            note: selectedFinalRoom.note || "",
+            priceOverride: selectedFinalRoom.price_override || 0,
           }}
         />
       )}
@@ -138,7 +218,10 @@ export default function HomePage() {
             >
               <div
                 className={`w-4 h-4 ${
-                  status === "Booked" ? "bg-[#D9D9D9]" : "bg-[#4DE804]"
+                  status === "Booked" ? "bg-[#FFA500]" : 
+                  status === "Using" ? "bg-[#32CD32]" : 
+                  status === "Time's Up" ? "bg-[#06BE92]" : 
+                  "bg-[#D9D9D9]"
                 } rounded-full`}
               ></div>
               {status}{" "}
@@ -170,7 +253,10 @@ export default function HomePage() {
                   key={index}
                   title={room.room_name}
                   className={`w-[15%] mr-4 cursor-pointer ${
-                    room.status === "booked" ? "bg-[#D9D9D9]" : "bg-[#4DE804]"
+                    room.status === "booked" ? "bg-[#FFA500]" : 
+                    room.status === "Using" ? "bg-[#32CD32]" : 
+                    room.status === "Time's Up" ? "bg-[#06BE92]" : 
+                    "bg-[#D9D9D9]"
                   }`}
                 >
                   <p>

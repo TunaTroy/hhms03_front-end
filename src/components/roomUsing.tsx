@@ -19,13 +19,13 @@ interface RoomData {
   priceOverride: number;
 }
 
-interface RoomBookedProps {
+interface RoomUsingProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   roomData: RoomData;
 }
 
-const RoomBooked: FC<RoomBookedProps> = ({
+const RoomUsing: FC<RoomUsingProps> = ({
   isModalOpen,
   setIsModalOpen,
   roomData,
@@ -46,7 +46,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
     <Modal
       title={
         <span
-          style={{ fontWeight: "bold", fontSize: "20px", color: "#FFA500" }}
+          style={{ fontWeight: "bold", fontSize: "20px", color: "#32CD32" }} // Màu xanh lá cây cho tiêu đề
         >
           {`Chi tiết ${roomData.roomName}`}
         </span>
@@ -72,19 +72,19 @@ const RoomBooked: FC<RoomBookedProps> = ({
             <Text
               style={{
                 fontSize: "14px",
-                color: "#FFA500",
+                color: "#32CD32", // Màu xanh lá cây cho trạng thái đang sử dụng
                 marginLeft: "8px",
                 fontWeight: "bold",
               }}
             >
-              Đã đặt trước
+              Đang sử dụng
             </Text>
           </div>
         </div>
 
         <div
           style={{
-            border: "1px solid #FFA500",
+            border: "1px solid #32CD32",
             borderRadius: "8px",
             padding: "16px",
             marginBottom: "16px",
@@ -111,7 +111,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
             <Col span={12}>
               <Text strong>Thời gian lưu trú:</Text> {roomData.stayDuration}
               <div>
-                <span style={{ color: "#FFA500", fontWeight: "bold" }}>
+                <span style={{ color: "#32CD32", fontWeight: "bold" }}>
                   {roomData.checkInNotice}
                 </span>
               </div>
@@ -166,7 +166,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
               }}
             >
               <Text>Khách thanh toán:</Text>
-              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>2,500.000</Text>
+              <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>0</Text>
             </div>
           </div>
         </div>
@@ -186,7 +186,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
               type="primary"
               style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
             >
-              Nhận phòng
+              Trả phòng
             </Button>
           </div>
         </div>
@@ -195,4 +195,4 @@ const RoomBooked: FC<RoomBookedProps> = ({
   );
 };
 
-export default RoomBooked;
+export default RoomUsing;
