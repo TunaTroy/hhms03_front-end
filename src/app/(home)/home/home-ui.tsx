@@ -26,11 +26,11 @@ interface Room {
   current_guest: string;
   note: string;
   price_override: number;
-  num_guests: number; 
-  num_children: number; 
-  num_papers: number; 
+  num_guests: number;
+  num_children: number;
+  num_papers: number;
   stay_duration: string;
-  check_in_notice: string; 
+  check_in_notice: string;
 }
 
 const roomStatus = ["Available", "Booked", "Using", "Time's Up"];
@@ -47,7 +47,9 @@ export default function HomePage() {
   const [isRoomBookedOpen, setIsRoomBookedOpen] = useState(false);
   const [isRoomUsingOpen, setIsRoomUsingOpen] = useState(false);
   const [isRoomFinalOpen, setIsRoomFinalOpen] = useState(false);
-  const [selectedRoomData, setSelectedRoomData] = useState<Room | undefined>(undefined);
+  const [selectedRoomData, setSelectedRoomData] = useState<Room | undefined>(
+    undefined
+  );
   const [selectedStatus, setSelectedStatus] = useState("All");
 
   useEffect(() => {
@@ -64,9 +66,9 @@ export default function HomePage() {
         current_guest: "",
         note: "",
         price_override: 100,
-        num_guests: 0, 
-        num_children: 0, 
-        num_papers: 0, 
+        num_guests: 0,
+        num_children: 0,
+        num_papers: 0,
         stay_duration: "",
         check_in_notice: "",
       },
@@ -83,10 +85,10 @@ export default function HomePage() {
         note: "",
         price_override: 500,
         num_guests: 2,
-        num_children: 1, 
+        num_children: 1,
         num_papers: 2,
         stay_duration: "1 day",
-        check_in_notice: "Check-in at 10:00", 
+        check_in_notice: "Check-in at 10:00",
       },
       {
         room_id: "3",
@@ -100,11 +102,11 @@ export default function HomePage() {
         current_guest: "Troy",
         note: "",
         price_override: 600,
-        num_guests: 1, 
-        num_children: 0, 
-        num_papers: 1, 
-        stay_duration: "5 days", 
-        check_in_notice: "Check-in at 12:00", 
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "5 days",
+        check_in_notice: "Check-in at 12:00",
       },
       {
         room_id: "4",
@@ -119,10 +121,154 @@ export default function HomePage() {
         note: "",
         price_override: 600,
         num_guests: 1,
-        num_children: 0, 
-        num_papers: 1, 
-        stay_duration: "2 hours", 
-        check_in_notice: "Còn 2 giờ", 
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "2 hours",
+        check_in_notice: "Còn 2 giờ",
+      },
+      {
+        room_id: "5",
+        room_name: "Room 105",
+        status: "available",
+        floor: 1,
+        type_id: "Single",
+        check_in_time: "",
+        check_out_time: "",
+        cleaning_status: "clean",
+        current_guest: "",
+        note: "",
+        price_override: 100,
+        num_guests: 0,
+        num_children: 0,
+        num_papers: 0,
+        stay_duration: "",
+        check_in_notice: "",
+      },
+      {
+        room_id: "6",
+        room_name: "Room 106",
+        status: "Using",
+        floor: 1,
+        type_id: "Double",
+        check_in_time: "2024-11-07 10:00",
+        check_out_time: "2024-11-08 10:00",
+        cleaning_status: "dirty",
+        current_guest: "John Doe",
+        note: "",
+        price_override: 500,
+        num_guests: 2,
+        num_children: 1,
+        num_papers: 2,
+        stay_duration: "1 day",
+        check_in_notice: "Check-in at 10:00",
+      },
+      {
+        room_id: "7",
+        room_name: "Room 201",
+        status: "booked",
+        floor: 2,
+        type_id: "VIP",
+        check_in_time: "2024-11-23 12:00",
+        check_out_time: "2024-11-28 12:00",
+        cleaning_status: "clean",
+        current_guest: "Troy",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "5 days",
+        check_in_notice: "Check-in at 12:00",
+      },
+      {
+        room_id: "8",
+        room_name: "Room 202",
+        status: "Time's Up",
+        floor: 2,
+        type_id: "VIP",
+        check_in_time: "2024-11-28 21:00",
+        check_out_time: "2024-11-28 23:00",
+        cleaning_status: "clean",
+        current_guest: "Tao dep trai",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "2 hours",
+        check_in_notice: "Còn 2 giờ",
+      },
+      {
+        room_id: "9",
+        room_name: "Room 203",
+        status: "Time's Up",
+        floor: 2,
+        type_id: "VIP",
+        check_in_time: "2024-11-28 21:00",
+        check_out_time: "2024-11-28 23:00",
+        cleaning_status: "clean",
+        current_guest: "Tao dep trai",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "2 hours",
+        check_in_notice: "Còn 2 giờ",
+      },
+      {
+        room_id: "10",
+        room_name: "Room 204",
+        status: "available",
+        floor: 2,
+        type_id: "Single",
+        check_in_time: "",
+        check_out_time: "",
+        cleaning_status: "clean",
+        current_guest: "",
+        note: "",
+        price_override: 100,
+        num_guests: 0,
+        num_children: 0,
+        num_papers: 0,
+        stay_duration: "",
+        check_in_notice: "",
+      },
+      {
+        room_id: "11",
+        room_name: "Room 205",
+        status: "booked",
+        floor: 2,
+        type_id: "Double",
+        check_in_time: "2024-11-07 10:00",
+        check_out_time: "2024-11-08 10:00",
+        cleaning_status: "dirty",
+        current_guest: "John Doe",
+        note: "",
+        price_override: 500,
+        num_guests: 2,
+        num_children: 1,
+        num_papers: 2,
+        stay_duration: "1 day",
+        check_in_notice: "Check-in at 10:00",
+      },
+      {
+        room_id: "12",
+        room_name: "Room 206",
+        status: "Using",
+        floor: 2,
+        type_id: "VIP",
+        check_in_time: "2024-11-23 12:00",
+        check_out_time: "2024-11-28 12:00",
+        cleaning_status: "clean",
+        current_guest: "Troy",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "5 days",
+        check_in_notice: "Check-in at 12:00",
       },
     ];
 
@@ -160,14 +306,38 @@ export default function HomePage() {
     setSelectedStatus(status);
   };
 
-  const filteredRooms = selectedStatus === "All"
-    ? RoomsList
-    : RoomsList.filter(room => room.status.toLowerCase() === selectedStatus.toLowerCase());
+  const filteredRooms =
+    selectedStatus === "All"
+      ? RoomsList
+      : RoomsList.filter(
+          (room) => room.status.toLowerCase() === selectedStatus.toLowerCase()
+        );
 
-  const availableRoomCount = RoomsList.filter(room => room.status === "available").length;
-  const bookedRoomCount = RoomsList.filter(room => room.status === "booked").length;
-  const usingRoomCount = RoomsList.filter(room => room.status === "using").length;
-  const timeUpRoomCount = RoomsList.filter(room => room.status === "time's up").length;
+  const availableRoomCount = RoomsList.filter(
+    (room) => room.status.toLowerCase() === "available"
+  ).length;
+  const bookedRoomCount = RoomsList.filter(
+    (room) => room.status.toLowerCase() === "booked"
+  ).length;
+  const usingRoomCount = RoomsList.filter(
+    (room) => room.status.toLowerCase() === "using"
+  ).length;
+  const timeUpRoomCount = RoomsList.filter(
+    (room) => room.status.toLowerCase() === "time's up"
+  ).length;
+
+  // setting status Clean of Room
+  const handleCleaningStatusChange = (room: Room) => {
+    const updatedRooms = RoomsList.map((r) =>
+      r.room_id === room.room_id
+        ? {
+            ...r,
+            cleaning_status: r.cleaning_status === "clean" ? "dirty" : "clean",
+          }
+        : r
+    );
+    setRoomsList(updatedRooms);
+  };
 
   return (
     <div className="bg-[#F0F2F5] h-screen px-[20px]">
@@ -199,47 +369,48 @@ export default function HomePage() {
           roomData={selectedRoomData}
         />
       )}
-      <div className="flex w-full justify-between items-center h-[80px]">
+      <div className="flex w-full justify-between items-center h-[100px]">
         <div className="flex justify-between items-center">
-          {["All", "Available", "Booked", "Using", "Time's Up"].map((status, index) => (
-            <div
-              className="flex justify-between w-[130px] items-center bg-white p-2 rounded-2xl shadow mr-5 cursor-pointer"
-              key={index}
-              onClick={() => handleStatusClick(status)}
-            >
+          {["All", "Available", "Booked", "Using", "Time's Up"].map(
+            (status, index) => (
               <div
-                className={`w-4 h-4 ${
-                  status === "Booked"
-                    ? "bg-[#FFA500]"
-                    : status === "Using"
-                    ? "bg-[#32CD32]"
-                    : status === "Time's Up"
-                    ? "bg-[#06BE92]"
-                    : status === "Available"
-                    ? "bg-[#D9D9D9]"
-                    : "bg-[#D9D9D9]"
-                } rounded-full`}
-              ></div>
-              {status}{" "}
-              {status === "Available"
-                ? `(${availableRoomCount})`
-                : status === "Booked"
-                ? `(${bookedRoomCount})`
-                : status === "Using"
-                ? `(${usingRoomCount})`
-                : status === "Time's Up"
-                ? `(${timeUpRoomCount})`
-                : `(${RoomsList.length})`}
-            </div>
-          ))}
+                className="flex justify-between items-center bg-white p-2 rounded-2xl shadow mr-5 cursor-pointer"
+                key={index}
+                onClick={() => handleStatusClick(status)}
+              >
+                <div
+                  className={`w-4 h-4 mr-2 ${
+                    status === "Booked"
+                      ? "bg-[#FFA500]"
+                      : status === "Using"
+                      ? "bg-[#32CD32]"
+                      : status === "Time's Up"
+                      ? "bg-[#06BE92]"
+                      : status === "Available"
+                      ? "bg-[#D9D9D9]"
+                      : "bg-[#D9D9D9]"
+                  } rounded-full`}
+                ></div>
+                {status}{" "}
+                {status === "All"
+                  ? `(${RoomsList.length})`
+                  : status === "Available"
+                  ? `(${availableRoomCount})`
+                  : status === "Booked"
+                  ? `(${bookedRoomCount})`
+                  : status === "Using"
+                  ? `(${usingRoomCount})`
+                  : status === "Time's Up"
+                  ? `(${timeUpRoomCount})`
+                  : ""}
+              </div>
+            )
+          )}
         </div>
-        <Button type="primary" shape="round">
-          <PlusOutlined /> Thêm phòng
-        </Button>
       </div>
       <div>
-        {floor.map((item, index) => (
-          <div key={index}>
+        {floor.map((item) => (
+          <div key={item.label}>
             <div className="flex items-end px-[50px] mt-4">
               <h1 className="text-[30px] font-semibold w-[120px]">
                 {item.label}
@@ -247,41 +418,58 @@ export default function HomePage() {
               <div className="h-[1px] w-full bg-black"></div>
             </div>
             <div className="flex flex-wrap mt-4 px-[50px]">
-              {filteredRooms.map((room) => (
-                <Card
-                  onClick={() => handleRoomClick(room)}
-                  key={room.room_id}
-                  title={room.room_name}
-                  className={`w-[15%] mr-4 cursor-pointer ${
-                    room.status === "booked"
-                      ? "bg-[#FFA500]"
-                      : room.status === "Using"
-                      ? "bg-[#32CD32]"
-                      : room.status === "Time's Up"
-                      ? "bg-[#06BE92]"
-                      : "bg-[#D9D9D9]"
-                  }`}
-                >
-                  <p>
-                    <label className="mr-2 font-medium">Dọn dẹp:</label>
-                    <span className="mr-1">{room.cleaning_status}</span>
-                    {room.cleaning_status === "clean" ? (
-                      <CheckCircleOutlined />
-                    ) : (
-                      <CloseCircleOutlined />
-                    )}
-                  </p>
-                  <p className="mr-2">
-                    <label className="mr-2 font-medium">Trạng thái: </label>
-                    <span>{room.status}</span>
-                  </p>
-                  <p>
-                    <label className="mr-2 font-medium">Giá:</label>
-                    <span className="mr-1">{room.price_override}</span>
-                    <MoneyCollectOutlined />
-                  </p>
-                </Card>
-              ))}
+              {filteredRooms
+                .filter((room) => room.floor === item.children[0]?.floor) // Lọc các phòng chỉ cho tầng hiện tại
+                .map((room) => (
+                  <Card
+                    onClick={() => handleRoomClick(room)}
+                    key={room.room_id}
+                    title={room.room_name}
+                    className={`w-[15%] mr-4 cursor-pointer ${
+                      room.status === "booked"
+                        ? "bg-[#FFA500]"
+                        : room.status === "Using"
+                        ? "bg-[#32CD32]"
+                        : room.status === "Time's Up"
+                        ? "bg-[#06BE92]"
+                        : "bg-[#D9D9D9]"
+                    }`}
+                  >
+                    <p>
+                      <label className="mr-2 font-medium">Dọn dẹp:</label>
+                      <span
+                        className={`mr-1 font-bold ${
+                          room.cleaning_status === "clean"
+                            ? "text-white"
+                            : "text-red-800y"
+                        }`}
+                      >
+                        {room.cleaning_status.toUpperCase()}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCleaningStatusChange(room);
+                        }}
+                      >
+                        {room.cleaning_status === "clean" ? (
+                          <CheckCircleOutlined className="text-white" />
+                        ) : (
+                          <CloseCircleOutlined className="text-red-800" />
+                        )}
+                      </button>
+                    </p>
+                    <p className="mr-2">
+                      <label className="mr-2 font-medium">Trạng thái: </label>
+                      <span>{room.status}</span>
+                    </p>
+                    <p>
+                      <label className="mr-2 font-medium">Giá:</label>
+                      <span className="mr-1">{room.price_override}</span>
+                      <MoneyCollectOutlined />
+                    </p>
+                  </Card>
+                ))}
             </div>
           </div>
         ))}
