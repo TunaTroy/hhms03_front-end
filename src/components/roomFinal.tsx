@@ -188,7 +188,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
           }}
         >
           <div style={{ display: "flex", marginTop: "8px" }}>
-            <Button type="default" style={{ marginRight: "8px" }}>
+            <Button type="default" style={{ marginRight: "8px", backgroundColor: "#F5B2B2", borderColor: "#F5B2B2" }}>
               Sửa đặt phòng
             </Button>
             <Button

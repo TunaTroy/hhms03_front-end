@@ -179,14 +179,14 @@ const RoomBooked: FC<RoomBookedProps> = ({
           }}
         >
           <div style={{ display: "flex", marginTop: "8px" }}>
-            <Button type="default" style={{ marginRight: "8px" }}>
-              Sửa đặt phòng
+            <Button type="primary" style={{ marginRight: "8px", backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}>
+              Nhận Phòng
             </Button>
             <Button
-              type="primary"
-              style={{ backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}
+              type="default"
+              style={{ backgroundColor: "#FFA500", borderColor: "#FFA500" }}
             >
-              Nhận phòng
+              Thanh toán
             </Button>
           </div>
         </div>

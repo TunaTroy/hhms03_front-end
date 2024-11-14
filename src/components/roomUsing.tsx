@@ -1,27 +1,27 @@
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
 import React, { FC, useState } from "react";
+import { useRouter } from "next/router";
 
 const { Text } = Typography;
-
 
 interface RoomUsingProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   roomData?: {
-    room_name: string; // Đổi tên thành room_name
-    type_id: string; // Đổi tên thành type_id
-    current_guest: string; // Đổi tên thành current_guest
-    check_in_time: string; // Đổi tên thành check_in_time
-    check_out_time: string; // Đổi tên thành check_out_time
-    num_guests: number; // Đổi tên thành num_guests
-    num_children: number; // Đổi tên thành num_children
-    num_papers: number; // Đổi tên thành num_papers
-    room_id: string; // Đổi tên thành room_id
-    stay_duration: string; // Đổi tên thành stay_duration
-    check_in_notice: string; // Đổi tên thành check_in_notice
-    note: string; // Giữ nguyên
-    price_override: number; // Đổi tên thành price_override
-  } 
+    room_name: string;
+    type_id: string;
+    current_guest: string;
+    check_in_time: string;
+    check_out_time: string;
+    num_guests: number;
+    num_children: number;
+    num_papers: number;
+    room_id: string;
+    stay_duration: string;
+    check_in_notice: string;
+    note: string;
+    price_override: number;
+  };
 }
 
 const RoomUsing: FC<RoomUsingProps> = ({
@@ -39,6 +39,19 @@ const RoomUsing: FC<RoomUsingProps> = ({
   // Function to handle note input
   const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNote(e.target.value);
+  };
+
+  const handleEditBooking = () => {
+    // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
+    localStorage.setItem('bookingRoomData', JSON.stringify({
+      roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
+      checkInDate: roomData?.check_in_time,
+      checkOutDate: roomData?.check_out_time,
+      numGuests: roomData?.num_guests,
+    }));
+
+    // Điều hướng đến trang setBookingRoom-ui
+    window.location.href = '/setBookingRoom-ui'; // Cập nhật URL để điều hướng
   };
 
   return (
@@ -95,8 +108,9 @@ const RoomUsing: FC<RoomUsingProps> = ({
               <Text strong>Khách hàng:</Text> {roomData?.current_guest}
             </Col>
             <Col span={12}>
-              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người lớn,{" "}
-              {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy tờ
+              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
+              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
+              tờ
             </Col>
             <Col span={12}>
               <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}
@@ -154,7 +168,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             >
               <Text>Khách cần trả:</Text>
               <Text style={{ marginLeft: "16px", fontWeight: "bold" }}>
-                {roomData?.price_override.toLocaleString()} 
+                {roomData?.price_override.toLocaleString()}
               </Text>
             </div>
             <div
@@ -178,7 +192,15 @@ const RoomUsing: FC<RoomUsingProps> = ({
           }}
         >
           <div style={{ display: "flex", marginTop: "8px" }}>
-            <Button type="default" style={{ marginRight: "8px" }}>
+            <Button
+              type="default"
+              style={{
+                marginRight: "8px",
+                backgroundColor: "#F5B2B2",
+                borderColor: "#F5B2B2",
+              }}
+              onClick={handleEditBooking} 
+            >
               Sửa đặt phòng
             </Button>
             <Button
