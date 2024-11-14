@@ -41,6 +41,10 @@ export default function HomePage() {
   const [floor, setFloor] = useState<{ label: string; children: Room[] }[]>([
     { label: "Floor 1", children: [] },
     { label: "Floor 2", children: [] },
+    { label: "Floor 3", children: [] },
+    { label: "Floor 4", children: [] },
+    { label: "Floor 5", children: [] },
+    { label: "Floor 6", children: [] },
   ]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
@@ -270,6 +274,114 @@ export default function HomePage() {
         stay_duration: "5 days",
         check_in_notice: "Check-in at 12:00",
       },
+      {
+        room_id: "13",
+        room_name: "Room 301",
+        status: "available",
+        floor: 3,
+        type_id: "Single",
+        check_in_time: "",
+        check_out_time: "",
+        cleaning_status: "clean",
+        current_guest: "",
+        note: "",
+        price_override: 100,
+        num_guests: 0,
+        num_children: 0,
+        num_papers: 0,
+        stay_duration: "",
+        check_in_notice: "",
+      },
+      {
+        room_id: "14",
+        room_name: "Room 302",
+        status: "booked",
+        floor: 3,
+        type_id: "Double",
+        check_in_time: "2024-11-07 10:00",
+        check_out_time: "2024-11-08 10:00",
+        cleaning_status: "dirty",
+        current_guest: "John Doe",
+        note: "",
+        price_override: 500,
+        num_guests: 2,
+        num_children: 1,
+        num_papers: 2,
+        stay_duration: "1 day",
+        check_in_notice: "Check-in at 10:00",
+      },
+      {
+        room_id: "15",
+        room_name: "Room 303",
+        status: "Using",
+        floor: 4,
+        type_id: "VIP",
+        check_in_time: "2024-11-23 12:00",
+        check_out_time: "2024-11-28 12:00",
+        cleaning_status: "clean",
+        current_guest: "Troy",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "5 days",
+        check_in_notice: "Check-in at 12:00",
+      },
+      {
+        room_id: "16",
+        room_name: "Room 304",
+        status: "Time's Up",
+        floor: 3,
+        type_id: "VIP",
+        check_in_time: "2024-11-28 21:00",
+        check_out_time: "2024-11-28 23:00",
+        cleaning_status: "clean",
+        current_guest: "Tao dep trai",
+        note: "",
+        price_override: 600,
+        num_guests: 1,
+        num_children: 0,
+        num_papers: 1,
+        stay_duration: "2 hours",
+        check_in_notice: "Còn 2 giờ",
+      },
+      {
+        room_id: "17",
+        room_name: "Room 505",
+        status: "available",
+        floor: 5,
+        type_id: "Single",
+        check_in_time: "",
+        check_out_time: "",
+        cleaning_status: "clean",
+        current_guest: "",
+        note: "",
+        price_override: 100,
+        num_guests: 0,
+        num_children: 0,
+        num_papers: 0,
+        stay_duration: "",
+        check_in_notice: "",
+      },
+      {
+        room_id: "18",
+        room_name: "Room 606",
+        status: "Using",
+        floor: 6,
+        type_id: "Double",
+        check_in_time: "2024-11-07 10:00",
+        check_out_time: "2024-11-08 10:00",
+        cleaning_status: "dirty",
+        current_guest: "John Doe",
+        note: "",
+        price_override: 500,
+        num_guests: 2,
+        num_children: 1,
+        num_papers: 2,
+        stay_duration: "1 day",
+        check_in_notice: "Check-in at 10:00",
+      },
     ];
 
     const categorizedFloors = [
@@ -280,6 +392,22 @@ export default function HomePage() {
       {
         label: "Floor 2",
         children: mockData.filter((room) => room.floor === 2),
+      },
+      {
+        label: "Floor 3",
+        children: mockData.filter((room) => room.floor === 3),
+      },
+      {
+        label: "Floor 4",
+        children: mockData.filter((room) => room.floor === 4),
+      },
+      {
+        label: "Floor 5",
+        children: mockData.filter((room) => room.floor === 5),
+      },
+      {
+        label: "Floor 6",
+        children: mockData.filter((room) => room.floor === 6),
       },
     ];
 
@@ -340,7 +468,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-[#F0F2F5] h-screen px-[20px]">
+    <div className="bg-[#F0F2F5]">
       {isModalOpen && selectedRoom && (
         <RoomModal
           isModalOpen={isModalOpen}
@@ -424,7 +552,11 @@ export default function HomePage() {
                   <Card
                     onClick={() => handleRoomClick(room)}
                     key={room.room_id}
-                    title={room.room_name}
+                    title={
+                      <h2 className="text-[24px] font-bold">
+                        {room.room_name}
+                      </h2>
+                    }
                     className={`w-[15%] mr-4 cursor-pointer ${
                       room.status === "booked"
                         ? "bg-[#FFA500]"
@@ -438,13 +570,17 @@ export default function HomePage() {
                     <p>
                       <label className="mr-2 font-medium">Dọn dẹp:</label>
                       <span
-                        className={`mr-1 font-bold ${
+                        className={`mr-1 font-bold cursor-pointer ${
                           room.cleaning_status === "clean"
                             ? "text-white"
                             : "text-red-800"
                         }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCleaningStatusChange(room);
+                        }}
                       >
-                        {room.cleaning_status.toUpperCase()}
+                        {room.cleaning_status.toLocaleUpperCase()}
                       </span>
                       <button
                         onClick={(e) => {
