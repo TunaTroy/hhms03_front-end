@@ -1,6 +1,6 @@
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
 import React, { FC, useState } from "react";
-import { useRouter } from "next/router";
+
 
 const { Text } = Typography;
 
@@ -51,7 +51,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
     }));
 
     // Điều hướng đến trang setBookingRoom-ui
-    window.location.href = '/setBookingRoom-ui'; // Cập nhật URL để điều hướng
+    window.location.href = '/setBookingRoom'; // Cập nhật URL để điều hướng
   };
 
   return (

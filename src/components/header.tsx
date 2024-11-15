@@ -6,6 +6,8 @@ import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
 import { useEffect, useState } from "react";
 import { HomeOutlined } from "@ant-design/icons";
+import { SettingOutlined } from '@ant-design/icons';
+import { DollarOutlined } from '@ant-design/icons';
 import { usePathname, useRouter } from "next/navigation";
 import "@/css/globals.css";
 
@@ -35,13 +37,13 @@ let header: { icon: JSX.Element; route: string; checked: boolean }[] = [
     checked: false,
   },
   {
-    icon: <UserOutlined />,
-    route: "/",
+    icon: <SettingOutlined />,
+    route: "/setBookingRoom",
     checked: false,
   },
   {
-    icon: <UserOutlined />,
-    route: "#",
+    icon: <DollarOutlined />,
+    route: "/", // Thêm dòng này
     checked: false,
   },
   {

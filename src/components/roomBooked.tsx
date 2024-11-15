@@ -40,10 +40,25 @@ const RoomBooked: FC<RoomBookedProps> = ({
     setNote(e.target.value);
   };
 
+  const handleEditBooking = () => {
+    // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
+    localStorage.setItem('bookingRoomData', JSON.stringify({
+      roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
+      checkInDate: roomData?.check_in_time,
+      checkOutDate: roomData?.check_out_time,
+      numGuests: roomData?.num_guests,
+    }));
+
+    // Điều hướng đến trang setBookingRoom-ui
+    window.location.href = '/setBookingRoom'; // Cập nhật URL để điều hướng
+  };
+
   return (
     <Modal
       title={
-        <span style={{ fontWeight: "bold", fontSize: "20px", color: "#FFA500" }}>
+        <span
+          style={{ fontWeight: "bold", fontSize: "20px", color: "#FFA500" }}
+        >
           {`Chi tiết ${roomData?.room_name}`}
         </span>
       }
@@ -92,8 +107,9 @@ const RoomBooked: FC<RoomBookedProps> = ({
               <Text strong>Khách hàng:</Text> {roomData?.current_guest}
             </Col>
             <Col span={12}>
-              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người lớn,{" "}
-              {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy tờ
+              <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
+              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
+              tờ
             </Col>
             <Col span={12}>
               <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}
@@ -169,7 +185,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
             </div>
           </div>
         </div>
-        
+
         <div
           style={{
             display: "flex",
@@ -179,14 +195,22 @@ const RoomBooked: FC<RoomBookedProps> = ({
           }}
         >
           <div style={{ display: "flex", marginTop: "8px" }}>
-            <Button type="primary" style={{ marginRight: "8px", backgroundColor: "#4CAF50", borderColor: "#4CAF50" }}>
-              Nhận Phòng
+            <Button
+              type="default"
+              style={{
+                marginRight: "8px",
+                backgroundColor: "#F5B2B2",
+                borderColor: "#F5B2B2",
+              }}
+              onClick={handleEditBooking}
+            >
+              Sửa đặt phòng
             </Button>
             <Button
               type="default"
-              style={{ backgroundColor: "#FFA500", borderColor: "#FFA500" }}
+              style={{ backgroundColor: "#32CD32", borderColor: "#32CD32" }}
             >
-              Thanh toán
+              Nhận phòng
             </Button>
           </div>
         </div>

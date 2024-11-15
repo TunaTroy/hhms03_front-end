@@ -46,6 +46,22 @@ const RoomFinal: FC<RoomFinalProps> = ({
   const remainingTime = // hours
     (checkOutDate.getTime() - Date.now()) / (1000 * 60 * 60);
 
+  const handleEditBooking = () => {
+    // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
+    localStorage.setItem(
+      "bookingRoomData",
+      JSON.stringify({
+        roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
+        checkInDate: roomData?.check_in_time,
+        checkOutDate: roomData?.check_out_time,
+        numGuests: roomData?.num_guests,
+      })
+    );
+
+    // Điều hướng đến trang setBookingRoom-ui
+    window.location.href = "/setBookingRoom"; // Cập nhật URL để điều hướng
+  };
+
   return (
     <Modal
       title={
@@ -188,7 +204,15 @@ const RoomFinal: FC<RoomFinalProps> = ({
           }}
         >
           <div style={{ display: "flex", marginTop: "8px" }}>
-            <Button type="default" style={{ marginRight: "8px", backgroundColor: "#F5B2B2", borderColor: "#F5B2B2" }}>
+            <Button
+              type="default"
+              style={{
+                marginRight: "8px",
+                backgroundColor: "#F5B2B2",
+                borderColor: "#F5B2B2",
+              }}
+              onClick={handleEditBooking}
+            >
               Sửa đặt phòng
             </Button>
             <Button
