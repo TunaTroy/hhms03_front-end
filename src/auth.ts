@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+/* import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import "next-auth/jwt";
 
@@ -91,3 +91,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
+ */
+
+import NextAuth from "next-auth"
+ 
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [],
+})

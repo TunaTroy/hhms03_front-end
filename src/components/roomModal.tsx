@@ -1,9 +1,13 @@
 "use client";
 
-import { Modal, Input, Button, Select, DatePicker, List } from "antd";
+import { Modal, Input, Button, Select, DatePicker, List, Row } from "antd";
 import { FC, useState, useEffect } from "react";
 import moment, { Moment } from "moment";
-import { PlusCircleOutlined } from "@ant-design/icons";
+import {
+  PlusCircleOutlined,
+  UserOutlined,
+  IdcardOutlined,
+} from "@ant-design/icons";
 import NewCustomers from "./newCustomer";
 
 const { Option } = Select;
@@ -33,18 +37,14 @@ const RoomModal: FC<RoomModalProps> = ({
     setIsModalOpen(false);
   };
 
-  // State for adding new customer
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
-
   const handleAddNewCustomer = () => {
     setShowNewCustomersModal(true);
   };
-
   const handleNewCustomersModalClose = () => {
     setShowNewCustomersModal(false);
   };
 
-  // Sử dụng moment để xử lý thời gian
   const [checkInTime, setCheckInTime] = useState<Moment | null>(
     roomData?.check_in_time ? moment(roomData.check_in_time) : null
   );
@@ -94,11 +94,9 @@ const RoomModal: FC<RoomModalProps> = ({
       });
   };
 
-  // State for customer search
   const [customerName, setCustomerName] = useState<string>("");
   const [filteredCustomers, setFilteredCustomers] = useState<string[]>([]);
 
-  // Sample data for customer names
   const customerData = [
     "Nguyễn Văn A",
     "Trần Thị B",
@@ -107,7 +105,6 @@ const RoomModal: FC<RoomModalProps> = ({
     "Đỗ Văn E",
   ];
 
-  // Function to handle search input
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
     setCustomerName(searchValue);
@@ -122,15 +119,20 @@ const RoomModal: FC<RoomModalProps> = ({
     }
   };
 
-  // State for note
   const [note, setNote] = useState<string>(roomData?.note || "");
-
-  // Function to handle note input
   const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNote(e.target.value);
   };
 
-  // add Icon Plus to Search
+  const [adultCount, setAdultCount] = useState<number>(0);
+  const [hasId, setHasId] = useState<number>(0); // 0: Không có giấy tờ, 1: Có giấy tờ
+
+  const handleHasIdChange = (value: string) => {
+    const numValue = Number(value);
+    if (numValue === 0 || numValue === 1) {
+      setHasId(numValue);
+    }
+  };
 
   return (
     <Modal
@@ -155,51 +157,87 @@ const RoomModal: FC<RoomModalProps> = ({
             padding: "16px",
           }}
         >
-          {/* Input and suggestions for Customer Search */}
-          <div
-            style={{ width: "28%", textAlign: "left", position: "relative" }}
-          >
-            <Input
-              placeholder="Tìm kiếm khách hàng"
-              value={customerName}
-              onChange={handleSearch}
-              style={{ marginBottom: "16px" }}
-              addonAfter={
-                <PlusCircleOutlined
-                  onClick={handleAddNewCustomer}
-                  style={{ color: "#999999", cursor: "pointer" }}
-                />
-              }
-            />
-            {/* Display search results */}
-            {filteredCustomers.length > 0 && (
-              <List
-                bordered
-                dataSource={filteredCustomers}
-                renderItem={(item) => (
-                  <List.Item
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setCustomerName(item)}
-                  >
-                    {item}
-                  </List.Item>
-                )}
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  width: "100%",
-                  backgroundColor: "#fff",
-                  zIndex: 1,
-                  border: "1px solid #d9d9d9",
-                  maxHeight: "200px",
-                  overflowY: "auto",
-                }}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ width: "28%", position: "relative" }}>
+              <Input
+                placeholder="Tìm kiếm khách hàng"
+                value={customerName}
+                onChange={handleSearch}
+                style={{ marginBottom: "0" }}
+                addonAfter={
+                  <PlusCircleOutlined
+                    onClick={handleAddNewCustomer}
+                    style={{ color: "#999999", cursor: "pointer" }}
+                  />
+                }
               />
-            )}
-            {showNewCustomersModal && (
-              <NewCustomers onClose={handleNewCustomersModalClose} />
-            )}
+              {filteredCustomers.length > 0 && (
+                <List
+                  bordered
+                  dataSource={filteredCustomers}
+                  renderItem={(item) => (
+                    <List.Item
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setCustomerName(item)}
+                    >
+                      {item}
+                    </List.Item>
+                  )}
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    width: "100%",
+                    backgroundColor: "#fff",
+                    zIndex: 1,
+                    border: "1px solid #d9d9d9",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                  }}
+                />
+              )}
+              {showNewCustomersModal && (
+                <NewCustomers onClose={handleNewCustomersModalClose} />
+              )}
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  
+                }}
+              >
+                <UserOutlined style={{ marginRight: "1px" }} />
+                <input
+                  type="number"
+                  value={adultCount}
+                  onChange={(e) => setAdultCount(Number(e.target.value))}
+                  style={{ width: "50px", textAlign: "center" }}
+                  min={0}
+                  placeholder="Người lớn"
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <IdcardOutlined style={{ marginRight: "1px" }} />
+                <input
+                  type="number"
+                  value={hasId}
+                  onChange={(e) => setHasId(Number(e.target.value))}
+                  style={{ width: "50px", textAlign: "center" }}
+                  min={0}
+                  max={1}
+                  placeholder="Giấy tờ"
+                />
+              </div>
+            </div>
           </div>
 
           <div
@@ -247,6 +285,7 @@ const RoomModal: FC<RoomModalProps> = ({
               Thành tiền
             </div>
           </div>
+
           <div
             style={{
               display: "flex",
@@ -265,7 +304,7 @@ const RoomModal: FC<RoomModalProps> = ({
             <div style={{ width: "12%", textAlign: "center" }}>
               <Input
                 style={{ textAlign: "center" }}
-                value={roomData.room_name} // Hiển thị tên phòng từ dữ liệu
+                value={roomData.room_name}
                 readOnly
               />
             </div>
