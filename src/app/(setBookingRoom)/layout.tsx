@@ -17,7 +17,6 @@ export default function RootLayout({
           <SessionProvider>
             <Header />
             <div className="pt-[60px]">{children}</div>
-            Hello
           </SessionProvider>
         </div>
       </body>
