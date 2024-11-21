@@ -14,7 +14,7 @@ import RoomBooked from "@/components/roomBooked";
 import RoomUsing from "@/components/roomUsing";
 import RoomFinal from "@/components/roomFinal";
 
-interface Room {
+export interface Room {
   room_id: string;
   room_name: string;
   status: string;
@@ -478,6 +478,7 @@ export default function HomePage() {
           roomData={selectedRoomData}
         />
       )}
+     
       <div className="flex w-full justify-between items-center h-[100px]">
         <div className="flex justify-between items-center">
           {["All", "Available", "Booked", "Using", "Time's Up"].map(

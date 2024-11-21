@@ -1,12 +1,13 @@
 "use client";
 
-import { Modal, Input, Card, Button } from "antd";
+import { Modal, Input, Card, Button, Dropdown } from "antd";
 import React, { FC, useState, useEffect } from "react";
 import {
   PlusCircleOutlined,
   UserOutlined,
   IdcardOutlined,
   DeleteOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import NewCustomers from "@/components/newCustomer";
 
@@ -19,46 +20,61 @@ const safeParse = (data: string | null) => {
   }
 };
 
+export interface Room {
+  room_id: string;
+  room_name: string;
+  status: string;
+  floor: number;
+  type_id: string;
+  check_in_time: string;
+  check_out_time: string;
+  cleaning_status: string;
+  current_guest: string;
+  note: string;
+  price_override: number;
+  num_guests: number;
+  num_papers: number;
+  stay_duration: string;
+  check_in_notice: string;
+}
+
 interface SetBookingRoomUIProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
-  roomData?: {
-    room_id: string;
-    room_name: string;
-    status: string;
-    floor: number;
-    type_id: string;
-    check_in_time: string;
-    check_out_time: string;
-    cleaning_status: string;
-    current_guest: string;
-    note: string;
-    price_override: number;
-    num_guests: number;
-    num_children: number;
-    num_papers: number;
-    stay_duration: string;
-    check_in_notice: string;
-  };
+  roomData?: Room;
+  RoomsList: Room[]; // Nhận danh sách phòng từ props
 }
 
 const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
   isModalOpen,
   setIsModalOpen,
   roomData = safeParse(localStorage.getItem("bookingRoomData")),
+  RoomsList,
 }) => {
-  const [adultCount, setAdultCount] = useState<number>(
-    roomData?.num_guests || 0
-  );
+  const [adultCount, setAdultCount] = useState<number>(roomData?.num_guests || 0);
   const [hasId, setHasId] = useState<number>(roomData?.num_papers || 0);
   const [note, setNote] = useState<string>(roomData?.note || "");
+  const [selectedType, setSelectedType] = useState<string>(roomData?.type_id || "");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
+
+  // Lấy danh sách loại phòng từ RoomsList
+ const typeOptions = RoomsList?.map(room => room.type_id)
+  ? Array.from(new Set(RoomsList.map(room => room.type_id))).map(typeId => ({
+      key: typeId,
+      label: typeId,
+    }))
+  : [];
 
   // Đồng bộ `note` và `current_guest` khi nhận dữ liệu mới từ localStorage
   useEffect(() => {
     const storedData = safeParse(localStorage.getItem("bookingRoomData"));
     if (storedData?.note && !roomData?.note) setNote(storedData.note);
   }, [roomData]);
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
 
   const handleAddNewCustomer = () => {
     setShowNewCustomersModal(true);
@@ -78,12 +94,20 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       note,
       num_guests: adultCount,
       num_papers: hasId,
+      type_id: selectedType, // Cập nhật loại phòng
     };
     localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
     console.log("Dữ liệu đã lưu:", updatedRoomData);
   };
 
-  console.log("Dữ liệu roomData:", roomData);
+  const handleTypeSelect = (type: { key: string; label: string }) => {
+    setSelectedType(type.label);
+    const updatedRoomData = {
+      ...roomData,
+      type_id: type.key,
+    };
+    localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+  };
 
   return (
     <div
@@ -125,14 +149,10 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            <label
-              style={{ fontSize: "16px", color: "#666", marginRight: "5px" }}
-            >
+            <label style={{ fontSize: "16px", color: "#666", marginRight: "5px" }}>
               Khách hàng:
             </label>
-            <span
-              style={{ fontSize: "16px", fontWeight: "500", color: "#333" }}
-            >
+            <span style={{ fontSize: "16px", fontWeight: "500", color: "#333" }}>
               {roomData?.current_guest || "Chưa có "}
               <PlusCircleOutlined
                 onClick={handleAddNewCustomer}
@@ -184,9 +204,7 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           <span style={{ color: "#666", fontSize: "20px" }}>|</span>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <label
-              style={{ fontSize: "16px", color: "#666", whiteSpace: "nowrap" }}
-            >
+            <label style={{ fontSize: "16px", color: "#666", whiteSpace: "nowrap" }}>
               Ghi chú:
             </label>
             <input
@@ -232,9 +250,41 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 fontSize: "18px",
                 fontWeight: "bold",
                 marginBottom: "10px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              Tên Hạng Phòng
+              Hạng phòng:
+              <Dropdown
+                menu={{
+                  items: typeOptions.map((type) => ({
+                    key: type.key,
+                    label: (
+                      <span onClick={() => handleTypeSelect(type)}>
+                        {type.label}
+                      </span>
+                    ),
+                  })),
+                }}
+                trigger={["click"]}
+                onOpenChange={(visible) => setIsDropdownOpen(visible)}
+              >
+                <a
+                  onClick={(e) => e.preventDefault()}
+                  className="cursor-pointer flex items-center"
+                >
+                  <span style={{ fontSize: "16px", color: "#333" }}>
+                    {selectedType || "Chọn hạng phòng"}
+                  </span>
+                  <DownOutlined
+                    className={`transform transition-transform duration-300 ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    style={{ marginLeft: "8px" }}
+                  />
+                </a>
+              </Dropdown>
             </h2>
             <p style={{ fontSize: "16px", color: "#666" }}>
               {roomData?.room_name}
@@ -281,9 +331,7 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
               </p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p
-                style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}
-              >
+              <p style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}>
                 {roomData?.price_override.toLocaleString()} VND
               </p>
             </div>
@@ -327,14 +375,9 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         </div>
       </div>
 
-      <Modal
-        title="Thêm Khách Hàng Mới"
-        open={showNewCustomersModal}
-        onCancel={handleNewCustomersModalClose}
-        footer={null}
-      >
-        New Customers
-      </Modal>
+      {showNewCustomersModal && (
+        <NewCustomers onClose={handleNewCustomersModalClose} />
+      )}
     </div>
   );
 };

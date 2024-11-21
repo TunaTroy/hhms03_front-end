@@ -40,26 +40,39 @@ const RoomUsing: FC<RoomUsingProps> = ({
   };
 
   const handleEditBooking = () => {
+    if (!roomData) {
+      console.error("No room data available to edit.");
+      return;
+    }
+
     // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
     localStorage.setItem(
       "bookingRoomData",
       JSON.stringify({
-        roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
-        checkInDate: roomData?.check_in_time,
-        checkOutDate: roomData?.check_out_time,
-        numGuests: roomData?.num_guests,
+        room_id: roomData.room_id,
+        room_name: roomData.room_name,
+        type_id: roomData.type_id,
+        current_guest: roomData.current_guest,
+        check_in_time: roomData.check_in_time,
+        check_out_time: roomData.check_out_time,
+        num_guests: roomData.num_guests,
+        num_papers: roomData.num_papers,
+        stay_duration: roomData.stay_duration,
+        price_override: roomData.price_override,
+        note: roomData.note,
+        check_in_notice: roomData.check_in_notice,
       })
     );
 
-    // Điều hướng đến trang setBookingRoom-ui
-    window.location.href = "/setBookingRoom"; // Cập nhật URL để điều hướng
+    // Điều hướng đến trang setBookingRoom
+    window.location.href = "/setBookingRoom";
   };
 
   return (
     <Modal
       title={
         <span
-          style={{ fontWeight: "bold", fontSize: "20px", color: "#32CD32" }} // Màu xanh lá cây cho tiêu đề
+          style={{ fontWeight: "bold", fontSize: "20px", color: "#32CD32" }}
         >
           {`Chi tiết ${roomData?.room_name}`}
         </span>
@@ -85,7 +98,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             <Text
               style={{
                 fontSize: "14px",
-                color: "#32CD32", // Màu xanh lá cây cho trạng thái đang sử dụng
+                color: "#32CD32",
                 marginLeft: "8px",
                 fontWeight: "bold",
               }}
@@ -131,6 +144,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             </Col>
           </Row>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -183,6 +197,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             </div>
           </div>
         </div>
+
         <div
           style={{
             display: "flex",

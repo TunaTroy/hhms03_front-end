@@ -39,26 +39,39 @@ const RoomFinal: FC<RoomFinalProps> = ({
     setNote(e.target.value);
   };
 
-  // Calculate remaining time in hours
+  // Tính thời gian còn lại
   const checkInDate = new Date(roomData?.check_in_time || "");
   const checkOutDate = new Date(roomData?.check_out_time || "");
-  const remainingTime = // hours
+  const remainingTime =
     (checkOutDate.getTime() - Date.now()) / (1000 * 60 * 60);
 
   const handleEditBooking = () => {
+    if (!roomData) {
+      console.error("No room data available to edit.");
+      return;
+    }
+
     // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
     localStorage.setItem(
       "bookingRoomData",
       JSON.stringify({
-        roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
-        checkInDate: roomData?.check_in_time,
-        checkOutDate: roomData?.check_out_time,
-        numGuests: roomData?.num_guests,
+        room_id: roomData.room_id,
+        room_name: roomData.room_name,
+        type_id: roomData.type_id,
+        current_guest: roomData.current_guest,
+        check_in_time: roomData.check_in_time,
+        check_out_time: roomData.check_out_time,
+        num_guests: roomData.num_guests,
+        num_papers: roomData.num_papers,
+        stay_duration: roomData.stay_duration,
+        price_override: roomData.price_override,
+        note: roomData.note,
+        check_in_notice: roomData.check_in_notice,
       })
     );
 
-    // Điều hướng đến trang setBookingRoom-ui
-    window.location.href = "/setBookingRoom"; // Cập nhật URL để điều hướng
+    // Điều hướng đến trang setBookingRoom
+    window.location.href = "/setBookingRoom";
   };
 
   return (
@@ -120,8 +133,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             </Col>
             <Col span={12}>
               <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
-              lớn, {roomData?.num_papers} giấy
-              tờ
+              lớn, {roomData?.num_papers} giấy tờ
             </Col>
             <Col span={12}>
               <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}{" "}
@@ -142,6 +154,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             </Col>
           </Row>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -194,6 +207,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             </div>
           </div>
         </div>
+
         <div
           style={{
             display: "flex",
