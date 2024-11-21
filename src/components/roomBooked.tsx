@@ -15,7 +15,6 @@ interface RoomBookedProps {
     check_in_time: string;
     check_out_time: string;
     num_guests: number;
-    num_children: number;
     num_papers: number;
     room_id: string;
     stay_duration: string;
@@ -41,16 +40,32 @@ const RoomBooked: FC<RoomBookedProps> = ({
   };
 
   const handleEditBooking = () => {
+    if (!roomData) {
+      console.error("No room data available to edit.");
+      return;
+    }
+
     // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
-    localStorage.setItem('bookingRoomData', JSON.stringify({
-      roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
-      checkInDate: roomData?.check_in_time,
-      checkOutDate: roomData?.check_out_time,
-      numGuests: roomData?.num_guests,
-    }));
+    localStorage.setItem(
+      "bookingRoomData",
+      JSON.stringify({
+        room_id: roomData.room_id, // ID phòng
+        room_name: roomData.room_name, // Tên phòng
+        type_id: roomData.type_id,
+        current_guest: roomData.current_guest,
+        check_in_time: roomData.check_in_time, // Thời gian check-in
+        check_out_time: roomData.check_out_time, // Thời gian check-out
+        num_guests: roomData.num_guests, // Số lượng khách
+        num_papers: roomData.num_papers,
+        stay_duration: roomData.stay_duration, // Thời gian lưu trú
+        price_override: roomData.price_override, // Giá tùy chỉnh
+        note: roomData.note, // Ghi chú thêm
+        check_in_notice: roomData.check_in_notice,
+      })
+    );
 
     // Điều hướng đến trang setBookingRoom-ui
-    window.location.href = '/setBookingRoom'; // Cập nhật URL để điều hướng
+    window.location.href = "/setBookingRoom"; // Cập nhật URL để điều hướng
   };
 
   return (
@@ -108,8 +123,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
             </Col>
             <Col span={12}>
               <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
-              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
-              tờ
+              lớn, {roomData?.num_papers} giấy tờ
             </Col>
             <Col span={12}>
               <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}

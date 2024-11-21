@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, Button } from "antd";
-import React, { useState, useEffect } from "react";
+import { Modal, Input, Card, Button } from "antd";
+import React, { FC, useState, useEffect } from "react";
 import {
   PlusCircleOutlined,
   UserOutlined,
@@ -10,48 +10,80 @@ import {
 } from "@ant-design/icons";
 import NewCustomers from "@/components/newCustomer";
 
-interface RoomBookingData {
-  roomNumber: string;
-  checkInDate: string;
-  checkOutDate: string;
-  numGuests: number;
-  customerName: string;
-  specialNotes: string;
+// Hàm parse dữ liệu an toàn từ localStorage
+const safeParse = (data: string | null) => {
+  try {
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+};
+
+interface SetBookingRoomUIProps {
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  roomData?: {
+    room_id: string;
+    room_name: string;
+    status: string;
+    floor: number;
+    type_id: string;
+    check_in_time: string;
+    check_out_time: string;
+    cleaning_status: string;
+    current_guest: string;
+    note: string;
+    price_override: number;
+    num_guests: number;
+    num_children: number;
+    num_papers: number;
+    stay_duration: string;
+    check_in_notice: string;
+  };
 }
 
-const SetBookingRoomUI: React.FC = () => {
-  const [bookingData, setBookingData] = useState<RoomBookingData>({
-    roomNumber: "",
-    checkInDate: "",
-    checkOutDate: "",
-    numGuests: 0,
-    customerName: "",
-    specialNotes: "",
-  });
-
-  useEffect(() => {
-    const storedData = localStorage.getItem("bookingRoomData");
-    if (storedData) {
-      setBookingData(JSON.parse(storedData));
-    }
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem("bookingRoomData", JSON.stringify(bookingData));
-    console.log(bookingData);
-  };
-
-  const [adultCount, setAdultCount] = useState<number>(0);
-  const [hasId, setHasId] = useState<number>(0);
-
+const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
+  isModalOpen,
+  setIsModalOpen,
+  roomData = safeParse(localStorage.getItem("bookingRoomData")),
+}) => {
+  const [adultCount, setAdultCount] = useState<number>(
+    roomData?.num_guests || 0
+  );
+  const [hasId, setHasId] = useState<number>(roomData?.num_papers || 0);
+  const [note, setNote] = useState<string>(roomData?.note || "");
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
+
+  // Đồng bộ `note` và `current_guest` khi nhận dữ liệu mới từ localStorage
+  useEffect(() => {
+    const storedData = safeParse(localStorage.getItem("bookingRoomData"));
+    if (storedData?.note && !roomData?.note) setNote(storedData.note);
+  }, [roomData]);
+
   const handleAddNewCustomer = () => {
     setShowNewCustomersModal(true);
   };
+
   const handleNewCustomersModalClose = () => {
     setShowNewCustomersModal(false);
   };
+
+  const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNote(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    const updatedRoomData = {
+      ...roomData,
+      note,
+      num_guests: adultCount,
+      num_papers: hasId,
+    };
+    localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+    console.log("Dữ liệu đã lưu:", updatedRoomData);
+  };
+
+  console.log("Dữ liệu roomData:", roomData);
 
   return (
     <div
@@ -92,29 +124,16 @@ const SetBookingRoomUI: React.FC = () => {
             gap: "5px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center" }}>
             <label
-              style={{
-                fontSize: "16px",
-                color: "#666",
-                marginRight: "5px",
-              }}
+              style={{ fontSize: "16px", color: "#666", marginRight: "5px" }}
             >
               Khách hàng:
             </label>
             <span
-              style={{
-                fontSize: "16px",
-                fontWeight: "500",
-                color: "#333",
-              }}
+              style={{ fontSize: "16px", fontWeight: "500", color: "#333" }}
             >
-              {bookingData.customerName || "Tao đẹp trai"}
+              {roomData?.current_guest || "Chưa có "}
               <PlusCircleOutlined
                 onClick={handleAddNewCustomer}
                 style={{
@@ -126,6 +145,7 @@ const SetBookingRoomUI: React.FC = () => {
               />
             </span>
           </div>
+
           <span style={{ color: "#666", fontSize: "20px" }}>|</span>
 
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -133,7 +153,10 @@ const SetBookingRoomUI: React.FC = () => {
             <input
               type="number"
               value={adultCount}
-              onChange={(e) => setAdultCount(Number(e.target.value))}
+              onChange={(e) => {
+                const newAdultCount = Number(e.target.value);
+                setAdultCount(newAdultCount);
+              }}
               style={{
                 width: "50px",
                 textAlign: "center",
@@ -141,41 +164,35 @@ const SetBookingRoomUI: React.FC = () => {
                 marginRight: "15px",
               }}
               min={0}
-              placeholder="Người lớn"
+              placeholder={roomData?.num_guests.toString() || "Người lớn"}
             />
             <IdcardOutlined style={{ fontSize: "16px", marginRight: "5px" }} />
             <input
               type="number"
               value={hasId}
-              onChange={(e) => setHasId(Number(e.target.value))}
-              style={{
-                width: "50px",
-                textAlign: "center",
-                fontSize: "16px",
+              onChange={(e) => {
+                const newHasId = Number(e.target.value);
+                setHasId(newHasId);
               }}
+              style={{ width: "50px", textAlign: "center", fontSize: "16px" }}
               min={0}
               max={1}
-              placeholder="Giấy tờ"
+              placeholder={roomData?.num_papers?.toString() || "Giấy tờ"}
             />
           </div>
+
           <span style={{ color: "#666", fontSize: "20px" }}>|</span>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <label
-              style={{
-                fontSize: "16px",
-                color: "#666",
-                whiteSpace: "nowrap",
-              }}
+              style={{ fontSize: "16px", color: "#666", whiteSpace: "nowrap" }}
             >
               Ghi chú:
             </label>
             <input
               type="text"
-              value={bookingData.specialNotes}
-              onChange={(e) =>
-                setBookingData({ ...bookingData, specialNotes: e.target.value })
-              }
+              value={note}
+              onChange={handleNoteChange}
               style={{
                 fontSize: "13px",
                 fontWeight: "500",
@@ -198,7 +215,6 @@ const SetBookingRoomUI: React.FC = () => {
           marginTop: "28px",
         }}
       >
-        {/* Hạng phòng */}
         <Card
           style={{
             backgroundColor: "#fff",
@@ -218,13 +234,15 @@ const SetBookingRoomUI: React.FC = () => {
                 marginBottom: "10px",
               }}
             >
-              Hạng phòng
+              Tên Hạng Phòng
             </h2>
-            <p style={{ fontSize: "16px", color: "#666" }}>Hạng phòng 3</p>
+            <p style={{ fontSize: "16px", color: "#666" }}>
+              {roomData?.room_name}
+            </p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}>
-              1,800,000
+              {roomData?.price_override.toLocaleString()} VND
             </p>
           </div>
         </Card>
@@ -237,7 +255,6 @@ const SetBookingRoomUI: React.FC = () => {
             gap: "20px",
           }}
         >
-          {/* Phòng */}
           <Card
             style={{
               backgroundColor: "#fff",
@@ -259,22 +276,19 @@ const SetBookingRoomUI: React.FC = () => {
               >
                 Phòng
               </h2>
-              <p style={{ fontSize: "16px", color: "#666" }}>P.103</p>
+              <p style={{ fontSize: "16px", color: "#666" }}>
+                {roomData?.room_id}
+              </p>
             </div>
             <div style={{ textAlign: "right" }}>
               <p
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "#333",
-                }}
+                style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}
               >
-                1,800,000
+                {roomData?.price_override.toLocaleString()} VND
               </p>
             </div>
           </Card>
 
-          {/* Button */}
           <Card
             style={{
               backgroundColor: "#fff",
@@ -289,19 +303,10 @@ const SetBookingRoomUI: React.FC = () => {
               alignItems: "center",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <DeleteOutlined
-                style={{
-                  fontSize: "30px",
-                  color: "#B0B0B0",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  console.log("Xóa mục");
-                }}
-              />
+            <div style={{ flex: 1 }}>
               <Button
                 type="primary"
+                onClick={handleSubmit}
                 style={{
                   backgroundColor: "#008BCA",
                   borderColor: "#008BCA",
@@ -309,31 +314,27 @@ const SetBookingRoomUI: React.FC = () => {
                   fontSize: "16px",
                   padding: "10px 20px",
                   borderRadius: "4px",
+                  width: "100%",
                 }}
               >
                 Lưu
               </Button>
-              <Button
-                type="primary"
-                style={{
-                  backgroundColor: "#4CAF50",
-                  borderColor: "#4CAF50",
-                  color: "white",
-                  fontSize: "16px",
-                  padding: "10px 20px",
-                  borderRadius: "4px",
-                }}
-              >
-                Thanh toán
-              </Button>
+            </div>
+            <div>
+              <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
             </div>
           </Card>
         </div>
       </div>
 
-      {showNewCustomersModal && (
-        <NewCustomers onClose={handleNewCustomersModalClose} />
-      )}
+      <Modal
+        title="Thêm Khách Hàng Mới"
+        open={showNewCustomersModal}
+        onCancel={handleNewCustomersModalClose}
+        footer={null}
+      >
+        New Customers
+      </Modal>
     </div>
   );
 };

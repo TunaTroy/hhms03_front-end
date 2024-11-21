@@ -15,7 +15,6 @@ interface RoomFinalProps {
     check_in_time: string;
     check_out_time: string;
     num_guests: number;
-    num_children: number;
     num_papers: number;
     room_id: string;
     stay_duration: string;
@@ -121,7 +120,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
             </Col>
             <Col span={12}>
               <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
-              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
+              lớn, {roomData?.num_papers} giấy
               tờ
             </Col>
             <Col span={12}>

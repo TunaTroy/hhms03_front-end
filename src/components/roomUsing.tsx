@@ -1,7 +1,6 @@
 import { Modal, Input, Button, Typography, Row, Col } from "antd";
 import React, { FC, useState } from "react";
 
-
 const { Text } = Typography;
 
 interface RoomUsingProps {
@@ -14,7 +13,6 @@ interface RoomUsingProps {
     check_in_time: string;
     check_out_time: string;
     num_guests: number;
-    num_children: number;
     num_papers: number;
     room_id: string;
     stay_duration: string;
@@ -43,15 +41,18 @@ const RoomUsing: FC<RoomUsingProps> = ({
 
   const handleEditBooking = () => {
     // Lưu dữ liệu phòng vào localStorage trước khi điều hướng
-    localStorage.setItem('bookingRoomData', JSON.stringify({
-      roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
-      checkInDate: roomData?.check_in_time,
-      checkOutDate: roomData?.check_out_time,
-      numGuests: roomData?.num_guests,
-    }));
+    localStorage.setItem(
+      "bookingRoomData",
+      JSON.stringify({
+        roomNumber: roomData?.room_id, // Hoặc bất kỳ thuộc tính nào bạn muốn truyền
+        checkInDate: roomData?.check_in_time,
+        checkOutDate: roomData?.check_out_time,
+        numGuests: roomData?.num_guests,
+      })
+    );
 
     // Điều hướng đến trang setBookingRoom-ui
-    window.location.href = '/setBookingRoom'; // Cập nhật URL để điều hướng
+    window.location.href = "/setBookingRoom"; // Cập nhật URL để điều hướng
   };
 
   return (
@@ -109,8 +110,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
             </Col>
             <Col span={12}>
               <Text strong>Khách lưu trú:</Text> {roomData?.num_guests} người
-              lớn, {roomData?.num_children} trẻ em, {roomData?.num_papers} giấy
-              tờ
+              lớn, {roomData?.num_papers} giấy tờ
             </Col>
             <Col span={12}>
               <Text strong>Nhận phòng:</Text> {roomData?.check_in_time}
@@ -199,7 +199,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
                 backgroundColor: "#F5B2B2",
                 borderColor: "#F5B2B2",
               }}
-              onClick={handleEditBooking} 
+              onClick={handleEditBooking}
             >
               Sửa đặt phòng
             </Button>
