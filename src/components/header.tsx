@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { DownOutlined, UserOutlined } from "@ant-design/icons";
+import { DownOutlined, UserOutlined, WindowsOutlined} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
 import { useEffect, useState } from "react";
@@ -43,12 +43,17 @@ let header: { icon: JSX.Element; route: string; checked: boolean }[] = [
   },
   {
     icon: <DollarOutlined />,
-    route: "/", // Thêm dòng này
+    route: "/pay", // Thêm dòng này
     checked: false,
   },
   {
     icon: <UserOutlined />,
-    route: "#",
+    route: "/customer",
+    checked: false,
+  },
+  {
+    icon: <WindowsOutlined />,
+    route: "/room",
     checked: false,
   },
 ];

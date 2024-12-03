@@ -7,9 +7,9 @@ import {
   UserOutlined,
   IdcardOutlined,
   DeleteOutlined,
-  DownOutlined,
 } from "@ant-design/icons";
 import NewCustomers from "@/components/newCustomer";
+import RoomModal from "@/components/roomModal"; // Import RoomModal
 import ListTypeID from "@/components/listTypeID";
 
 const safeParse = (data: string | null) => {
@@ -45,10 +45,12 @@ interface SetBookingRoomUIProps {
   RoomsList: Room[];
 }
 
-const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
+export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
   isModalOpen,
   setIsModalOpen,
-  roomData = safeParse(localStorage.getItem("bookingRoomData")),
+  roomData = typeof window !== "undefined"
+    ? safeParse(localStorage.getItem("bookingRoomData"))
+    : {},
   RoomsList,
 }) => {
   const [adultCount, setAdultCount] = useState<number>(
@@ -61,9 +63,14 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
   );
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
 
+  // State để quản lý RoomModal
+  const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+
   useEffect(() => {
-    const storedData = safeParse(localStorage.getItem("bookingRoomData"));
-    if (storedData?.note && !roomData?.note) setNote(storedData.note);
+    if (typeof window !== "undefined") {
+      const storedData = safeParse(localStorage.getItem("bookingRoomData"));
+      if (storedData?.note && !roomData?.note) setNote(storedData.note);
+    }
   }, [roomData]);
 
   const handleClose = () => {
@@ -90,7 +97,9 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       num_papers: hasId,
       type_id: selectedType,
     };
-    localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+    }
     console.log("Dữ liệu đã lưu:", updatedRoomData);
   };
 
@@ -100,7 +109,9 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       ...roomData,
       type_id: typeId,
     };
-    localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
+    }
   };
 
   const renderHeader = () => (
@@ -168,7 +179,7 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
               marginRight: "15px",
             }}
             min={0}
-            placeholder={roomData?.num_guests.toString() || "Người lớn"}
+            placeholder={roomData?.num_guests.toString()}
           />
           <IdcardOutlined style={{ fontSize: "16px", marginRight: "5px" }} />
           <input
@@ -178,7 +189,7 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             style={{ width: "50px", textAlign: "center", fontSize: "16px" }}
             min={0}
             max={1}
-            placeholder={roomData?.num_papers?.toString() || "Giấy tờ"}
+            placeholder={roomData?.num_papers?.toString()}
           />
         </div>
         <span style={{ color: "#666", fontSize: "20px" }}>|</span>
@@ -214,13 +225,13 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         backgroundColor: "#fff",
         borderRadius: "10px",
         boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-        padding: "5px",
+        padding: "16px",
         border: "1px solid #f5eaea",
         width: "40%",
-        height: "444px",
+        height: "auto",
       }}
     >
-      <div>
+      <div style={{ marginBottom: "16px" }}>
         <h2
           style={{
             fontSize: "18px",
@@ -231,18 +242,86 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             gap: "8px",
           }}
         >
-          Hạng phòng:
-          <ListTypeID
-            roomData={{ type_id: selectedType }} // Truyền type_id hiện tại
-            onSelectType={handleTypeSelect} // Truyền hàm chọn loại phòng
-          />
+          Hạng phòng: {roomData?.type_id}
         </h2>
-        <p style={{ fontSize: "16px", color: "#666" }}>{roomData?.room_name}</p>
       </div>
-      <div style={{ textAlign: "right" }}>
-        <p style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}>
-          {roomData?.price_override.toLocaleString()} VND
+
+      <Card
+        style={{
+          backgroundColor: "#f0f0f0",
+          borderRadius: "10px",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+          padding: "5px",
+          height: "100px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "5px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+              {roomData?.room_name || "Chưa có thông tin"}
+            </span>
+            <span
+              style={{
+                fontWeight: "bold",
+                color: "#FFA500",
+                fontSize: "14px",
+                marginLeft: "8px",
+              }}
+            >
+              {roomData?.status || "Chưa có thông tin"}
+            </span>
+          </div>
+          <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+            {roomData?.price_override?.toLocaleString() || "0"} VND
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "0px",
+          }}
+        >
+          <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+            {roomData?.check_in_time || "Chưa có thông tin"}
+          </p>
+          <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+            {roomData?.check_out_time || "Chưa có thông tin"}
+          </p>
+        </div>
+      </Card>
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: "16px",
+          right: "16px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <p style={{ fontSize: "14px", margin: 0, marginRight: "8px" }}>
+          Thêm phòng mới
         </p>
+        <PlusCircleOutlined
+          style={{
+            fontSize: "24px",
+            color: "#008BCA",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setIsModalOpen(false);
+          }}
+        />
       </div>
     </Card>
   );
@@ -352,6 +431,11 @@ const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       {showNewCustomersModal && (
         <NewCustomers onClose={handleNewCustomersModalClose} />
       )}
+      {/* Hiển thị RoomModal */}
+      <RoomModal
+        isModalOpen={isRoomModalOpen} // Truyền trạng thái modal
+        setIsModalOpen={setIsRoomModalOpen} // Hàm đóng modal
+      />
     </div>
   );
 };
