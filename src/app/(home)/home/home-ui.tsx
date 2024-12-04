@@ -13,6 +13,7 @@ import RoomModal from "@/components/roomModal";
 import RoomBooked from "@/components/roomBooked";
 import RoomUsing from "@/components/roomUsing";
 import RoomFinal from "@/components/roomFinal";
+import SetBookingRoomUI from "@/app/(setBookingRoom)/setBookingRoom/setBookingRoom-ui";
 
 export interface Room {
   room_id: string;
@@ -478,7 +479,7 @@ export default function HomePage() {
           roomData={selectedRoomData}
         />
       )}
-     
+
       <div className="flex w-full justify-between items-center h-[100px]">
         <div className="flex justify-between items-center">
           {["All", "Available", "Booked", "Using", "Time's Up"].map(
@@ -529,7 +530,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap mt-4 px-[50px]">
               {filteredRooms
-                .filter((room) => room.floor === item.children[0]?.floor) // Lọc các phòng chỉ cho tầng hiện tại
+                .filter((room) => room.floor === item.children[0]?.floor) 
                 .map((room) => (
                   <Card
                     onClick={() => handleRoomClick(room)}

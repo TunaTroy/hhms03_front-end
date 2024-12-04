@@ -18,6 +18,7 @@ interface RoomModalProps {
   setIsModalOpen: (open: boolean) => void;
   roomData?: {
     room_name: string;
+    type_id:string;
     status: string;
     floor: number;
     check_in_time: string;
@@ -298,8 +299,8 @@ const RoomModal: FC<RoomModalProps> = ({
             }}
           >
             <Input
-              style={{ width: "12%", textAlign: "center" }}
-              value={`Hạng phòng ${roomData.floor}`}
+              style={{ width: "12%", textAlign: "center", fontWeight: "bold" }}
+              value={roomData.type_id}
               readOnly
             />
             <div style={{ width: "12%", textAlign: "center" }}>

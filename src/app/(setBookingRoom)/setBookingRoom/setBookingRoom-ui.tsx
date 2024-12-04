@@ -9,7 +9,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import NewCustomers from "@/components/newCustomer";
-import RoomModal from "@/components/roomModal"; // Import RoomModal
+import RoomModal from "@/components/roomModal"; // Sử dụng RoomModal cho việc thêm phòng
 import ListTypeID from "@/components/listTypeID";
 
 const safeParse = (data: string | null) => {
@@ -62,9 +62,8 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     roomData?.type_id || ""
   );
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
-
-  // State để quản lý RoomModal
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -72,10 +71,6 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       if (storedData?.note && !roomData?.note) setNote(storedData.note);
     }
   }, [roomData]);
-
-  const handleClose = () => {
-    setIsModalOpen(false);
-  };
 
   const handleAddNewCustomer = () => {
     setShowNewCustomersModal(true);
@@ -87,6 +82,11 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNote(e.target.value);
+  };
+
+  const handleRoomModal = (room: Room) => {
+    setSelectedRoom(room);
+    setIsRoomModalOpen(true);
   };
 
   const handleSubmit = () => {
@@ -219,109 +219,422 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     </Card>
   );
 
-  const renderRoomInfo = () => (
+  const renderRoomInfo = () => {
+    const calculateTotalPrice = () => {
+      if (
+        roomData?.check_in_time &&
+        roomData?.check_out_time &&
+        roomData?.price_override
+      ) {
+        const checkIn = new Date(roomData.check_in_time);
+        const checkOut = new Date(roomData.check_out_time);
+        const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const basePrice = diffDays * roomData.price_override;
+        const bonus = roomData?.bonus || 0;
+        const penalty = roomData?.penalty || 0;
+        return basePrice + bonus - penalty;
+      }
+      return 0;
+    };
+
+    const totalPrice = calculateTotalPrice();
+
+    return (
+      <Card
+        style={{
+          position: "relative",
+          backgroundColor: "#fff",
+          borderRadius: "10px",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+          padding: "16px",
+          border: "1px solid #f5eaea",
+          width: "40%",
+          height: "auto",
+        }}
+      >
+        <div style={{ marginBottom: "16px" }}>
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginBottom: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            Hạng phòng: {roomData?.type_id}
+          </h2>
+        </div>
+
+        <Card
+          style={{
+            backgroundColor: "#f0f0f0",
+            borderRadius: "10px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+            padding: "5px",
+            height: "100px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "5px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                {roomData?.room_name || "Chưa có thông tin"}
+              </span>
+              <span
+                style={{
+                  fontWeight: "bold",
+                  color: "#FFA500",
+                  fontSize: "14px",
+                  marginLeft: "8px",
+                }}
+              >
+                {roomData?.status || "Chưa có thông tin"}
+              </span>
+            </div>
+            <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+              {roomData?.price_override?.toLocaleString() || "0"} VND
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "0px",
+            }}
+          >
+            <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+              {roomData?.check_in_time || "Chưa có thông tin"}
+            </p>
+            <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+              {roomData?.check_out_time || "Chưa có thông tin"}
+            </p>
+          </div>
+        </Card>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: "16px",
+            left: "16px",
+            right: "16px",
+          }}
+        >
+          {/* Hiển thị tiền thưởng và tiền phạt */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between", // Chia khoảng giữa 2 phần
+              borderTop: "1px solid #ddd",
+              paddingTop: "8px",
+              marginBottom: "8px", // Tạo khoảng cách giữa dòng tiền thưởng và tiền phạt
+            }}
+          >
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              Tiền thưởng:
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              {roomData?.bonus?.toLocaleString() || "0"} VND
+            </span>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between", // Chia khoảng giữa 2 phần
+              marginBottom: "8px",
+            }}
+          >
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              Tiền phạt:
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              {roomData?.penalty?.toLocaleString() || "0"} VND
+            </span>
+          </div>
+          {/* Hiển thị tổng tiền */}
+          <div
+            style={{
+              borderTop: "1px solid #ddd",
+              paddingTop: "8px",
+              textAlign: "right", // Căn phải
+            }}
+          >
+            <h3
+              style={{ fontSize: "20px", fontWeight: "bold", color: "#32CD32" }}
+            >
+              Tổng tiền: {totalPrice.toLocaleString()} VND
+            </h3>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderCard = () => (
     <Card
       style={{
         backgroundColor: "#fff",
         borderRadius: "10px",
         boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
         padding: "16px",
-        border: "1px solid #f5eaea",
-        width: "40%",
-        height: "auto",
+        border: "1px solid #f0f0f0",
+        width: "100%",
       }}
     >
-      <div style={{ marginBottom: "16px" }}>
-        <h2
-          style={{
-            fontSize: "18px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          Hạng phòng: {roomData?.type_id}
-        </h2>
-      </div>
-
-      <Card
-        style={{
-          backgroundColor: "#f0f0f0",
-          borderRadius: "10px",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-          padding: "5px",
-          height: "100px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "5px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-              {roomData?.room_name || "Chưa có thông tin"}
-            </span>
-            <span
-              style={{
-                fontWeight: "bold",
-                color: "#FFA500",
-                fontSize: "14px",
-                marginLeft: "8px",
-              }}
-            >
-              {roomData?.status || "Chưa có thông tin"}
-            </span>
-          </div>
-          <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-            {roomData?.price_override?.toLocaleString() || "0"} VND
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "0px",
-          }}
-        >
-          <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
-            {roomData?.check_in_time || "Chưa có thông tin"}
-          </p>
-          <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
-            {roomData?.check_out_time || "Chưa có thông tin"}
-          </p>
-        </div>
-      </Card>
-
+      {/* Header */}
       <div
         style={{
-          position: "absolute",
-          bottom: "16px",
-          right: "16px",
           display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
+          marginBottom: "16px",
         }}
       >
-        <p style={{ fontSize: "14px", margin: 0, marginRight: "8px" }}>
-          Thêm phòng mới
-        </p>
-        <PlusCircleOutlined
+        <h2 style={{ fontSize: "18px", fontWeight: "bold", margin: 0 }}>
+          {roomData?.room_name || "Phòng 502 - Phòng 02 giường đơn"}
+        </h2>
+        <span
           style={{
-            fontSize: "24px",
-            color: "#008BCA",
-            cursor: "pointer",
+            backgroundColor: "#FFE4E4",
+            color: "#D9534F",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            fontWeight: "bold",
           }}
-          onClick={() => {
-            setIsModalOpen(false);
+        >
+          Đã đặt trước
+        </span>
+      </div>
+
+      {/* Ghi chú */}
+      <div style={{ marginBottom: "16px" }}>
+        <input
+          type="text"
+          placeholder="Nhập ghi chú..."
+          style={{
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            fontSize: "14px",
           }}
         />
+      </div>
+
+      {/* Thông tin phòng */}
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          marginBottom: "16px",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px" }}>
+            Hình thức
+          </label>
+          <select
+            style={{
+              width: "100%",
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          >
+            <option value="giờ">Giờ</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px" }}>Phòng</label>
+          <select
+            style={{
+              width: "100%",
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          >
+            <option value="p502">P.502</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px" }}>
+            Nhận phòng
+          </label>
+          <input
+            type="datetime-local"
+            style={{
+              width: "100%",
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px" }}>
+            Trả phòng
+          </label>
+          <input
+            type="datetime-local"
+            style={{
+              width: "100%",
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontWeight: "bold", fontSize: "14px" }}>
+            Lưu trú
+          </label>
+          <input
+            type="text"
+            value="1 giờ"
+            readOnly
+            style={{
+              width: "100%",
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Bảng thông tin */}
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginBottom: "16px",
+        }}
+      >
+        <thead>
+          <tr>
+            <th
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "left",
+              }}
+            >
+              STT
+            </th>
+            <th
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "left",
+              }}
+            >
+              Hạng mục
+            </th>
+            <th
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              Số lượng
+            </th>
+            <th
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              Đơn giá
+            </th>
+            <th
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              Thành tiền
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
+              1
+            </td>
+            <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
+              Phòng 02 giường đơn (Giờ)
+            </td>
+            <td
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              1
+            </td>
+            <td
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              200,000
+            </td>
+            <td
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                textAlign: "right",
+              }}
+            >
+              200,000
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Tổng tiền */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderTop: "1px solid #ddd",
+          paddingTop: "16px",
+        }}
+      >
+        <button
+          style={{
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            padding: "8px 16px",
+            borderRadius: "4px",
+          }}
+        >
+          Sản phẩm, dịch vụ
+        </button>
+        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "bold" }}>
+          Tổng tiền: {roomData?.price_override.toLocaleString()} VND
+        </h3>
       </div>
     </Card>
   );
@@ -392,50 +705,13 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             gap: "20px",
           }}
         >
-          <Card
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "10px",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-              padding: "5px",
-              border: "1px solid #f5eaea",
-              width: "100%",
-              height: "333px",
-            }}
-          >
-            <div>
-              <h2
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  marginBottom: "10px",
-                }}
-              >
-                Phòng
-              </h2>
-              <p style={{ fontSize: "16px", color: "#666" }}>
-                {roomData?.room_id}
-              </p>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p
-                style={{ fontSize: "16px", fontWeight: "bold", color: "#333" }}
-              >
-                {roomData?.price_override.toLocaleString()} VND
-              </p>
-            </div>
-          </Card>
+          {renderCard()}
           {renderButtons()}
         </div>
       </div>
       {showNewCustomersModal && (
         <NewCustomers onClose={handleNewCustomersModalClose} />
       )}
-      {/* Hiển thị RoomModal */}
-      <RoomModal
-        isModalOpen={isRoomModalOpen} // Truyền trạng thái modal
-        setIsModalOpen={setIsRoomModalOpen} // Hàm đóng modal
-      />
     </div>
   );
 };
