@@ -19,6 +19,7 @@ interface RoomUsingProps {
     check_in_notice: string;
     note: string;
     price_override: number;
+    status: string;
   };
 }
 
@@ -61,6 +62,7 @@ const RoomUsing: FC<RoomUsingProps> = ({
         price_override: roomData.price_override,
         note: roomData.note,
         check_in_notice: roomData.check_in_notice,
+        status: roomData.status,
       })
     );
 

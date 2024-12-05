@@ -20,7 +20,8 @@ interface RoomFinalProps {
     stay_duration: string;
     check_in_notice: string;
     note: string;
-    price_override: number;
+    price_override: number,
+    status: string;
   };
 }
 
@@ -67,6 +68,7 @@ const RoomFinal: FC<RoomFinalProps> = ({
         price_override: roomData.price_override,
         note: roomData.note,
         check_in_notice: roomData.check_in_notice,
+        status: roomData.status,
       })
     );
 

@@ -21,6 +21,7 @@ interface RoomBookedProps {
     check_in_notice: string;
     note: string;
     price_override: number;
+    status: string;
   };
 }
 
@@ -61,6 +62,7 @@ const RoomBooked: FC<RoomBookedProps> = ({
         price_override: roomData.price_override, // Giá tùy chỉnh
         note: roomData.note, // Ghi chú thêm
         check_in_notice: roomData.check_in_notice,
+        status: roomData.status,
       })
     );
 
