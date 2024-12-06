@@ -804,24 +804,32 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
       }}
-    ><div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-    <Button
-      type="primary"
-      onClick={handleSubmit}
-      style={{
-        backgroundColor: "#008BCA",
-        borderColor: "#008BCA",
-        color: "white",
-        fontSize: "16px",
-        padding: "10px 20px",
-        borderRadius: "4px",
-        marginRight: "10px", // Khoảng cách giữa nút và biểu tượng
-      }}
     >
-      Lưu
-    </Button>
-    <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
-  </div>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          style={{
+            backgroundColor: "#008BCA",
+            borderColor: "#008BCA",
+            color: "white",
+            fontSize: "16px",
+            padding: "10px 20px",
+            borderRadius: "4px",
+            marginRight: "10px", // Khoảng cách giữa nút và biểu tượng
+          }}
+        >
+          Lưu
+        </Button>
+        <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
+      </div>
     </Card>
   );
 

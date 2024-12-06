@@ -530,7 +530,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap mt-4 px-[50px]">
               {filteredRooms
-                .filter((room) => room.floor === item.children[0]?.floor) 
+                .filter((room) => room.floor === item.children[0]?.floor)
                 .map((room) => (
                   <Card
                     onClick={() => handleRoomClick(room)}
