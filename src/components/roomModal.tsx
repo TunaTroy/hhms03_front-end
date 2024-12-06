@@ -10,7 +10,6 @@ import {
 } from "@ant-design/icons";
 import NewCustomers from "./newCustomer";
 
-
 const { Option } = Select;
 
 interface RoomModalProps {
@@ -18,7 +17,7 @@ interface RoomModalProps {
   setIsModalOpen: (open: boolean) => void;
   roomData?: {
     room_name: string;
-    type_id:string;
+    type_id: string;
     status: string;
     floor: number;
     check_in_time: string;
@@ -214,7 +213,6 @@ const RoomModal: FC<RoomModalProps> = ({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  
                 }}
               >
                 <UserOutlined style={{ marginRight: "1px" }} />

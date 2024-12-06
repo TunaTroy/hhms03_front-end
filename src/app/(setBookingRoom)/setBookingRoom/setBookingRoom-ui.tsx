@@ -1,7 +1,8 @@
 "use client";
 
-import { Modal, Input, Card, Button } from "antd";
+import { Modal, Input, Card, Button, Select, DatePicker } from "antd";
 import React, { FC, useState, useEffect } from "react";
+import moment, { Moment } from "moment";
 import {
   PlusCircleOutlined,
   UserOutlined,
@@ -11,6 +12,9 @@ import {
 import NewCustomers from "@/components/newCustomer";
 import RoomModal from "@/components/roomModal"; // Sử dụng RoomModal cho việc thêm phòng
 import ListTypeID from "@/components/listTypeID";
+import { totalmem } from "os";
+
+const { Option } = Select;
 
 const safeParse = (data: string | null) => {
   try {
@@ -72,6 +76,20 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     }
   }, [roomData]);
 
+  useEffect(() => {
+    if (checkInTime && checkOutTime) {
+      const durationInMs = moment(checkOutTime).diff(moment(checkInTime));
+
+      if (bookingType === "Giờ") {
+        const hours = Math.floor(durationInMs / (1000 * 60 * 60));
+        setEstimatedTime(`${hours} giờ`);
+      } else if (bookingType === "Ngày") {
+        const days = Math.floor(durationInMs / (1000 * 60 * 60 * 24));
+        setEstimatedTime(`${days} ngày`);
+      }
+    }
+  }, []);
+
   const handleAddNewCustomer = () => {
     setShowNewCustomersModal(true);
   };
@@ -114,18 +132,47 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     }
   };
 
-  const renderHeader = () => (
-    <h1
-      style={{
-        fontSize: "20px",
-        fontWeight: "bold",
-        marginBottom: "20px",
-        textAlign: "center",
-      }}
-    >
-      Sửa Đặt Phòng
-    </h1>
+  const [bookingType, setBookingType] = useState("Giờ");
+  const [estimatedTime, setEstimatedTime] = useState("");
+
+  const [checkInTime, setCheckInTime] = useState<Moment | null>(
+    roomData?.check_in_time ? moment(roomData.check_in_time) : null
   );
+
+  const [checkOutTime, setCheckOutTime] = useState<Moment | null>(
+    roomData?.check_out_time ? moment(roomData.check_out_time) : null
+  );
+
+  const calculateEstimatedTime = () => {
+    if (checkInTime && checkOutTime) {
+      const duration = checkOutTime.diff(checkInTime, "hours", true);
+      if (bookingType === "Giờ") {
+        setEstimatedTime(`${duration.toFixed(0)} Giờ`);
+      } else {
+        const days = Math.ceil(duration / 24);
+        setEstimatedTime(`${days} Ngày`);
+      }
+    } else {
+      setEstimatedTime("");
+    }
+  };
+
+  useEffect(() => {
+    calculateEstimatedTime();
+  }, [checkInTime, checkOutTime, bookingType]);
+
+  // const renderHeader = () => (
+  //   <h1
+  //     style={{
+  //       fontSize: "20px",
+  //       fontWeight: "bold",
+  //       marginBottom: "20px",
+  //       textAlign: "center",
+  //     }}
+  //   >
+  //     Sửa Đặt Phòng
+  //   </h1>
+  // );
 
   const renderCustomerInfo = () => (
     <Card
@@ -260,7 +307,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           padding: "16px",
           border: "1px solid #f5eaea",
           width: "40%",
-          height: "auto",
+          height: "520px",
         }}
       >
         <div style={{ marginBottom: "16px" }}>
@@ -357,7 +404,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             }}
           >
             <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-              Tiền thưởng:
+              Tiền dịch vụ:
             </span>
             <span style={{ fontSize: "14px", fontWeight: "bold" }}>
               {roomData?.bonus?.toLocaleString() || "0"} VND
@@ -408,7 +455,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         padding: "16px",
         border: "1px solid #f0f0f0",
         width: "100%",
-        
+        height: "430px",
       }}
     >
       <div
@@ -507,89 +554,109 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         </div>
       </div>
 
-      {/* Thông tin phòng */}
+      {/* Thông tin của dữ liệu phòng  */}
       <div
         style={{
-          display: "flex",
-          gap: "16px",
+          backgroundColor: "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          padding: "16px",
           marginBottom: "16px",
-          flexWrap: "wrap",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <div style={{ flex: 1 }}>
-          <label style={{ fontWeight: "bold", fontSize: "12px" }}>
-            Hình thức
-          </label>
-          <select
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            flexWrap: "nowrap", // Chỉ cho phép trên một dòng
+            justifyContent: "space-between", // Tạo khoảng cách đều giữa các phần tử
+          }}
+        >
+          <div
             style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
+              width: "11%",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <option value="giờ">Giờ</option>
-          </select>
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ fontWeight: "bold", fontSize: "12px" }}>Phòng</label>
-          <select
+            <label style={{ fontWeight: "bold", fontSize: "12px" }}>
+              Hình thức
+            </label>
+            <Select
+              style={{ width: "100%" }}
+              value={bookingType}
+              onChange={setBookingType}
+            >
+              <Option value="Giờ">Giờ</Option>
+              <Option value="Ngày">Ngày</Option>
+            </Select>
+          </div>
+          <div style={{ width: "15%", textAlign: "center" }}>
+            <label style={{ fontWeight: "bold", fontSize: "12px" }}>
+              Phòng
+            </label>
+            <Input
+              style={{ textAlign: "center" }}
+              value={roomData.room_name}
+              readOnly
+            />
+          </div>
+          <div
             style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
+              width: "23%",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <option value="p502">P.502</option>
-          </select>
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ fontWeight: "bold", fontSize: "12px" }}>
-            Nhận phòng
-          </label>
-          <input
-            type="datetime-local"
+            <label style={{ fontWeight: "bold", fontSize: "12px" }}>
+              Nhận phòng
+            </label>
+            <DatePicker
+              showTime
+              value={checkInTime}
+              onChange={(date) => setCheckInTime(date)}
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div
             style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
+              width: "23%",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ fontWeight: "bold", fontSize: "12px" }}>
-            Trả phòng
-          </label>
-          <input
-            type="datetime-local"
-            style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-            }}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ fontWeight: "bold", fontSize: "12px" }}>
-            Lưu trú
-          </label>
-          <input
-            type="text"
-            value="1 giờ"
-            readOnly
-            style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-            }}
-          />
+          >
+            <label style={{ fontWeight: "bold", fontSize: "12px" }}>
+              Trả phòng
+            </label>
+            <DatePicker
+              showTime
+              value={checkOutTime}
+              onChange={(date) => setCheckOutTime(date)}
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div style={{ width: "13%", textAlign: "center" }}>
+            <label style={{ fontWeight: "bold", fontSize: "12px" }}>
+              Lưu trú
+            </label>
+            <Input
+              style={{ textAlign: "center" }}
+              value={estimatedTime}
+              readOnly
+            />
+          </div>
         </div>
       </div>
-
       {/* Bảng thông tin */}
       <table
         style={{
@@ -616,7 +683,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 textAlign: "left",
               }}
             >
-              Hạng mục
+              Hạng phòng
             </th>
             <th
               style={{
@@ -625,7 +692,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 textAlign: "right",
               }}
             >
-              Số lượng
+              Lưu trú
             </th>
             <th
               style={{
@@ -650,10 +717,10 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         <tbody>
           <tr>
             <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
-              1
+              {roomData.room_name}
             </td>
             <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
-              Phòng 02 giường đơn (Giờ)
+              {roomData.type_id}
             </td>
             <td
               style={{
@@ -662,7 +729,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 textAlign: "right",
               }}
             >
-              1
+              {estimatedTime}
             </td>
             <td
               style={{
@@ -671,7 +738,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 textAlign: "right",
               }}
             >
-              200,000
+              {roomData.price_override}
             </td>
             <td
               style={{
@@ -680,20 +747,22 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 textAlign: "right",
               }}
             >
-              200,000
+              {roomData.price_override * parseInt(estimatedTime)}
             </td>
           </tr>
         </tbody>
       </table>
 
-      {/* Tổng tiền */}
+      {/* Tổng tiền và nút ở cuối */}
       <div
         style={{
+          bottom: "10px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderTop: "1px solid #ddd",
-          paddingTop: "16px",
+          position: "absolute",
+          left: 50,
+          right: 50, // Để chiếm toàn bộ chiều ngang
         }}
       >
         <button
@@ -701,14 +770,21 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             backgroundColor: "#007bff",
             color: "#fff",
             border: "none",
-            padding: "8px 16px",
+            padding: "8px 12px",
             borderRadius: "4px",
           }}
         >
           Sản phẩm, dịch vụ
         </button>
-        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "bold" }}>
-          Tổng tiền: {roomData?.price_override.toLocaleString()} VND
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "18px",
+            fontWeight: "bold",
+            textAlign: "right",
+          }}
+        >
+          Tổng tiền: {roomData.price_override * parseInt(estimatedTime)} VND
         </h3>
       </div>
     </Card>
@@ -723,32 +799,29 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         padding: "10px",
         border: "1px solid #f5eaea",
         width: "100%",
-        height: "90px",
+        height: "70px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
       }}
+    ><div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+    <Button
+      type="primary"
+      onClick={handleSubmit}
+      style={{
+        backgroundColor: "#008BCA",
+        borderColor: "#008BCA",
+        color: "white",
+        fontSize: "16px",
+        padding: "10px 20px",
+        borderRadius: "4px",
+        marginRight: "10px", // Khoảng cách giữa nút và biểu tượng
+      }}
     >
-      <div style={{ flex: 1 }}>
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          style={{
-            backgroundColor: "#008BCA",
-            borderColor: "#008BCA",
-            color: "white",
-            fontSize: "16px",
-            padding: "10px 20px",
-            borderRadius: "4px",
-            width: "100%",
-          }}
-        >
-          Lưu
-        </Button>
-      </div>
-      <div>
-        <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
-      </div>
+      Lưu
+    </Button>
+    <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
+  </div>
     </Card>
   );
 
@@ -762,7 +835,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         margin: "auto",
       }}
     >
-      {renderHeader()}
+      {/* {renderHeader()} */}
       {renderCustomerInfo()}
       <div
         style={{
