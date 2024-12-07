@@ -15,6 +15,7 @@ import RoomUsing from "@/components/roomUsing";
 import RoomFinal from "@/components/roomFinal";
 import SetBookingRoomUI from "@/app/(setBookingRoom)/setBookingRoom/setBookingRoom-ui";
 
+
 export interface Room {
   room_id: string;
   room_name: string;
@@ -86,7 +87,7 @@ export default function HomePage() {
         cleaning_status: "dirty",
         current_guest: "John Doe",
         note: "Anh đạt đẹp trai nhất vũ trụ",
-        price_override: 500,
+        price_override: 1500,
         num_guests: 2,
         num_papers: 2,
         stay_duration: "1 day",

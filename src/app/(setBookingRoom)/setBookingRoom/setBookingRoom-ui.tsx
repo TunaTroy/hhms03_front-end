@@ -278,11 +278,18 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         const basePrice = diffDays * roomData.price_override;
-        const bonus = roomData?.bonus || 0;
+
+        const bonus = roomData?.bonus || 1;
         const penalty = roomData?.penalty || 0;
-        return basePrice + bonus - penalty;
+
+        // Tính tổng
+        const totalPrice =
+          roomData.price_override * parseInt(estimatedTime) + bonus + penalty;
+
+        // Định dạng kết quả cuối cùng
+        return totalPrice.toLocaleString();
       }
-      return 0;
+      return "0";
     };
 
     const totalPrice = calculateTotalPrice();
@@ -366,7 +373,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
               </span>
             </div>
             <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-              {roomData?.price_override?.toLocaleString() || "0"} VND
+              {roomData?.price_override?.toLocaleString() || "0"}
             </span>
           </div>
 
@@ -404,10 +411,28 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             }}
           >
             <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              Tiền phòng:
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+              {(
+                roomData.price_override * parseInt(estimatedTime)
+              ).toLocaleString()}
+            </span>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+
+              paddingTop: "8px",
+              marginBottom: "8px",
+            }}
+          >
+            <span style={{ fontSize: "14px", fontWeight: "bold" }}>
               Tiền dịch vụ:
             </span>
             <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-              {roomData?.bonus?.toLocaleString() || "0"} VND
+              {roomData?.bonus?.toLocaleString() || "1"}
             </span>
           </div>
           <div
@@ -421,7 +446,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
               Tiền phạt:
             </span>
             <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-              {roomData?.penalty?.toLocaleString() || "0"} VND
+              {roomData?.penalty?.toLocaleString() || "0"}
             </span>
           </div>
           <div
@@ -672,6 +697,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "left",
+                color: "#aaa",
               }}
             >
               STT
@@ -681,6 +707,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "left",
+                color: "#aaa",
               }}
             >
               Hạng phòng
@@ -690,6 +717,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                color: "#aaa",
               }}
             >
               Lưu trú
@@ -699,6 +727,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                color: "#aaa",
               }}
             >
               Đơn giá
@@ -708,6 +737,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                color: "#aaa",
               }}
             >
               Thành tiền
@@ -716,10 +746,22 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         </thead>
         <tbody>
           <tr>
-            <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
+            <td
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                fontWeight: "bold",
+              }}
+            >
               {roomData.room_name}
             </td>
-            <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
+            <td
+              style={{
+                borderBottom: "1px solid #ddd",
+                padding: "8px",
+                fontWeight: "bold",
+              }}
+            >
               {roomData.type_id}
             </td>
             <td
@@ -727,6 +769,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                fontWeight: "bold",
               }}
             >
               {estimatedTime}
@@ -736,6 +779,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                fontWeight: "bold",
               }}
             >
               {roomData.price_override}
@@ -745,9 +789,12 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
                 borderBottom: "1px solid #ddd",
                 padding: "8px",
                 textAlign: "right",
+                fontWeight: "bold",
               }}
             >
-              {roomData.price_override * parseInt(estimatedTime)}
+              {(
+                roomData.price_override * parseInt(estimatedTime)
+              ).toLocaleString()}
             </td>
           </tr>
         </tbody>
@@ -758,7 +805,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         style={{
           bottom: "10px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           alignItems: "center",
           position: "absolute",
           left: 50,
@@ -767,13 +814,14 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
       >
         <h3
           style={{
-            margin: 0,
             fontSize: "18px",
             fontWeight: "bold",
             textAlign: "right",
+            paddingLeft: "10px",
           }}
         >
-          Tổng tiền: {roomData.price_override * parseInt(estimatedTime)} VND
+          Tiền phòng:{" "}
+          {(roomData.price_override * parseInt(estimatedTime)).toLocaleString()}
         </h3>
       </div>
     </Card>
@@ -790,21 +838,11 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         width: "100%",
         height: "70px",
         display: "flex",
-        justifyContent: "end",
         alignItems: "center",
+        justifyContent: "end",
       }}
     >
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <DeleteOutlined
-          style={{ cursor: "pointer", fontSize: "24px", paddingRight: "10px" }}
-        />
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
         <Button
           type="primary"
           onClick={handleSubmit}
@@ -815,10 +853,24 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             fontSize: "16px",
             padding: "10px 13px",
             borderRadius: "4px",
-            marginRight: "10px", // Khoảng cách giữa nút và biểu tượng
           }}
         >
           Lưu
+        </Button>
+
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          style={{
+            backgroundColor: "#008BCA",
+            borderColor: "#008BCA",
+            color: "white",
+            fontSize: "16px",
+            padding: "10px 13px",
+            borderRadius: "4px",
+          }}
+        >
+          Thanh toán
         </Button>
       </div>
     </Card>

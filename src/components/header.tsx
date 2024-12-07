@@ -43,7 +43,7 @@ let header: { icon: JSX.Element; route: string; checked: boolean }[] = [
   },
   {
     icon: <DollarOutlined />,
-    route: "/pay", // Thêm dòng này
+    route: "/pay", 
     checked: false,
   },
   {
