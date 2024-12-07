@@ -765,17 +765,6 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           right: 50, // Để chiếm toàn bộ chiều ngang
         }}
       >
-        <button
-          style={{
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            padding: "8px 12px",
-            borderRadius: "4px",
-          }}
-        >
-          Sản phẩm, dịch vụ
-        </button>
         <h3
           style={{
             margin: 0,
@@ -801,7 +790,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         width: "100%",
         height: "70px",
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "end",
         alignItems: "center",
       }}
     >
@@ -813,6 +802,9 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           alignItems: "center",
         }}
       >
+        <DeleteOutlined
+          style={{ cursor: "pointer", fontSize: "24px", paddingRight: "10px" }}
+        />
         <Button
           type="primary"
           onClick={handleSubmit}
@@ -821,14 +813,13 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             borderColor: "#008BCA",
             color: "white",
             fontSize: "16px",
-            padding: "10px 20px",
+            padding: "10px 13px",
             borderRadius: "4px",
             marginRight: "10px", // Khoảng cách giữa nút và biểu tượng
           }}
         >
           Lưu
         </Button>
-        <DeleteOutlined style={{ cursor: "pointer", fontSize: "24px" }} />
       </div>
     </Card>
   );
