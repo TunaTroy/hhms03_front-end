@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Input,
@@ -23,19 +23,33 @@ interface PaymentProps {
   setIsModalOpen: (open: boolean) => void;
 }
 
+interface RoomData {
+  room_name: string;
+  type_id: string;
+  current_guest: string;
+  check_in_time: string;
+  check_out_time: string;
+  num_guests: number;
+  num_papers: number;
+  room_id: string;
+  stay_duration: string;
+  check_in_notice: string;
+  note: string;
+  price_override: number;
+  status: string;
+}
+
 interface InvoiceItem {
   key: string;
   item: string;
+  type: string; // Thêm cột loại
   quantity: string;
   unitPrice: number;
   total: number;
 }
 
 const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
-  const handleClose = () => {
-    setIsModalOpen(false);
-  };
-
+  const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [selectedEmployee, setSelectedEmployee] =
     useState<string>("Chưa xác định");
   const [createdTime, setCreatedTime] = useState<moment.Moment | null>(
@@ -45,22 +59,61 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
   const [otherFees, setOtherFees] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
 
-  const invoiceData: InvoiceItem[] = [
-    {
-      key: "1",
-      item: "Phòng 01 giường đôi cho 2 người",
-      quantity: "50 Giờ",
-      unitPrice: 180000,
-      total: 9000000,
-    },
-  ];
+  useEffect(() => {
+    const storedRoomData = localStorage.getItem("bookingRoomData");
+    if (storedRoomData) {
+      setRoomData(JSON.parse(storedRoomData));
+    }
+  }, []);
+
+  const calculateEstimatedTime = () => {
+    if (roomData?.check_in_time && roomData?.check_out_time) {
+      const checkIn = moment(roomData.check_in_time);
+      const checkOut = moment(roomData.check_out_time);
+      const duration = checkOut.diff(checkIn, "hours");
+      return `${duration} Giờ`;
+    }
+    return "0 Giờ";
+  };
+
+  // Tạo dữ liệu hóa đơn với các dòng "Tiền dịch vụ" và "Tiền phạt"
+  const invoiceData: InvoiceItem[] = roomData
+    ? [
+        {
+          key: "1",
+          item: roomData.type_id, // Hạng mục
+          type: "Tiền phòng", // Loại tiền
+          quantity: calculateEstimatedTime(),
+          unitPrice: roomData.price_override,
+          total:
+            roomData.price_override *
+            parseInt(calculateEstimatedTime().split(" ")[0]),
+        },
+        {
+          key: "2",
+          item: "Dịch vụ",
+          type: "Tiền dịch vụ",
+          quantity: "1",
+          unitPrice: 100000, // Giả sử tiền dịch vụ là 100.000 VNĐ
+          total: 100000,
+        },
+        {
+          key: "3",
+          item: "Phạt",
+          type: "Tiền phạt",
+          quantity: "1",
+          unitPrice: 50000, // Giả sử tiền phạt là 50.000 VNĐ
+          total: 50000,
+        },
+      ]
+    : [];
 
   const columns: ColumnsType<InvoiceItem> = [
     {
-      title: "Chọn",
-      dataIndex: "select",
-      render: () => <Input type="checkbox" checked />,
-      width: "5%",
+      title: "Loại tiền",
+      dataIndex: "type",
+      key: "type",
+      width: "20%",
     },
     {
       title: "Hạng mục",
@@ -68,6 +121,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       key: "item",
       width: "40%",
     },
+
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -93,6 +147,25 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
   const total = invoiceData.reduce((sum, item) => sum + item.total, 0);
   const amountDue = total - discount - otherFees;
 
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSaveInvoice = () => {
+    const invoice = {
+      createdTime: createdTime?.format("DD/MM/YYYY HH:mm"),
+      total,
+      discount,
+      otherFees,
+      amountDue,
+      paymentMethod,
+      invoiceData,
+    };
+
+    localStorage.setItem("invoiceData", JSON.stringify(invoice));
+    alert("Hóa đơn đã được lưu vào localStorage!");
+  };
+
   return (
     <Modal
       title={<strong>Tạo hóa đơn mới</strong>}
@@ -103,7 +176,6 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       closeIcon={<CloseOutlined />}
     >
       <Row gutter={[16, 16]}>
-        {/* Table Section */}
         <Col span={16}>
           <div
             style={{
@@ -113,8 +185,32 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
             }}
           >
             <div>
-              <strong>P.202</strong>{" "}
-              <span style={{ color: "#999" }}>Đã trả</span>
+              <strong>{roomData?.room_name || "Phòng"}</strong>{" "}
+              <span
+                style={{
+                  backgroundColor:
+                    roomData?.status === "Booked" ||
+                    roomData?.status === "Using" ||
+                    roomData?.status === "Time's Up"
+                      ? "#E8F5E9"
+                      : "#FFF8E1",
+                  color:
+                    roomData?.status === "Booked"
+                      ? "#FFA500"
+                      : roomData?.status === "Using"
+                      ? "#32CD32"
+                      : roomData?.status === "Time's Up"
+                      ? "#06BE92"
+                      : "#FFC107",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginLeft: "8px",
+                }}
+              >
+                {roomData?.status || "Unknown"}
+              </span>
             </div>
           </div>
           <Table
@@ -135,7 +231,6 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
           />
         </Col>
 
-        {/* Summary Section */}
         <Col span={8}>
           <div style={{ marginBottom: "16px" }}>
             <Row gutter={[8, 8]}>
@@ -245,6 +340,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
               borderColor: "#4CAF50",
             }}
             size="large"
+            onClick={handleSaveInvoice}
           >
             Hoàn thành
           </Button>
