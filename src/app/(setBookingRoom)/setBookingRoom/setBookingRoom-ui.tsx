@@ -10,9 +10,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import NewCustomers from "@/components/newCustomer";
-import RoomModal from "@/components/roomModal"; // Sử dụng RoomModal cho việc thêm phòng
-import ListTypeID from "@/components/listTypeID";
-import { totalmem } from "os";
+import Payment from "@/components/payment";
 
 const { Option } = Select;
 
@@ -69,6 +67,16 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>(undefined);
 
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const handleOpenPaymentModal = () => {
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedData = safeParse(localStorage.getItem("bookingRoomData"));
@@ -102,11 +110,6 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     setNote(e.target.value);
   };
 
-  const handleRoomModal = (room: Room) => {
-    setSelectedRoom(room);
-    setIsRoomModalOpen(true);
-  };
-
   const handleSubmit = () => {
     const updatedRoomData = {
       ...roomData,
@@ -121,15 +124,8 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
     console.log("Dữ liệu đã lưu:", updatedRoomData);
   };
 
-  const handleTypeSelect = (typeId: string) => {
-    setSelectedType(typeId);
-    const updatedRoomData = {
-      ...roomData,
-      type_id: typeId,
-    };
-    if (typeof window !== "undefined") {
-      localStorage.setItem("bookingRoomData", JSON.stringify(updatedRoomData));
-    }
+  const handleOpenPayment = () => {
+    setIsModalOpen(true);
   };
 
   const [bookingType, setBookingType] = useState("Giờ");
@@ -160,19 +156,6 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
   useEffect(() => {
     calculateEstimatedTime();
   }, [checkInTime, checkOutTime, bookingType]);
-
-  // const renderHeader = () => (
-  //   <h1
-  //     style={{
-  //       fontSize: "20px",
-  //       fontWeight: "bold",
-  //       marginBottom: "20px",
-  //       textAlign: "center",
-  //     }}
-  //   >
-  //     Sửa Đặt Phòng
-  //   </h1>
-  // );
 
   const renderCustomerInfo = () => (
     <Card
@@ -560,6 +543,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
             } else if (roomData?.status === "Time's Up") {
               return (
                 <button
+                  onClick={handleOpenPayment} // Gọi hàm khi nút được nhấn
                   style={{
                     backgroundColor: "#06BE92", // Màu xanh thẫm cho Time's Up
                     color: "#fff",
@@ -860,7 +844,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
 
         <Button
           type="primary"
-          onClick={handleSubmit}
+          onClick={handleOpenPaymentModal}
           style={{
             backgroundColor: "#008BCA",
             borderColor: "#008BCA",
@@ -872,6 +856,10 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
         >
           Thanh toán
         </Button>
+        <Payment
+          isModalOpen={isPaymentModalOpen}
+          setIsModalOpen={setIsPaymentModalOpen}
+        />
       </div>
     </Card>
   );
