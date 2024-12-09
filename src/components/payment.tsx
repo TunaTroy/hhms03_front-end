@@ -15,6 +15,8 @@ import {
 import { CloseOutlined, CreditCardOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import moment from "moment";
+import ServicePay from "./servicePay"; // Import component ServicePay
+import PenaltyPay from "./penaltyPay"; // Import component PenaltyPay
 
 const { Option } = Select;
 
@@ -42,7 +44,7 @@ interface RoomData {
 interface InvoiceItem {
   key: string;
   item: string;
-  type: string; // Thêm cột loại
+  type: string;
   quantity: string;
   unitPrice: number;
   total: number;
@@ -58,6 +60,10 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
   const [discount, setDiscount] = useState<number>(0);
   const [otherFees, setOtherFees] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
+  const [totalService, setTotalService] = useState<number>(0); // Khởi tạo với giá trị 0
+  const [totalPenalty, setTotalPenalty] = useState<number>(0); // Khởi tạo với giá trị 0
+  const [showServicePay, setShowServicePay] = useState<boolean>(false);
+  const [showPenaltyPay, setShowPenaltyPay] = useState<boolean>(false);
 
   useEffect(() => {
     const storedRoomData = localStorage.getItem("bookingRoomData");
@@ -76,13 +82,12 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
     return "0 Giờ";
   };
 
-  // Tạo dữ liệu hóa đơn với các dòng "Tiền dịch vụ" và "Tiền phạt"
   const invoiceData: InvoiceItem[] = roomData
     ? [
         {
           key: "1",
-          item: roomData.type_id, // Hạng mục
-          type: "Tiền phòng", // Loại tiền
+          item: roomData.type_id,
+          type: "Tiền phòng",
           quantity: calculateEstimatedTime(),
           unitPrice: roomData.price_override,
           total:
@@ -91,19 +96,19 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
         },
         {
           key: "2",
-          item: "Dịch vụ",
+          item: "Nước lọc, Bò húc, Coca, Giặt",
           type: "Tiền dịch vụ",
-          quantity: "1",
-          unitPrice: 100000, // Giả sử tiền dịch vụ là 100.000 VNĐ
-          total: 100000,
+          quantity: "4 dịch vụ",
+          unitPrice: totalService,
+          total: totalService,
         },
         {
           key: "3",
           item: "Phạt",
           type: "Tiền phạt",
           quantity: "1",
-          unitPrice: 50000, // Giả sử tiền phạt là 50.000 VNĐ
-          total: 50000,
+          unitPrice: totalPenalty,
+          total: totalPenalty,
         },
       ]
     : [];
@@ -119,9 +124,8 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       title: "Hạng mục",
       dataIndex: "item",
       key: "item",
-      width: "40%",
+      width: "32%",
     },
-
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -132,7 +136,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       title: "Đơn giá",
       dataIndex: "unitPrice",
       key: "unitPrice",
-      render: (text) => text.toLocaleString("vi-VN"),
+      render: (text) => (text ? text.toLocaleString("vi-VN") : ""),
       width: "15%",
     },
     {
@@ -140,7 +144,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       dataIndex: "total",
       key: "total",
       render: (text) => text.toLocaleString("vi-VN"),
-      width: "15%",
+      width: "23%",
     },
   ];
 
@@ -166,187 +170,229 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
     alert("Hóa đơn đã được lưu vào localStorage!");
   };
 
+  const handleRowClick = (record: InvoiceItem) => {
+    if (record.type === "Tiền dịch vụ") {
+      setShowServicePay(true);
+    } else if (record.type === "Tiền phạt") {
+      setShowPenaltyPay(true);
+    }
+  };
+
   return (
-    <Modal
-      title={<strong>Tạo hóa đơn mới</strong>}
-      open={isModalOpen}
-      onCancel={handleClose}
-      footer={null}
-      width={1000}
-      closeIcon={<CloseOutlined />}
-    >
-      <Row gutter={[16, 16]}>
-        <Col span={16}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "8px",
-            }}
-          >
-            <div>
-              <strong>{roomData?.room_name || "Phòng"}</strong>{" "}
-              <span
-                style={{
-                  backgroundColor:
-                    roomData?.status === "Booked" ||
-                    roomData?.status === "Using" ||
-                    roomData?.status === "Time's Up"
-                      ? "#E8F5E9"
-                      : "#FFF8E1",
-                  color:
-                    roomData?.status === "Booked"
-                      ? "#FFA500"
-                      : roomData?.status === "Using"
-                      ? "#32CD32"
-                      : roomData?.status === "Time's Up"
-                      ? "#06BE92"
-                      : "#FFC107",
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                  marginLeft: "8px",
-                }}
-              >
-                {roomData?.status || "Unknown"}
-              </span>
-            </div>
-          </div>
-          <Table
-            columns={columns}
-            dataSource={invoiceData}
-            pagination={false}
-            bordered
-            summary={() => (
-              <Table.Summary.Row>
-                <Table.Summary.Cell colSpan={4}>
-                  <strong>Tổng cộng</strong>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={0}>
-                  <strong>{total.toLocaleString("vi-VN")}</strong>
-                </Table.Summary.Cell>
-              </Table.Summary.Row>
-            )}
-          />
-        </Col>
-
-        <Col span={8}>
-          <div style={{ marginBottom: "16px" }}>
-            <Row gutter={[8, 8]}>
-              <Col span={12}>
-                <Select
-                  style={{ width: "100%" }}
-                  value={selectedEmployee}
-                  onChange={(value) => setSelectedEmployee(value)}
-                >
-                  <Option value="Chưa xác định">Chưa xác định</Option>
-                  <Option value="Nhân viên 1">Nhân viên 1</Option>
-                  <Option value="Nhân viên 2">Nhân viên 2</Option>
-                </Select>
-              </Col>
-              <Col span={12}>
-                <DatePicker
-                  showTime
-                  value={createdTime}
-                  onChange={(date) => setCreatedTime(date)}
-                  format="DD/MM/YYYY HH:mm"
-                  style={{ width: "100%" }}
-                />
-              </Col>
-            </Row>
-          </div>
-
-          <div
-            style={{
-              marginBottom: "16px",
-              backgroundColor: "#f9f9f9",
-              padding: "16px",
-              borderRadius: "4px",
-            }}
-          >
-            <Row justify="space-between" style={{ marginBottom: "8px" }}>
-              <Col>Tổng cộng:</Col>
-              <Col>
-                <strong>{total.toLocaleString("vi-VN")}</strong>
-              </Col>
-            </Row>
-            <Row justify="space-between" style={{ marginBottom: "8px" }}>
-              <Col>Giảm giá:</Col>
-              <Col>
-                <Input
-                  type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(Number(e.target.value))}
-                  style={{ width: "100px", textAlign: "right" }}
-                />
-              </Col>
-            </Row>
-            <Row justify="space-between" style={{ marginBottom: "8px" }}>
-              <Col>Thu khác:</Col>
-              <Col>
-                <Input
-                  type="number"
-                  value={otherFees}
-                  onChange={(e) => setOtherFees(Number(e.target.value))}
-                  style={{ width: "100px", textAlign: "right" }}
-                />
-              </Col>
-            </Row>
-            <Row justify="space-between">
-              <Col>
-                <strong>Còn cần trả:</strong>
-              </Col>
-              <Col>
-                <strong style={{ color: "#4CAF50" }}>
-                  {amountDue.toLocaleString("vi-VN")}
-                </strong>
-              </Col>
-            </Row>
-          </div>
-
-          <div
-            style={{
-              marginBottom: "16px",
-              backgroundColor: "#f9f9f9",
-              padding: "16px",
-              borderRadius: "4px",
-            }}
-          >
-            <div style={{ marginBottom: "8px" }}>
-              <strong>Phương thức thanh toán</strong>
-            </div>
-            <Radio.Group
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              style={{ marginBottom: "8px" }}
+    <>
+      <Modal
+        title={<strong>Tạo hóa đơn mới</strong>}
+        open={isModalOpen}
+        onCancel={handleClose}
+        footer={null}
+        width={1000}
+        closeIcon={<CloseOutlined />}
+        style={{
+          position: "absolute",
+          right: 0,
+          top: "10%",
+          height: "80vh",
+        }}
+        bodyStyle={{ height: "80vh" }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col span={16}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "8px",
+              }}
             >
-              <Radio value="Cash">Tiền mặt</Radio>
-              <Radio value="Transfer">Chuyển khoản</Radio>
-            </Radio.Group>
-            <Input
-              prefix={<CreditCardOutlined />}
-              value={amountDue.toLocaleString("vi-VN")}
-              readOnly
-              style={{ textAlign: "right" }}
+              <div>
+                <strong>{roomData?.room_name || "Phòng"}</strong>{" "}
+                <span
+                  style={{
+                    backgroundColor:
+                      roomData?.status === "Booked" ||
+                      roomData?.status === "Using" ||
+                      roomData?.status === "Time's Up"
+                        ? "#E8F5E9"
+                        : "#FFF8E1",
+                    color:
+                      roomData?.status === "Booked"
+                        ? "#FFA500"
+                        : roomData?.status === "Using"
+                        ? "#32CD32"
+                        : roomData?.status === "Time's Up"
+                        ? "#06BE92"
+                        : "#FFC107",
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginLeft: "8px",
+                  }}
+                >
+                  {roomData?.status || "Unknown"}
+                </span>
+              </div>
+            </div>
+            <Table
+              columns={columns}
+              dataSource={invoiceData}
+              pagination={false}
+              bordered
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+              })}
+              summary={() => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell colSpan={4}>
+                    <strong>Tổng cộng</strong>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={0}>
+                    <strong>{total.toLocaleString("vi-VN")}</strong>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
             />
-          </div>
+          </Col>
 
-          <Button
-            type="primary"
-            style={{
-              width: "100%",
-              backgroundColor: "#4CAF50",
-              borderColor: "#4CAF50",
-            }}
-            size="large"
-            onClick={handleSaveInvoice}
-          >
-            Hoàn thành
-          </Button>
-        </Col>
-      </Row>
-    </Modal>
+          <Col span={8}>
+            <div style={{ marginBottom: "16px" }}>
+              <Row gutter={[8, 8]}>
+                <Col span={12}>
+                  <Select
+                    style={{ width: "100%" }}
+                    value={selectedEmployee}
+                    onChange={(value) => setSelectedEmployee(value)}
+                  >
+                    <Option value="Chưa xác định">Chưa xác định</Option>
+                    <Option value="Nhân viên 1">Nhân viên 1</Option>
+                    <Option value="Nhân viên 2">Nhân viên 2</Option>
+                  </Select>
+                </Col>
+                <Col span={12}>
+                  <DatePicker
+                    showTime
+                    value={createdTime}
+                    onChange={(date) => setCreatedTime(date)}
+                    format="DD/MM/YYYY HH:mm"
+                    style={{ width: "100%" }}
+                  />
+                </Col>
+              </Row>
+            </div>
+
+            <div
+              style={{
+                marginBottom: "16px",
+                backgroundColor: "#f9f9f9",
+                padding: "16px",
+                borderRadius: "4px",
+              }}
+            >
+              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+                <Col>Tổng cộng:</Col>
+                <Col>
+                  <strong>{total.toLocaleString("vi-VN")}</strong>
+                </Col>
+              </Row>
+              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+                <Col>Giảm giá:</Col>
+                <Col>
+                  <Input
+                    type="number"
+                    value={discount}
+                    onChange={(e) => setDiscount(Number(e.target.value))}
+                    style={{ width: "100px", textAlign: "right" }}
+                  />
+                </Col>
+              </Row>
+              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+                <Col>Thu khác:</Col>
+                <Col>
+                  <Input
+                    type="number"
+                    value={otherFees}
+                    onChange={(e) => setOtherFees(Number(e.target.value))}
+                    style={{ width: "100px", textAlign: "right" }}
+                  />
+                </Col>
+              </Row>
+              <Row justify="space-between">
+                <Col>
+                  <strong>Còn cần trả:</strong>
+                </Col>
+                <Col>
+                  <strong style={{ color: "#4CAF50" }}>
+                    {amountDue.toLocaleString("vi-VN")}
+                  </strong>
+                </Col>
+              </Row>
+            </div>
+
+            <div
+              style={{
+                marginBottom: "16px",
+                backgroundColor: "#f9f9f9",
+                padding: "16px",
+                borderRadius: "4px",
+              }}
+            >
+              <div style={{ marginBottom: "8px" }}>
+                <strong>Phương thức thanh toán</strong>
+              </div>
+              <Radio.Group
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                style={{ marginBottom: "8px" }}
+              >
+                <Radio value="Cash">Tiền mặt</Radio>
+                <Radio value="Transfer">Chuyển khoản</Radio>
+              </Radio.Group>
+              <Input
+                prefix={<CreditCardOutlined />}
+                value={amountDue.toLocaleString("vi-VN")}
+                readOnly
+                style={{ textAlign: "right" }}
+              />
+            </div>
+
+            <Button
+              type="primary"
+              style={{
+                width: "100%",
+                backgroundColor: "#4CAF50",
+                borderColor: "#4CAF50",
+              }}
+              size="large"
+              onClick={handleSaveInvoice}
+            >
+              Hoàn thành
+            </Button>
+          </Col>
+        </Row>
+      </Modal>
+
+      {showServicePay && (
+        <ServicePay
+          totalService={totalService}
+          onUpdateService={(newTotal) => {
+            setTotalService(newTotal);
+            setShowServicePay(false); // Đóng modal sau khi cập nhật
+          }}
+          onClose={() => setShowServicePay(false)}
+        />
+      )}
+
+      {showPenaltyPay && (
+        <PenaltyPay
+          totalPenalty={totalPenalty}
+          onUpdatePenalty={(newTotal) => {
+            setTotalPenalty(newTotal);
+            setShowPenaltyPay(false); // Đóng modal sau khi cập nhật
+          }}
+          onClose={() => setShowPenaltyPay(false)}
+        />
+      )}
+    </>
   );
 };
 
