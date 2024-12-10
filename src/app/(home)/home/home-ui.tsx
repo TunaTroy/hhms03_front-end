@@ -13,8 +13,6 @@ import RoomModal from "@/components/roomModal";
 import RoomBooked from "@/components/roomBooked";
 import RoomUsing from "@/components/roomUsing";
 import RoomFinal from "@/components/roomFinal";
-import SetBookingRoomUI from "@/app/(setBookingRoom)/setBookingRoom/setBookingRoom-ui";
-
 
 export interface Room {
   room_id: string;

@@ -1,6 +1,10 @@
 import React from "react";
+import PaymentPage from "./pay";
 
-export default async function Home() {
-  return;
-  <div></div>;
+export default function Home() {
+  return (
+    <div>
+      <PaymentPage />
+    </div>
+  );
 }
