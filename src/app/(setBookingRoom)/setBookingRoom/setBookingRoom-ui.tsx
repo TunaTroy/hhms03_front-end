@@ -526,40 +526,46 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
               );
             } else if (roomData?.status === "Using") {
               return (
-                <button
+                <Button
+                  type="primary"
+                  onClick={handleOpenPaymentModal}
                   style={{
-                    backgroundColor: "#28A745", // Màu xanh lá cho Using
+                    backgroundColor: "#28A745",
                     color: "#fff",
                     border: "none",
-                    padding: "4px 8px", // Giảm chiều cao của nút
+                    padding: "4px 8px",
                     borderRadius: "4px",
-                    fontSize: "14px", // Kích thước chữ nhỏ hơn
+                    fontSize: "14px", 
                     fontWeight: "bold",
                   }}
                 >
                   Trả phòng
-                </button>
+                </Button>
               );
             } else if (roomData?.status === "Time's Up") {
               return (
-                <button
-                  onClick={handleOpenPayment} // Gọi hàm khi nút được nhấn
+                <Button
+                  onClick={handleOpenPayment} 
                   style={{
-                    backgroundColor: "#06BE92", // Màu xanh thẫm cho Time's Up
+                    backgroundColor: "#06BE92", 
                     color: "#fff",
                     border: "none",
-                    padding: "4px 8px", // Giảm chiều cao của nút
+                    padding: "4px 8px",
                     borderRadius: "4px",
-                    fontSize: "14px", // Kích thước chữ nhỏ hơn
+                    fontSize: "14px",
                     fontWeight: "bold",
                   }}
                 >
                   Trả phòng
-                </button>
+                </Button>
               );
             }
-            return null; // Không hiển thị gì nếu không có trạng thái phù hợp
+            return null;
           })()}
+          <Payment
+            isModalOpen={isPaymentModalOpen}
+            setIsModalOpen={setIsPaymentModalOpen}
+          />
         </div>
       </div>
 
@@ -579,8 +585,8 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           style={{
             display: "flex",
             gap: "16px",
-            flexWrap: "nowrap", // Chỉ cho phép trên một dòng
-            justifyContent: "space-between", // Tạo khoảng cách đều giữa các phần tử
+            flexWrap: "nowrap",
+            justifyContent: "space-between", 
           }}
         >
           <div
@@ -793,7 +799,7 @@ export const SetBookingRoomUI: React.FC<SetBookingRoomUIProps> = ({
           alignItems: "center",
           position: "absolute",
           left: 50,
-          right: 50, // Để chiếm toàn bộ chiều ngang
+          right: 50, 
         }}
       >
         <h3

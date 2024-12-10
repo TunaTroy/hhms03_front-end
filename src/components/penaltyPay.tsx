@@ -1,18 +1,41 @@
-// PenaltyPay.tsx
 "use client";
 
 import React, { useState } from "react";
-import { Modal, Input, Button } from "antd";
+import { Modal, Input, Button, Row, Col } from "antd";
+
+const penaltyCategories = [
+  { key: "1", name: "Thiết bị", note: "" },
+  { key: "2", name: "Đồ dùng", note: "" },
+  { key: "3", name: "Vi phạm nội quy", note: "" },
+];
 
 const PenaltyPay: React.FC<{
-  totalPenalty: number;
   onUpdatePenalty: (total: number) => void;
   onClose: () => void;
-}> = ({ totalPenalty, onUpdatePenalty, onClose }) => {
-  const [penaltyAmount, setPenaltyAmount] = useState<number>(totalPenalty);
+}> = ({ onUpdatePenalty, onClose }) => {
+  const [penalties, setPenalties] = useState(
+    penaltyCategories.map((item) => ({ ...item, total: 0, reason: "" }))
+  );
+
+  const handlePenaltyChange = (key: string, value: number) => {
+    setPenalties((prevPenalties) =>
+      prevPenalties.map((item) =>
+        item.key === key ? { ...item, total: value } : item
+      )
+    );
+  };
+
+  const handleReasonChange = (key: string, value: string) => {
+    setPenalties((prevPenalties) =>
+      prevPenalties.map((item) =>
+        item.key === key ? { ...item, reason: value } : item
+      )
+    );
+  };
 
   const handleUpdate = () => {
-    onUpdatePenalty(penaltyAmount);
+    const totalPenalty = penalties.reduce((sum, item) => sum + item.total, 0);
+    onUpdatePenalty(totalPenalty);
     onClose();
   };
 
@@ -22,21 +45,44 @@ const PenaltyPay: React.FC<{
       visible={true}
       onCancel={onClose}
       footer={null}
+      width={400} // Giảm kích thước modal
       style={{
         position: "absolute",
         left: 5,
         top: "10%",
-        height: "80vh",
       }}
     >
       <div>
-        <h3>Tiền phạt</h3>
-        <Input
-          type="number"
-          value={penaltyAmount}
-          onChange={(e) => setPenaltyAmount(Number(e.target.value))}
-          style={{ width: "100%" }}
-        />
+        {penalties.map((item) => (
+          <Row
+            key={item.key}
+            style={{ marginBottom: "8px", alignItems: "center" }}
+          >
+            <Col span={12}>
+              <strong>{item.name}</strong>
+            </Col>
+            <Col span={12}>
+              <Input
+                type="text"
+                min={0}
+                placeholder="Số tiền phạt"
+                onChange={(e) =>
+                  handlePenaltyChange(item.key, Number(e.target.value))
+                }
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col span={24} style={{ marginTop: 5 }}>
+              <Input
+                placeholder="Nhập lý do phạt"
+                onChange={(e) => handleReasonChange(item.key, e.target.value)}
+                style={{ width: "100%" }}
+              />
+            </Col>
+          </Row>
+        ))}
+      </div>
+      <div style={{ marginTop: "16px" }}>
         <Button type="primary" onClick={handleUpdate}>
           Cập nhật
         </Button>

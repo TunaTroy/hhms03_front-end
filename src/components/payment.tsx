@@ -53,15 +53,15 @@ interface InvoiceItem {
 const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [selectedEmployee, setSelectedEmployee] =
-    useState<string>("Chưa xác định");
+    useState<string>("Chọn nhân viên");
   const [createdTime, setCreatedTime] = useState<moment.Moment | null>(
     moment()
   );
   const [discount, setDiscount] = useState<number>(0);
   const [otherFees, setOtherFees] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash");
-  const [totalService, setTotalService] = useState<number>(0); // Khởi tạo với giá trị 0
-  const [totalPenalty, setTotalPenalty] = useState<number>(0); // Khởi tạo với giá trị 0
+  const [totalService, setTotalService] = useState<number>(0);
+  const [totalPenalty, setTotalPenalty] = useState<number>(0);
   const [showServicePay, setShowServicePay] = useState<boolean>(false);
   const [showPenaltyPay, setShowPenaltyPay] = useState<boolean>(false);
 
@@ -98,15 +98,15 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
           key: "2",
           item: "Nước lọc, Bò húc, Coca, Giặt",
           type: "Tiền dịch vụ",
-          quantity: "4 dịch vụ",
+          quantity: "4 dịch vụ", // Cần cập nhật số lượng dịch vụ
           unitPrice: totalService,
           total: totalService,
         },
         {
           key: "3",
-          item: "Phạt",
+          item: "Thiết bị, Đồ dùng, Nội quy",
           type: "Tiền phạt",
-          quantity: "1",
+          quantity: "3",
           unitPrice: totalPenalty,
           total: totalPenalty,
         },
@@ -156,6 +156,11 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   const handleSaveInvoice = () => {
+    if (!roomData) {
+      alert("Không có dữ liệu phòng!");
+      return;
+    }
+
     const invoice = {
       createdTime: createdTime?.format("DD/MM/YYYY HH:mm"),
       total,
@@ -166,8 +171,13 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
       invoiceData,
     };
 
-    localStorage.setItem("invoiceData", JSON.stringify(invoice));
-    alert("Hóa đơn đã được lưu vào localStorage!");
+    try {
+      localStorage.setItem("invoiceData", JSON.stringify(invoice));
+      alert("Hóa đơn đã được lưu vào localStorage!");
+    } catch (error) {
+      console.error("Lỗi khi lưu hóa đơn:", error);
+      alert("Có lỗi xảy ra khi lưu hóa đơn!");
+    }
   };
 
   const handleRowClick = (record: InvoiceItem) => {
@@ -191,7 +201,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
           position: "absolute",
           right: 0,
           top: "10%",
-          height: "80vh",
+          height: "70vh",
         }}
         bodyStyle={{ height: "80vh" }}
       >
@@ -263,7 +273,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
                     value={selectedEmployee}
                     onChange={(value) => setSelectedEmployee(value)}
                   >
-                    <Option value="Chưa xác định">Chưa xác định</Option>
+                    <Option value="Chọn nhân viên">Chọn nhân viên</Option>
                     <Option value="Nhân viên 1">Nhân viên 1</Option>
                     <Option value="Nhân viên 2">Nhân viên 2</Option>
                   </Select>
@@ -284,35 +294,36 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
               style={{
                 marginBottom: "16px",
                 backgroundColor: "#f9f9f9",
-                padding: "16px",
+                padding: "24px",
                 borderRadius: "4px",
+                minHeight: "150px",
               }}
             >
-              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+              <Row justify="space-between" style={{ marginBottom: "12px" }}>
                 <Col>Tổng cộng:</Col>
                 <Col>
                   <strong>{total.toLocaleString("vi-VN")}</strong>
                 </Col>
               </Row>
-              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+              <Row justify="space-between" style={{ marginBottom: "12px" }}>
                 <Col>Giảm giá:</Col>
                 <Col>
                   <Input
                     type="number"
                     value={discount}
                     onChange={(e) => setDiscount(Number(e.target.value))}
-                    style={{ width: "100px", textAlign: "right" }}
+                    style={{ width: "120px", textAlign: "right" }}
                   />
                 </Col>
               </Row>
-              <Row justify="space-between" style={{ marginBottom: "8px" }}>
+              <Row justify="space-between" style={{ marginBottom: "12px" }}>
                 <Col>Thu khác:</Col>
                 <Col>
                   <Input
                     type="number"
                     value={otherFees}
                     onChange={(e) => setOtherFees(Number(e.target.value))}
-                    style={{ width: "100px", textAlign: "right" }}
+                    style={{ width: "120px", textAlign: "right" }}
                   />
                 </Col>
               </Row>
@@ -332,17 +343,18 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
               style={{
                 marginBottom: "16px",
                 backgroundColor: "#f9f9f9",
-                padding: "16px",
+                padding: "24px",
                 borderRadius: "4px",
+                minHeight: "150px",
               }}
             >
-              <div style={{ marginBottom: "8px" }}>
+              <div style={{ marginBottom: "12px" }}>
                 <strong>Phương thức thanh toán</strong>
               </div>
               <Radio.Group
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                style={{ marginBottom: "8px" }}
+                style={{ marginBottom: "12px" }}
               >
                 <Radio value="Cash">Tiền mặt</Radio>
                 <Radio value="Transfer">Chuyển khoản</Radio>
@@ -351,7 +363,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
                 prefix={<CreditCardOutlined />}
                 value={amountDue.toLocaleString("vi-VN")}
                 readOnly
-                style={{ textAlign: "right" }}
+                style={{ textAlign: "right", fontSize: "1.2em" }}
               />
             </div>
 
@@ -361,6 +373,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
                 width: "100%",
                 backgroundColor: "#4CAF50",
                 borderColor: "#4CAF50",
+                marginTop: "56px",
               }}
               size="large"
               onClick={handleSaveInvoice}
@@ -373,10 +386,9 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
 
       {showServicePay && (
         <ServicePay
-          totalService={totalService}
           onUpdateService={(newTotal) => {
             setTotalService(newTotal);
-            setShowServicePay(false); // Đóng modal sau khi cập nhật
+            setShowServicePay(false);
           }}
           onClose={() => setShowServicePay(false)}
         />
@@ -384,10 +396,9 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
 
       {showPenaltyPay && (
         <PenaltyPay
-          totalPenalty={totalPenalty}
           onUpdatePenalty={(newTotal) => {
             setTotalPenalty(newTotal);
-            setShowPenaltyPay(false); // Đóng modal sau khi cập nhật
+            setShowPenaltyPay(false);
           }}
           onClose={() => setShowPenaltyPay(false)}
         />
