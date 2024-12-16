@@ -58,21 +58,24 @@ export default function HomePage() {
   useEffect(() => {
     const mockData: Room[] = [
       {
-        room_id: "1",
-        room_name: "Room 101",
-        status: "available",
-        floor: 1,
-        type_id: "Single",
-        check_in_time: "",
-        check_out_time: "",
-        cleaning_status: "clean",
-        current_guest: "",
-        note: "",
-        price_override: 100,
-        num_guests: 0,
-        num_papers: 0,
+        room_id: "1",               // ID Phòng
+        room_name: "Room 101",      // Tên phòng
+        status: "available",        // Trạng thái phòng (Trống, Đặt trước, Đang dùng, Sắp hết)
+        floor: 1,                   // Tầng 
+        type_id: "Single",          // Hạng phòng (Đơn, Đôi, VIP)
+        check_in_time: "",          // Thời gian bắt đầu ở
+        check_out_time: "",         // Thời gian kết thúc
+        cleaning_status: "clean",   // Trạng thái vệ sinh 
+        current_guest: "",          // Số khách ở trong phòng
+        note: "",                   // Ghi chú của phòng
+        price_override: 100,        // Giá cơ bản nhưng nên làm 2 loại là theo GIỜ, NGÀY
+        num_guests: 0,              // Số khách sử dụng phòng
+        num_papers: 0,              // Số lượng giấy tờ tùy thân
         stay_duration: "",
-        check_in_notice: "",
+        check_in_notice: "",        // Kiểu hiển thị cho từng trạng thái phòng 
+                                          // Đã đặt trước => "2h khách vào ở"
+                                          // Đang dùng => "Khách check-in lúc 12:00 16/12/2024"
+                                          // Sắp hết => "Khách check-in lúc 12:00 16/12/2024"
       },
       {
         room_id: "2",

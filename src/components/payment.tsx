@@ -253,7 +253,7 @@ const Payment: React.FC<PaymentProps> = ({ isModalOpen, setIsModalOpen }) => {
               })}
               summary={() => (
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={4}>
+                  <Table.Summary.Cell index={4}>
                     <strong>Tổng cộng</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={0}>
