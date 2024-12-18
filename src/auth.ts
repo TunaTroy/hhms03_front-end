@@ -1,4 +1,4 @@
-/* import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import "next-auth/jwt";
 
@@ -40,7 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          const response = await fetch("http://localhost:1912/login", {
+          const response = await fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -91,10 +91,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
- */
-
-import NextAuth from "next-auth"
  
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [],
-})
+
+

@@ -14,6 +14,7 @@ import RoomBooked from "@/components/roomBooked";
 import RoomUsing from "@/components/roomUsing";
 import RoomFinal from "@/components/roomFinal";
 
+
 export interface Room {
   room_id: string;
   room_name: string;
@@ -58,24 +59,24 @@ export default function HomePage() {
   useEffect(() => {
     const mockData: Room[] = [
       {
-        room_id: "1",               // ID Phòng
-        room_name: "Room 101",      // Tên phòng
-        status: "available",        // Trạng thái phòng (Trống, Đặt trước, Đang dùng, Sắp hết)
-        floor: 1,                   // Tầng 
-        type_id: "Single",          // Hạng phòng (Đơn, Đôi, VIP)
-        check_in_time: "",          // Thời gian bắt đầu ở
-        check_out_time: "",         // Thời gian kết thúc
-        cleaning_status: "clean",   // Trạng thái vệ sinh 
-        current_guest: "",          // Số khách ở trong phòng
-        note: "",                   // Ghi chú của phòng
-        price_override: 100,        // Giá cơ bản nhưng nên làm 2 loại là theo GIỜ, NGÀY
-        num_guests: 0,              // Số khách sử dụng phòng
-        num_papers: 0,              // Số lượng giấy tờ tùy thân
-        stay_duration: "",
-        check_in_notice: "",        // Kiểu hiển thị cho từng trạng thái phòng 
-                                          // Đã đặt trước => "2h khách vào ở"
-                                          // Đang dùng => "Khách check-in lúc 12:00 16/12/2024"
-                                          // Sắp hết => "Khách check-in lúc 12:00 16/12/2024"
+        room_id: "1", // ID Phòng
+        room_name: "Room 101", // Tên phòng
+        status: "available", // Trạng thái phòng (Trống, Đặt trước, Đang dùng, Sắp hết)
+        floor: 1, // Tầng
+        type_id: "Single", // Hạng phòng (Đơn, Đôi, VIP)
+        check_in_time: "", // Thời gian bắt đầu ở
+        check_out_time: "", // Thời gian kết thúc
+        cleaning_status: "clean", // Trạng thái vệ sinh
+        current_guest: "", // Tên Khách hàng chính
+        note: "", // Ghi chú của phòng
+        price_override: 100, // Giá cơ bản nhưng nên làm 2 loại là theo GIỜ, NGÀY
+        num_guests: 0, // Số khách sử dụng phòng
+        num_papers: 0, // Số lượng giấy tờ tùy thân
+        stay_duration: "", // Thời gian khách ở lại khách sạn
+        check_in_notice: "", // Kiểu hiển thị cho từng trạng thái phòng
+        // Đã đặt trước => "2h khách vào ở"
+        // Đang dùng => "Khách check-in lúc 12:00 16/12/2024"
+        // Sắp hết => "Khách check-in lúc 12:00 16/12/2024"
       },
       {
         room_id: "2",
@@ -481,6 +482,7 @@ export default function HomePage() {
           roomData={selectedRoomData}
         />
       )}
+    
 
       <div className="flex w-full justify-between items-center h-[100px]">
         <div className="flex justify-between items-center">

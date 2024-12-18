@@ -1,13 +1,12 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { DownOutlined, UserOutlined, WindowsOutlined} from "@ant-design/icons";
+import { DownOutlined, UserOutlined, WindowsOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd"; // Import Tooltip
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
 import { useEffect, useState } from "react";
-import { HomeOutlined } from "@ant-design/icons";
-import { SettingOutlined } from '@ant-design/icons';
-import { DollarOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined, DollarOutlined } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
 import "@/css/globals.css";
 
@@ -30,31 +29,36 @@ const items: MenuProps["items"] = [
   },
 ];
 
-let header: { icon: JSX.Element; route: string; checked: boolean }[] = [
+let header: { icon: JSX.Element; route: string; checked: boolean; label: string }[] = [
   {
     icon: <HomeOutlined />,
     route: "/home",
     checked: false,
+    label: "Home",
   },
   {
     icon: <SettingOutlined />,
     route: "/setBookingRoom",
     checked: false,
+    label: "Setting",
   },
   {
     icon: <DollarOutlined />,
-    route: "/pay", 
+    route: "/pay",
     checked: false,
+    label: "Payment",
   },
   {
     icon: <UserOutlined />,
     route: "/customer",
     checked: false,
+    label: "Customer",
   },
   {
     icon: <WindowsOutlined />,
     route: "/room",
     checked: false,
+    label: "Room",
   },
 ];
 
@@ -81,16 +85,18 @@ export default function Header() {
       <ul className="flex">
         {header.map((item, index) => (
           <div key={index}>
-            <li
-              onClick={() => route.push(item.route)}
-              className={`h-[57px] w-[120px] flex justify-center items-center ${
-                item.checked
-                  ? "text-[#0866FF]"
-                  : "text-[#606266] hover:bg-[#F2F2F2] rounded-lg"
-              } text-[24px]`}
-            >
-              {item.icon}
-            </li>
+            <Tooltip title={item.label}> {/* Sử dụng label cho tooltip */}
+              <li
+                onClick={() => route.push(item.route)}
+                className={`h-[57px] w-[120px] flex justify-center items-center ${
+                  item.checked
+                    ? "text-[#0866FF]"
+                    : "text-[#606266] hover:bg-[#F2F2F2] rounded-lg"
+                } text-[24px]`}
+              >
+                {item.icon}
+              </li>
+            </Tooltip>
             {item.checked ? (
               <div className="w-[120px] h-[3px] bg-[#0866FF]"></div>
             ) : (
