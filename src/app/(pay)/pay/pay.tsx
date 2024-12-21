@@ -43,6 +43,18 @@ interface InvoiceData {
   paymentHistory: PaymentHistory[];
 }
 
+interface BookingDetail {
+  itemCode: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  sellingPrice: number;
+  totalPrice: number;
+  roomName: string; // Thêm thuộc tính roomName
+  time: string; // Thêm thuộc tính time
+}
+
 interface BookingData {
   bookingId: string;
   status: string;
@@ -52,6 +64,11 @@ interface BookingData {
   totalAmount: number;
   amountPaid: number;
   amountReic: number;
+  createdBy: string;
+  salesChannel: string;
+  notes: string;
+  details: BookingDetail[]; // Thêm thuộc tính details
+  paymentHistory: PaymentHistory[];
 }
 
 // Sample Data
@@ -136,6 +153,32 @@ const sampleBookings: BookingData[] = [
     totalAmount: 5000000,
     amountPaid: 2500000,
     amountReic: 2500000,
+    createdBy: "Nghiêm Phương Linh",
+    salesChannel: "Khách đến trực tiếp",
+    notes: "Khách yêu cầu ghế",
+    details: [
+      {
+        itemCode: "DB001",
+        itemName: "Phòng 01 giường đôi cho 2 người (Giờ)",
+        quantity: 1,
+        unitPrice: 180000,
+        discount: 0,
+        sellingPrice: 180000,
+        totalPrice: 180000,
+        roomName: "P.203",
+        time: "19/12/2024 20:33 - 19/12/2024 21:33 (1 giờ)",
+      },
+    ],
+    paymentHistory: [
+      {
+        invoiceId: "HD000074",
+        paymentDate: "16/12/2024 22:00",
+        createdBy: "Nguyễn Văn A",
+        method: "Tiền mặt",
+        status: "Đã thanh toán",
+        amount: 93994000,
+      },
+    ],
   },
   {
     bookingId: "BP00002",
@@ -146,6 +189,32 @@ const sampleBookings: BookingData[] = [
     totalAmount: 6000000,
     amountPaid: 6000000,
     amountReic: 0,
+    createdBy: "Nguyễn Thị Hằng",
+    salesChannel: "Đặt qua website",
+    notes: "",
+    details: [
+      {
+        itemCode: "DB002",
+        itemName: "Phòng 02 giường đôi cho 4 người (Ngày)",
+        quantity: 1,
+        unitPrice: 6000000,
+        discount: 0,
+        sellingPrice: 6000000,
+        totalPrice: 6000000,
+        roomName: "P.204",
+        time: "15/12/2024 18:30 - 16/12/2024 18:30 (1 ngày)",
+      },
+    ],
+    paymentHistory: [
+      {
+        invoiceId: "HD000073",
+        paymentDate: "16/12/2024 21:00",
+        createdBy: "Trần Thị B",
+        method: "Chuyển khoản",
+        status: "Đã thanh toán",
+        amount: 13485000,
+      },
+    ],
   },
 ];
 
@@ -372,7 +441,7 @@ export default function InvoiceList() {
                       <strong>Ghi chú:</strong>
                       <br />
 
-                      {invoice.notes || "Chưa có ghi chú."}
+                      {invoice.notes || "..."}
                     </div>
                   </div>
                   <div style={{ marginBottom: "10px" }}>
@@ -531,7 +600,7 @@ export default function InvoiceList() {
                     <span>Giảm giá: </span>
                     <strong>{invoice.discount.toLocaleString("vi-VN")}</strong>
                     <br />
-                    <span>Tổng sau giảm giá: </span>
+                    <span>Khách cần trả </span>
                     <strong>
                       {invoice.finalAmount.toLocaleString("vi-VN")}
                     </strong>
@@ -682,7 +751,6 @@ export default function InvoiceList() {
   );
 
   const renderBookings = () => {
-    // Calculate total amounts for bookings
     const totalBookingAmounts = sampleBookings.reduce(
       (totals, booking) => {
         totals.totalAmount += booking.totalAmount;
@@ -696,19 +764,15 @@ export default function InvoiceList() {
       (booking) => booking.status === "Đang xử lý"
     );
 
-    // Hàm xử lý checkbox của header row
     const handleHeaderCheckboxChange = () => {
       if (selectedIds.length === sampleBookings.length) {
-        // Nếu tất cả đã được chọn, thì bỏ chọn tất cả
         setSelectedIds([]);
       } else {
-        // Nếu chưa chọn tất cả, thì chọn tất cả
         const allIds = sampleBookings.map((booking) => booking.bookingId);
         setSelectedIds(allIds);
       }
     };
 
-    // Hàm xử lý checkbox của từng row
     const handleCheckboxChange = (id: string) => {
       setSelectedIds((prevSelectedIds) =>
         prevSelectedIds.includes(id)
@@ -728,7 +792,7 @@ export default function InvoiceList() {
             borderBottom: "1px solid #000",
           }}
         >
-          <div style={{ width: "5%", textAlign: "left" }}>
+          <div style={{ width: "5%" }}>
             <Checkbox
               checked={selectedIds.length === sampleBookings.length}
               indeterminate={
@@ -770,7 +834,6 @@ export default function InvoiceList() {
             display: "flex",
             justifyContent: "space-between",
             padding: "10px 0",
-            borderBottom: "1px solid #ccc",
             fontWeight: "bold",
           }}
         >
@@ -780,12 +843,7 @@ export default function InvoiceList() {
           <div style={{ width: "15%" }}></div>
           <div style={{ width: "15%" }}></div>
           <div style={{ width: "15%" }}></div>
-          <div
-            style={{
-              width: "15%",
-              color: isRed ? "red" : "inherit", // Nếu có ít nhất 1 booking có status "Đang xử lý", thì áp dụng màu đỏ
-            }}
-          >
+          <div style={{ width: "15%", color: isRed ? "red" : "inherit" }}>
             {totalBookingAmounts.totalAmount.toLocaleString("vi-VN")}
           </div>
           <div style={{ width: "15%" }}>
@@ -800,53 +858,242 @@ export default function InvoiceList() {
 
         {/* Data Rows */}
         {sampleBookings.map((booking) => (
-          <div
-            key={booking.bookingId}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "10px 0",
-              borderBottom: "1px solid #eee",
-              cursor: "pointer",
-            }}
-          >
-            <Checkbox
-              checked={selectedIds.includes(booking.bookingId)}
-              onChange={() => handleCheckboxChange(booking.bookingId)}
-              style={{ width: "5%", textAlign: "center" }}
-            />
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.bookingId}
-            </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.status}
-            </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.bookingTime}
-            </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.roomName}
-            </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.customer}
-            </div>
+          <div key={booking.bookingId}>
             <div
               style={{
-                width: "15%",
-                fontSize: "13px",
-                color: booking.status === "Đang xử lý" ? "red" : "inherit", // Nếu có trạng thái "Đang xử lý" thì màu đỏ
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "10px 0",
+                borderBottom: "1px solid #eee",
+                cursor: "pointer",
               }}
+              onClick={() => handleExpandChange(booking.bookingId)}
             >
-              {booking.totalAmount.toLocaleString("vi-VN")}
+              <Checkbox
+                checked={selectedIds.includes(booking.bookingId)}
+                onChange={() => handleCheckboxChange(booking.bookingId)}
+                style={{ width: "5%" }}
+              />
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.bookingId}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.status}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.bookingTime}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.roomName}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.customer}
+              </div>
+              <div
+                style={{
+                  width: "15%",
+                  fontSize: "13px",
+                  color: booking.status === "Đang xử lý" ? "red" : "black",
+                }}
+              >
+                {booking.totalAmount.toLocaleString("vi-VN")}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {booking.amountPaid.toLocaleString("vi-VN")}
+              </div>
+              <div style={{ width: "15%", fontSize: "13px" }}>
+                {(booking.totalAmount - booking.amountPaid).toLocaleString(
+                  "vi-VN"
+                )}
+              </div>
             </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {booking.amountPaid.toLocaleString("vi-VN")}
-            </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
-              {(booking.totalAmount - booking.amountPaid).toLocaleString(
-                "vi-VN"
-              )}
-            </div>
+
+            {/* Expanded Row */}
+            {expandedIds.includes(booking.bookingId) && (
+              <div style={{ padding: "10px", backgroundColor: "#FFFFF0" }}>
+                <Tabs defaultActiveKey="1">
+                  <TabPane
+                  
+                  style={{
+                  
+                    justifyContent: "space-between",
+                    marginBottom: "10px",
+                    fontSize: "15px",
+                  }}
+                    tab={
+                      <span style={{ fontWeight: "bold", fontSize: "20px" }}>
+                        Thông tin
+                      </span>
+                    }
+                    key="1"
+                  >
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      <div style={{ flex: 1, marginRight: "10px" }}>
+                        <p>
+                          <strong>Mã đặt phòng:</strong> {booking.bookingId}
+                        </p>
+                        <p>
+                          <strong>Trạng thái:</strong> {booking.status}
+                        </p>
+                        <p>
+                          <strong>Thời gian:</strong> {booking.bookingTime}
+                        </p>
+                      </div>
+                      <div style={{ flex: 1, marginRight: "10px" }}>
+                        <p>
+                          <strong>Khách hàng:</strong> {booking.customer}
+                        </p>
+                        <p>
+                          <strong>Bảng giá:</strong> Bảng giá chung
+                        </p>
+                        <p>
+                          <strong>Kênh bán:</strong> {booking.salesChannel}
+                        </p>
+                        <p>
+                          <strong>Tài khoản tạo:</strong> {booking.createdBy}
+                        </p>
+                      </div>
+                      <div style={{ flex: 1, fontSize: "18px" }}>
+                        <strong>Ghi chú:</strong>
+                        <br />
+
+                        {booking.notes || "..."}
+                      </div>
+                    </div>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        marginTop: "10px",
+                        fontSize: "14px",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: "#e6f7ff" }}>
+                          {[
+                            "Mã hàng hóa",
+                            "Tên hàng hóa",
+                            "Số lượng",
+                            "Đơn giá",
+                            "Giảm giá",
+                            "Giá bán",
+                            "Thành tiền",
+                          ].map((header) => (
+                            <th
+                              key={header}
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {booking.details.map((detail, index) => (
+                          <tr key={index}>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.itemCode}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.itemName}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.quantity}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.unitPrice.toLocaleString("vi-VN")}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.discount.toLocaleString("vi-VN")}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.sellingPrice.toLocaleString("vi-VN")}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid #ccc",
+                                padding: "10px",
+                              }}
+                            >
+                              {detail.totalPrice.toLocaleString("vi-VN")}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div
+                      style={{
+                        textAlign: "right",
+                        fontSize: "15px",
+                        marginTop: "10px",
+                      }}
+                    >
+                      <span>Tổng tiền hàng: </span>
+                      <strong>
+                        {booking.totalAmount.toLocaleString("vi-VN")}
+                      </strong>
+                      <br />
+                      <span>Giảm giá: </span>
+                      <strong>
+                        {booking.amountPaid.toLocaleString("vi-VN")}
+                      </strong>
+                      <br />
+                      <span>Khách đã trả: </span>
+                      <strong>
+                        {booking.amountPaid.toLocaleString("vi-VN")}
+                      </strong>
+                      <br />
+                      <span>Còn cần trả: </span>
+                      <strong>
+                        {booking.amountReic.toLocaleString("vi-VN")}
+                      </strong>
+                    </div>
+                  </TabPane>
+                </Tabs>
+              </div>
+            )}
           </div>
         ))}
       </>
