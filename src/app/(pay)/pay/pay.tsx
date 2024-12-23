@@ -393,7 +393,7 @@ export default function InvoiceList() {
             </div>
           </div>
           {expandedIds.includes(invoice.invoiceId) && (
-            <div style={{ padding: "10px", backgroundColor: "#FFFFF0" }}>
+            <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab={<strong>Thông tin</strong>} key="1">
                   <div
@@ -408,7 +408,7 @@ export default function InvoiceList() {
                       style={{
                         flex: 1,
                         marginRight: "10px",
-                        fontSize: "18px",
+                        fontSize: "15px",
                       }}
                     >
                       <strong>Mã hóa đơn:</strong> {invoice.invoiceId}
@@ -422,7 +422,7 @@ export default function InvoiceList() {
                       style={{
                         flex: 1,
                         marginRight: "10px",
-                        fontSize: "18px",
+                        fontSize: "15px",
                       }}
                     >
                       <strong>Trạng thái:</strong>{" "}
@@ -437,7 +437,7 @@ export default function InvoiceList() {
                       <strong>Thu ngân:</strong> {invoice.cashier}
                       <br />
                     </div>
-                    <div style={{ flex: 1, fontSize: "18px" }}>
+                    <div style={{ flex: 1, fontSize: "15  px" }}>
                       <strong>Ghi chú:</strong>
                       <br />
 
@@ -910,7 +910,7 @@ export default function InvoiceList() {
 
             {/* Expanded Row */}
             {expandedIds.includes(booking.bookingId) && (
-              <div style={{ padding: "10px", backgroundColor: "#FFFFF0" }}>
+              <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
                 <Tabs defaultActiveKey="1">
                   <TabPane
                   
@@ -953,7 +953,7 @@ export default function InvoiceList() {
                           <strong>Tài khoản tạo:</strong> {booking.createdBy}
                         </p>
                       </div>
-                      <div style={{ flex: 1, fontSize: "18px" }}>
+                      <div style={{ flex: 1, fontSize: "15px" }}>
                         <strong>Ghi chú:</strong>
                         <br />
 
@@ -1104,7 +1104,7 @@ export default function InvoiceList() {
     <Layout style={{ minHeight: "100vh", padding: "20px" }}>
       <Content
         style={{
-          backgroundColor: "#f9f9f9",
+          backgroundColor: "white",
           borderRadius: "8px",
           padding: "20px",
         }}
