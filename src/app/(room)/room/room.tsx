@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Layout, Tabs, Checkbox } from "antd";
 import { DateTime } from "next-auth/providers/kakao";
+import { UUID } from "crypto";
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
@@ -10,18 +11,10 @@ const { TabPane } = Tabs;
 // Định nghĩa các interface
 
 // Danh sách Hạng Phòng
-interface RoomTypeTable {
-  roomId: string;
-  roomName: string;
-  status: string;
-  hourlyPrice: number;
-  dailyPrice: number;
-}
-
 interface RoomType {
-  roomTypeId: string;
-  roomTypeName: string;
-  roomCount: number;
+  typeId: string;
+  name: string;
+  count: number;
   hourlyPrice: number;
   dailyPrice: number;
   status: string;
@@ -32,35 +25,43 @@ interface RoomType {
   cleanStatus: string;
   roomTypeDetail: RoomTypeTable[];
 }
+interface RoomTypeTable {
+  name: string;
+  roomName: string;
+  description: string;
+  status: string;
+  hourlyPrice: number;
+  dailyPrice: number;
+}
 
 // Danh sách Phòng
 interface Room {
-  roomName: string;
-  roomTypeName: string;
+  name: string;
+  typeName: string;
   floor: string;
   hourlyPrice: number;
   dailyPrice: number;
   status: string;
-  note: string;
+  description: string;
   penaltyPrice: number;
-  createdAt: string;
+  timeStart: string;
   cleanStatus: string;
   imageUrl: string;
   roomDetail: RoomDetail[];
   roomBooking: RoomBooking[];
-  roomPayment: RoomBill[];
+  roomPayment: RoomInvoice[];
 }
 interface RoomDetail {
-  roomName: string;
-  roomTypeName: string;
+  name: string;
+  typeName: string;
   floor: string;
   hourlyPrice: number;
   dailyPrice: number;
   status: string;
   penaltyPrice: number;
-  createdAt: string;
+  timeStart: string;
   cleanStatus: string;
-  note: string;
+  description: string;
   imageUrl: string;
 }
 interface RoomBooking {
@@ -70,39 +71,42 @@ interface RoomBooking {
   bookingTotal: number;
   bookingStatus: string;
 }
-interface RoomBill {
-  billId: string;
-  billTime: string;
-  billEmployee: string;
-  billStatus: string;
-  billTotal: number;
+interface RoomInvoice {
+  invoiceId: string;
+  invoiceTime: string;
+  invoiceEmployee: string;
+  invoiceStatus: string;
+  invoiceTotal: number;
 }
 
 // Dữ liệu mẫu
 const sampleRoomTypes: RoomType[] = [
   {
-    roomTypeId: "RT001",
-    roomTypeName: "Phòng Standard",
-    roomCount: 5,
+    typeId: "RT0001",
+    name: "Phòng Đơn",
+    count: 5,
     hourlyPrice: 200000,
     dailyPrice: 500000,
     status: "Đang kinh doanh",
-    description: "Phòng tiêu chuẩn với đầy đủ tiện nghi",
+    description: "Phòng đơn view biển 1m8",
     standardCapacity: "2 người lớn, 1 trẻ em",
     maxCapacity: "3 người lớn, 2 trẻ em",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
     cleanStatus: "Clean",
     roomTypeDetail: [
       {
-        roomId: "R001",
+        name: "Phòng Đơn",
         roomName: "Phòng 101",
+        description: "Phòng đơn view biển 1m8",
         status: "Đang sử dụng",
         hourlyPrice: 200000,
         dailyPrice: 500000,
       },
+
       {
-        roomId: "R002",
+        name: "Phòng Đơn",
         roomName: "Phòng 102",
+        description: "Phòng đơn có cửa sổ",
         status: "Trống",
         hourlyPrice: 200000,
         dailyPrice: 500000,
@@ -110,60 +114,33 @@ const sampleRoomTypes: RoomType[] = [
     ],
   },
   {
-    roomTypeId: "RT002",
-    roomTypeName: "Phòng Deluxe",
-    roomCount: 3,
+    typeId: "RT0002",
+    name: "Phòng Đôi",
+    count: 3,
     hourlyPrice: 300000,
     dailyPrice: 800000,
     status: "Đang kinh doanh",
-    description: "Phòng cao cấp với view đẹp và nhiều tiện nghi hơn",
+    description: "Phòng đôi view biển 1m6",
     standardCapacity: "3 người lớn, 2 trẻ em",
     maxCapacity: "4 người lớn, 2 trẻ em",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Deluxe",
     cleanStatus: "Dirty",
     roomTypeDetail: [
       {
-        roomId: "R005",
+        name: "Phòng Đôi",
         roomName: "Phòng 301",
+        description: "Phòng đôi view biển 1m6",
         status: "Trống",
         hourlyPrice: 300000,
         dailyPrice: 800000,
       },
       {
-        roomId: "R006",
+        name: "Phòng Đôi",
         roomName: "Phòng 302",
+        description: "Phòng đôi view biển 1m6 có cửa sổ",
         status: "Trống",
         hourlyPrice: 300000,
         dailyPrice: 800000,
-      },
-    ],
-  },
-  {
-    roomTypeId: "RT003",
-    roomTypeName: "Phòng Suite",
-    roomCount: 2,
-    hourlyPrice: 600000,
-    dailyPrice: 1500000,
-    status: "Ngừng kinh doanh",
-    description: "Phòng hạng sang dành cho khách VIP",
-    standardCapacity: "2 người lớn, 1 trẻ em",
-    maxCapacity: "3 người lớn, 2 trẻ em",
-    imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Suite",
-    cleanStatus: "Clean",
-    roomTypeDetail: [
-      {
-        roomId: "R003",
-        roomName: "Phòng 201",
-        status: "Trống",
-        hourlyPrice: 600000,
-        dailyPrice: 1500000,
-      },
-      {
-        roomId: "R004",
-        roomName: "Phòng 202",
-        status: "Đang sử dụng",
-        hourlyPrice: 600000,
-        dailyPrice: 1500000,
       },
     ],
   },
@@ -172,36 +149,36 @@ const sampleRoomTypes: RoomType[] = [
 // Dữ liệu danh sách Phòng
 const sampleRooms: Room[] = [
   {
-    roomName: "P.101",
-    roomTypeName: "Suite",
-    floor: "Tầng 5",
+    name: "P.101",
+    typeName: "Phòng đơn",
+    floor: "Tầng 1",
     hourlyPrice: 150,
     dailyPrice: 1000,
     status: "Đang hoạt động",
-    note: "Ocean view",
+    description: "Phòng đơn view biển 1m8",
     penaltyPrice: 200,
-    createdAt: "2023-12-01T12:00:00Z",
+    timeStart: "2023-12-01 00:00",
     cleanStatus: "Clean",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
     roomDetail: [
       {
-        roomName: "P.101",
-        roomTypeName: "Suite",
-        floor: "Tầng 5",
+        name: "P.102",
+        typeName: "Phòng đơn",
+        floor: "Tầng 1",
         hourlyPrice: 150,
         dailyPrice: 1000,
         status: "Đang hoạt động",
-        note: "Ocean view",
+        description: "Phòng đơn có cửa sổ",
         penaltyPrice: 200,
-        createdAt: "2023-12-01T12:00:00Z",
+        timeStart: "2023-12-01 00:00",
         cleanStatus: "Clean",
         imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
       },
     ],
     roomBooking: [
       {
-        bookingId: "B001",
-        bookingTime: "2023-12-02T14:00:00Z",
+        bookingId: "BK0001",
+        bookingTime: "2023-12-02 00:00",
         bookingEmployee: "Alice",
         bookingTotal: 1200,
         bookingStatus: "Đang xử lý",
@@ -209,37 +186,37 @@ const sampleRooms: Room[] = [
     ],
     roomPayment: [
       {
-        billId: "P001",
-        billTime: "2023-12-02T15:00:00Z",
-        billEmployee: "Bob",
-        billStatus: "Hoàn thành",
-        billTotal: 1200,
+        invoiceId: "BL0001",
+        invoiceTime: "2023-12-02 00:00",
+        invoiceEmployee: "Bob",
+        invoiceStatus: "Hoàn thành",
+        invoiceTotal: 1200,
       },
     ],
   },
   {
-    roomName: "P.102",
-    roomTypeName: "Single",
+    name: "P.102",
+    typeName: "Phòng đôi",
     floor: "Tầng 2",
     hourlyPrice: 50,
     dailyPrice: 300,
     status: "Đang hoạt động",
-    note: "Near elevator",
+    description: "Phòng đôi view biển 1m6",
     penaltyPrice: 100,
-    createdAt: "2023-11-15T09:00:00Z",
+    timeStart: "2023-11-15 09:00",
     cleanStatus: "Cleaning",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
     roomDetail: [
       {
-        roomName: "P.102",
-        roomTypeName: "Single",
+        name: "P.102",
+        typeName: "Single",
         floor: "Tầng 2",
         hourlyPrice: 50,
         dailyPrice: 300,
         status: "Đang hoạt động",
-        note: "Near elevator",
+        description: "Phòng đôi view biển 1m6 có cửa sổ",
         penaltyPrice: 100,
-        createdAt: "2023-11-15T09:00:00Z",
+        timeStart: "2023-11-15 00:00",
         cleanStatus: "Cleaning",
         imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
       },
@@ -248,28 +225,28 @@ const sampleRooms: Room[] = [
     roomPayment: [],
   },
   {
-    roomName: "P.103",
-    roomTypeName: "Double",
+    name: "P.103",
+    typeName: "Phòng đôi",
     floor: "Tầng 3",
     hourlyPrice: 80,
     dailyPrice: 600,
     status: "Đang hoạt động",
-    note: "Extra bed available",
+    description: "Phòng đôi đầy đủ tiện nghi",
     penaltyPrice: 150,
-    createdAt: "2023-12-05T10:30:00Z",
+    timeStart: "2023-12-05 10:30",
     cleanStatus: "Dirty",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Deluxe",
     roomDetail: [
       {
-        roomName: "P.103",
-        roomTypeName: "Double",
+        name: "P.103",
+        typeName: "Double",
         floor: "Tầng 3",
         hourlyPrice: 80,
         dailyPrice: 600,
         status: "Đang hoạt động",
-        note: "Extra bed available",
+        description: "Phòng đôi đầy đủ tiện nghi",
         penaltyPrice: 150,
-        createdAt: "2023-12-05T10:30:00Z",
+        timeStart: "2023-12-05 10:30",
         cleanStatus: "Dirty",
         imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Deluxe",
       },
@@ -286,28 +263,28 @@ const sampleRooms: Room[] = [
     roomPayment: [],
   },
   {
-    roomName: "P.104",
-    roomTypeName: "Executive",
+    name: "P.104",
+    typeName: "Phòng đơn",
     floor: "Tầng 4",
     hourlyPrice: 120,
     dailyPrice: 800,
     status: "Đang hoạt động",
-    note: "Access to lounge",
+    description: "Phòng đơn đầy đủ tiện nghi",
     penaltyPrice: 180,
-    createdAt: "2023-10-20T08:00:00Z",
+    timeStart: "2023-10-20 08:00",
     cleanStatus: "Clean",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
     roomDetail: [
       {
-        roomName: "P.104",
-        roomTypeName: "Executive",
+        name: "P.104",
+        typeName: "Phòng đơn",
         floor: "Tầng 4",
         hourlyPrice: 120,
         dailyPrice: 800,
         status: "Đang hoạt động",
-        note: "Access to lounge",
+        description: "Phòng đơn đầy đủ tiện nghi",
         penaltyPrice: 180,
-        createdAt: "2023-10-20T08:00:00Z",
+        timeStart: "2023-10-20 08:00",
         cleanStatus: "Clean",
         imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
       },
@@ -316,28 +293,28 @@ const sampleRooms: Room[] = [
     roomPayment: [],
   },
   {
-    roomName: "P.105",
-    roomTypeName: "Luxury",
+    name: "P.105",
+    typeName: "Phòng đôi",
     floor: "Tầng 10",
     hourlyPrice: 300,
     dailyPrice: 2500,
     status: "Đang hoạt động",
-    note: "Private terrace",
+    description: "Phòng đôi có cửa sổ",
     penaltyPrice: 500,
-    createdAt: "2023-12-10T11:00:00Z",
+    timeStart: "2023-12-10 11:00",
     cleanStatus: "Clean",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Suite",
     roomDetail: [
       {
-        roomName: "P.105",
-        roomTypeName: "Luxury",
+        name: "P.105",
+        typeName: "Luxury",
         floor: "Tầng 10",
         hourlyPrice: 300,
         dailyPrice: 2500,
         status: "Đang hoạt động",
-        note: "Private terrace",
+        description: "Phòng đôi có cửa sổ",
         penaltyPrice: 500,
-        createdAt: "2023-12-10T11:00:00Z",
+        timeStart: "2023-12-10 11:00",
         cleanStatus: "Clean",
         imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Suite",
       },
@@ -345,7 +322,7 @@ const sampleRooms: Room[] = [
     roomBooking: [
       {
         bookingId: "B003",
-        bookingTime: "2023-12-12T16:00:00Z",
+        bookingTime: "2023-12-12 16:00",
         bookingEmployee: "David",
         bookingTotal: 3000,
         bookingStatus: "Đang xử lý",
@@ -353,11 +330,11 @@ const sampleRooms: Room[] = [
     ],
     roomPayment: [
       {
-        billId: "P002",
-        billTime: "2023-12-12T17:00:00Z",
-        billEmployee: "Eve",
-        billStatus: "Đang xử lý",
-        billTotal: 3000,
+        invoiceId: "P002",
+        invoiceTime: "2023-12-12 17:00",
+        invoiceEmployee: "Eve",
+        invoiceStatus: "Đang xử lý",
+        invoiceTotal: 3000,
       },
     ],
   },
@@ -396,7 +373,7 @@ const RoomTypeList = () => {
       setSelectedIds([]);
       setIsAllSelected(false);
     } else {
-      const allIds = sampleRoomTypes.map((roomType) => roomType.roomTypeId);
+      const allIds = sampleRoomTypes.map((roomType) => roomType.typeId);
       setSelectedIds(allIds);
       setIsAllSelected(true);
     }
@@ -447,7 +424,7 @@ const RoomTypeList = () => {
 
       {/* Room Types */}
       {sampleRoomTypes.map((roomType) => (
-        <div key={roomType.roomTypeId}>
+        <div key={roomType.typeId}>
           <div
             style={{
               display: "flex",
@@ -456,24 +433,24 @@ const RoomTypeList = () => {
               borderBottom: "1px solid #eee",
               cursor: "pointer",
             }}
-            onClick={() => handleExpandChange(roomType.roomTypeId)}
+            onClick={() => handleExpandChange(roomType.typeId)}
           >
             <Checkbox
-              checked={selectedIds.includes(roomType.roomTypeId)}
+              checked={selectedIds.includes(roomType.typeId)}
               onChange={(e) => {
                 e.stopPropagation();
-                handleCheckboxChange(roomType.roomTypeId);
+                handleCheckboxChange(roomType.typeId);
               }}
               style={{ width: "5%" }}
             />
             <div style={{ width: "20%", fontSize: "13px" }}>
-              {roomType.roomTypeId}
+              {roomType.typeId}
             </div>
             <div style={{ width: "30%", fontSize: "13px" }}>
-              {roomType.roomTypeName}
+              {roomType.name}
             </div>
             <div style={{ width: "15%", fontSize: "13px" }}>
-              {roomType.roomCount}
+              {roomType.count}
             </div>
             <div style={{ width: "15%", fontSize: "13px" }}>
               {roomType.hourlyPrice.toLocaleString("vi-VN")}
@@ -493,7 +470,7 @@ const RoomTypeList = () => {
           </div>
 
           {/* Expanded Row */}
-          {expandedIds.includes(roomType.roomTypeId) && (
+          {expandedIds.includes(roomType.typeId) && (
             <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
               <Tabs defaultActiveKey="1">
                 {/* Tab: Thông tin */}
@@ -503,7 +480,7 @@ const RoomTypeList = () => {
                     <div style={{ width: "35%" }}>
                       <img
                         src={roomType.imageUrl}
-                        alt={roomType.roomTypeName}
+                        alt={roomType.name}
                         style={{
                           width: "90%", // Thay đổi width thành 100%
                           height: "200px",
@@ -516,13 +493,13 @@ const RoomTypeList = () => {
                     {/* Phần 2: Các field cơ bản */}
                     <div style={{ width: "30%" }}>
                       <p>
-                        <strong>Mã hạng phòng:</strong> {roomType.roomTypeId}
+                        <strong>Mã hạng phòng:</strong> {roomType.typeId}
                       </p>
                       <p>
-                        <strong>Tên hạng phòng:</strong> {roomType.roomTypeName}
+                        <strong>Tên hạng phòng:</strong> {roomType.name}
                       </p>
                       <p>
-                        <strong>Số lượng phòng:</strong> {roomType.roomCount}
+                        <strong>Số lượng phòng:</strong> {roomType.count}
                       </p>
                       <p>
                         <strong>Giá giờ:</strong>{" "}
@@ -533,7 +510,7 @@ const RoomTypeList = () => {
                         {roomType.dailyPrice.toLocaleString("vi-VN")}
                       </p>
                       <p>
-                        <strong>Phụ thu quá giờ:</strong> Tính theo giờ
+                        <strong>Phụ thu quá giờ:</strong> 20/h
                       </p>
                     </div>
 
@@ -606,8 +583,9 @@ const RoomTypeList = () => {
                     <thead>
                       <tr style={{ backgroundColor: "#e6f7ff" }}>
                         {[
-                          "Mã phòng",
+                          "Hạng phòng",
                           "Tên phòng",
+                          "Mô tả",
                           "Giá ngày",
                           "Giá giờ",
                           "Trạng thái",
@@ -627,7 +605,7 @@ const RoomTypeList = () => {
                     </thead>
                     <tbody>
                       {roomType.roomTypeDetail.map((roomType) => (
-                        <tr key={roomType.roomId}>
+                        <tr key={roomType.name}>
                           <td
                             style={{
                               border: "1px solid #ccc",
@@ -635,7 +613,7 @@ const RoomTypeList = () => {
                               textAlign: "center",
                             }}
                           >
-                            {roomType.roomId}
+                            {roomType.name}
                           </td>
                           <td
                             style={{
@@ -645,6 +623,15 @@ const RoomTypeList = () => {
                             }}
                           >
                             {roomType.roomName}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #ccc",
+                              padding: "8px",
+                              textAlign: "center",
+                            }}
+                          >
+                            {roomType.description}
                           </td>
                           <td
                             style={{
@@ -726,13 +713,13 @@ const RoomTypeList = () => {
           <strong>Trạng thái</strong>
         </div>
         <div style={{ width: "30%" }}>
-          <strong>Ghi chú</strong>
+          <strong>Mô tả</strong>
         </div>
       </div>
 
       {/* Room */}
       {sampleRooms.map((room) => (
-        <div key={room.roomName}>
+        <div key={room.name}>
           <div
             style={{
               display: "flex",
@@ -741,21 +728,19 @@ const RoomTypeList = () => {
               borderBottom: "1px solid #eee",
               cursor: "pointer",
             }}
-            onClick={() => handleExpandChange(room.roomName)}
+            onClick={() => handleExpandChange(room.name)}
           >
             <Checkbox
-              checked={selectedIds.includes(room.roomName)}
+              checked={selectedIds.includes(room.name)}
               onChange={(e) => {
                 e.stopPropagation();
-                handleCheckboxChange(room.roomName);
+                handleCheckboxChange(room.name);
               }}
               style={{ width: "5%" }}
             />
-            <div style={{ width: "20%", fontSize: "13px" }}>
-              {room.roomName}
-            </div>
+            <div style={{ width: "20%", fontSize: "13px" }}>{room.name}</div>
             <div style={{ width: "30%", fontSize: "13px" }}>
-              {room.roomTypeName}
+              {room.typeName}
             </div>
             <div style={{ width: "15%", fontSize: "13px" }}>{room.floor}</div>
             <div style={{ width: "15%", fontSize: "13px" }}>
@@ -773,11 +758,13 @@ const RoomTypeList = () => {
             >
               {room.status}
             </div>
-            <div style={{ width: "30%", fontSize: "13px" }}>{room.note}</div>
+            <div style={{ width: "30%", fontSize: "13px" }}>
+              {room.description}
+            </div>
           </div>
 
           {/* Expanded Row */}
-          {expandedIds.includes(room.roomName) && (
+          {expandedIds.includes(room.name) && (
             <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
               <Tabs defaultActiveKey="1">
                 {/* Tab: Thông tin */}
@@ -787,7 +774,7 @@ const RoomTypeList = () => {
                     <div style={{ width: "35%" }}>
                       <img
                         src={room.imageUrl}
-                        alt={room.roomName}
+                        alt={room.name}
                         style={{
                           width: "90%",
                           height: "200px",
@@ -800,10 +787,10 @@ const RoomTypeList = () => {
                     {/* Phần 2: Các field cơ bản */}
                     <div style={{ width: "30%" }}>
                       <p>
-                        <strong>Tên phòng:</strong> {room.roomName}
+                        <strong>Tên phòng:</strong> {room.name}
                       </p>
                       <p>
-                        <strong>Hạng phòng:</strong> {room.roomTypeName}
+                        <strong>Hạng phòng:</strong> {room.typeName}
                       </p>
                       <p>
                         <strong>Khu vực:</strong> {room.floor}
@@ -825,13 +812,13 @@ const RoomTypeList = () => {
                     {/* Phần 3: Sức chứa và mô tả */}
                     <div style={{ width: "30%" }}>
                       <p>
-                        <strong>Bắt đầu sử dụng:</strong> {room.createdAt}
+                        <strong>Bắt đầu sử dụng:</strong> {room.timeStart}
                       </p>
                       <p>
                         <strong>Vệ sinh:</strong> {room.cleanStatus}
                       </p>
                       <p>
-                        <strong>Mô tả:</strong> {room.note}
+                        <strong>Mô tả:</strong> {room.description}
                       </p>
                     </div>
                   </div>
@@ -1000,7 +987,7 @@ const RoomTypeList = () => {
                     <tbody>
                       {room.roomPayment.length > 0 ? (
                         room.roomPayment.map((payment) => (
-                          <tr key={payment.billId}>
+                          <tr key={payment.invoiceId}>
                             <td
                               style={{
                                 border: "1px solid #ccc",
@@ -1008,7 +995,7 @@ const RoomTypeList = () => {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.billId}
+                              {payment.invoiceId}
                             </td>
                             <td
                               style={{
@@ -1017,7 +1004,7 @@ const RoomTypeList = () => {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.billTime}
+                              {payment.invoiceTime}
                             </td>
                             <td
                               style={{
@@ -1026,7 +1013,7 @@ const RoomTypeList = () => {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.billEmployee}
+                              {payment.invoiceEmployee}
                             </td>
                             <td
                               style={{
@@ -1034,12 +1021,12 @@ const RoomTypeList = () => {
                                 padding: "8px",
                                 textAlign: "center",
                                 color:
-                                  payment.billStatus === "Đang xử lý"
+                                  payment.invoiceStatus === "Đang xử lý"
                                     ? "red"
                                     : "green",
                               }}
                             >
-                              {payment.billStatus}
+                              {payment.invoiceStatus}
                             </td>
                             <td
                               style={{
@@ -1048,7 +1035,7 @@ const RoomTypeList = () => {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.billTotal.toLocaleString("vi-VN")}
+                              {payment.invoiceTotal.toLocaleString("vi-VN")}
                             </td>
                           </tr>
                         ))

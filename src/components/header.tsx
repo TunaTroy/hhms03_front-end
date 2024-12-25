@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { DownOutlined, UserOutlined, WindowsOutlined } from "@ant-design/icons";
+import { DownOutlined, TeamOutlined, UserOutlined, WindowsOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd"; // Import Tooltip
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
@@ -43,10 +43,16 @@ let header: { icon: JSX.Element; route: string; checked: boolean; label: string 
     label: "Setting",
   },
   {
-    icon: <DollarOutlined />,
-    route: "/pay",
+    icon: <WindowsOutlined />,
+    route: "/room",
     checked: false,
-    label: "Payment",
+    label: "Room",
+  },
+  {
+    icon: <TeamOutlined />,
+    route: "/employee",
+    checked: false,
+    label: "Employee",
   },
   {
     icon: <UserOutlined />,
@@ -55,11 +61,12 @@ let header: { icon: JSX.Element; route: string; checked: boolean; label: string 
     label: "Customer",
   },
   {
-    icon: <WindowsOutlined />,
-    route: "/room",
+    icon: <DollarOutlined />,
+    route: "/pay",
     checked: false,
-    label: "Room",
+    label: "Payment",
   },
+  
 ];
 
 export default function Header() {

@@ -7,54 +7,41 @@ import { inherits } from "util";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
-// Interfaces for Invoice and Booking Data
-interface InvoiceDetail {
-  itemCode: string;
-  itemName: string;
-  quantity: number;
-  unitPrice: number;
-  discount: number;
-  sellingPrice: number;
-  totalPrice: number;
-}
-
-interface PaymentHistory {
-  invoiceId: string;
-  paymentDate: string;
-  createdBy: string;
-  method: string;
-  status: string;
-  amount: number;
-}
-
+// Interfaces for Invoice
 interface InvoiceData {
   invoiceId: string;
   time: string;
   roomName: string;
-  customer: string;
+  customerName: string;
   totalAmount: number;
   discount: number;
   finalAmount: number;
   amountPaid: number;
   notes: string;
-  cashier: string;
+  employeeName: string;
   priceTable: string;
   details: InvoiceDetail[];
   paymentHistory: PaymentHistory[];
 }
-
-interface BookingDetail {
-  itemCode: string;
-  itemName: string;
+interface InvoiceDetail {
+  itemId: string;
+  name: string;
   quantity: number;
   unitPrice: number;
   discount: number;
   sellingPrice: number;
   totalPrice: number;
-  roomName: string; // Thêm thuộc tính roomName
-  time: string; // Thêm thuộc tính time
+}
+interface PaymentHistory {
+  invoiceId: string;
+  time: string;
+  employeeName: string;
+  method: string;
+  status: string;
+  amount: number;
 }
 
+// Interface for Booking
 interface BookingData {
   bookingId: string;
   status: string;
@@ -68,7 +55,17 @@ interface BookingData {
   salesChannel: string;
   notes: string;
   details: BookingDetail[]; // Thêm thuộc tính details
-  paymentHistory: PaymentHistory[];
+}
+interface BookingDetail {
+  itemCode: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  sellingPrice: number;
+  totalPrice: number;
+  roomName: string; // Thêm thuộc tính roomName
+  time: string; // Thêm thuộc tính time
 }
 
 // Sample Data
@@ -77,18 +74,18 @@ const sampleInvoices: InvoiceData[] = [
     invoiceId: "HD000074",
     time: "16/12/2024 22:00",
     roomName: "P.101",
-    customer: "Minh Hưng",
+    customerName: "Minh Hưng",
     totalAmount: 94025000,
     discount: 31000,
     finalAmount: 93994000,
     amountPaid: 93994000,
     notes: "Khách yêu cầu thêm khăn tắm.",
-    cashier: "Nhân viên lễ tân",
+    employeeName: "Nhân viên lễ tân",
     priceTable: "Bảng giá chung",
     details: [
       {
-        itemCode: "MH001",
-        itemName: "Phòng 101 giường đôi và 1 giường đơn cho 3 người (Tháng)",
+        itemId: "MH001",
+        name: "Phòng 101 giường đôi và 1 giường đơn cho 3 người (Tháng)",
         quantity: 1,
         unitPrice: 94025000,
         discount: 1000,
@@ -99,8 +96,8 @@ const sampleInvoices: InvoiceData[] = [
     paymentHistory: [
       {
         invoiceId: "HD000074",
-        paymentDate: "16/12/2024 22:00",
-        createdBy: "Nguyễn Văn A",
+        time: "16/12/2024 22:00",
+        employeeName: "Nguyễn Văn A",
         method: "Tiền mặt",
         status: "Đã thanh toán",
         amount: 93994000,
@@ -111,18 +108,18 @@ const sampleInvoices: InvoiceData[] = [
     invoiceId: "HD000073",
     time: "16/12/2024 21:00",
     roomName: "P.102",
-    customer: "Minh Hà",
+    customerName: "Minh Hà",
     totalAmount: 13400000,
     discount: 5000,
     finalAmount: 13485000,
     amountPaid: 0,
     notes: "Yêu cầu thanh toán trước 12 giờ.",
-    cashier: "Nhân viên lễ tân",
+    employeeName: "Nhân viên lễ tân",
     priceTable: "Bảng giá chung",
     details: [
       {
-        itemCode: "MH002",
-        itemName: "Phòng 102 giường đôi cho 2 người (Tháng)",
+        itemId: "MH002",
+        name: "Phòng 102 giường đôi cho 2 người (Tháng)",
         quantity: 1,
         unitPrice: 13400000,
         discount: 5000,
@@ -133,8 +130,8 @@ const sampleInvoices: InvoiceData[] = [
     paymentHistory: [
       {
         invoiceId: "HD000073",
-        paymentDate: "16/12/2024 21:00",
-        createdBy: "Trần Thị B",
+        time: "16/12/2024 21:00",
+        employeeName: "Trần Thị B",
         method: "Chuyển khoản",
         status: "Đã thanh toán",
         amount: 13485000,
@@ -169,16 +166,6 @@ const sampleBookings: BookingData[] = [
         time: "19/12/2024 20:33 - 19/12/2024 21:33 (1 giờ)",
       },
     ],
-    paymentHistory: [
-      {
-        invoiceId: "HD000074",
-        paymentDate: "16/12/2024 22:00",
-        createdBy: "Nguyễn Văn A",
-        method: "Tiền mặt",
-        status: "Đã thanh toán",
-        amount: 93994000,
-      },
-    ],
   },
   {
     bookingId: "BP00002",
@@ -203,16 +190,6 @@ const sampleBookings: BookingData[] = [
         totalPrice: 6000000,
         roomName: "P.204",
         time: "15/12/2024 18:30 - 16/12/2024 18:30 (1 ngày)",
-      },
-    ],
-    paymentHistory: [
-      {
-        invoiceId: "HD000073",
-        paymentDate: "16/12/2024 21:00",
-        createdBy: "Trần Thị B",
-        method: "Chuyển khoản",
-        status: "Đã thanh toán",
-        amount: 13485000,
       },
     ],
   },
@@ -370,7 +347,7 @@ export default function InvoiceList() {
               {invoice.roomName}
             </div>
             <div style={{ width: "15%", fontSize: "13px" }}>
-              {invoice.customer}
+              {invoice.customerName}
             </div>
 
             <div style={{ width: "15%", fontSize: "13px" }}>
@@ -430,11 +407,11 @@ export default function InvoiceList() {
                         ? "Đã hoàn thành"
                         : "Chưa hoàn thành"}
                       <br />
-                      <strong>Khách hàng:</strong> {invoice.customer}
+                      <strong>Khách hàng:</strong> {invoice.customerName}
                       <br />
                       <strong>Bảng giá:</strong> {invoice.priceTable}
                       <br />
-                      <strong>Thu ngân:</strong> {invoice.cashier}
+                      <strong>Thu ngân:</strong> {invoice.employeeName}
                       <br />
                     </div>
                     <div style={{ flex: 1, fontSize: "15  px" }}>
@@ -530,7 +507,7 @@ export default function InvoiceList() {
                                 textAlign: "center",
                               }}
                             >
-                              {detail.itemCode}
+                              {detail.itemId}
                             </td>
                             <td
                               style={{
@@ -539,7 +516,7 @@ export default function InvoiceList() {
                                 textAlign: "center",
                               }}
                             >
-                              {detail.itemName}
+                              {detail.name}
                             </td>
                             <td
                               style={{
@@ -698,7 +675,7 @@ export default function InvoiceList() {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.paymentDate}
+                              {payment.time}
                             </td>
                             <td
                               style={{
@@ -707,7 +684,7 @@ export default function InvoiceList() {
                                 textAlign: "center",
                               }}
                             >
-                              {payment.createdBy}
+                              {payment.employeeName}
                             </td>
                             <td
                               style={{
@@ -913,13 +890,11 @@ export default function InvoiceList() {
               <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
                 <Tabs defaultActiveKey="1">
                   <TabPane
-                  
-                  style={{
-                  
-                    justifyContent: "space-between",
-                    marginBottom: "10px",
-                    fontSize: "15px",
-                  }}
+                    style={{
+                      justifyContent: "space-between",
+                      marginBottom: "10px",
+                      fontSize: "15px",
+                    }}
                     tab={
                       <span style={{ fontWeight: "bold", fontSize: "20px" }}>
                         Thông tin
