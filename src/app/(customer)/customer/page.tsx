@@ -4,7 +4,7 @@ import CustomerList from "./customer";
 export default function Home() {
   return (
     <div>
-      <CustomerList />
+     <CustomerList/>
     </div>
   );
 }

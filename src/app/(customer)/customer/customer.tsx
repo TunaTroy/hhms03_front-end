@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { Layout, Checkbox, Tabs } from "antd";
-import { inherits } from "util";
-import Page from "@/app/page";
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
@@ -136,7 +134,7 @@ const sampleCustomers: customerData[] = [
   },
 ];
 
-export default function CustomerList() {
+const CustomerList = () => {
   const [activeTab, setActiveTab] = useState<"customer">();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
@@ -393,19 +391,16 @@ export default function CustomerList() {
     </>
   );
 
-return (
+  return (
     
     <Layout style={{ minHeight: "100vh", padding: "20px" }}>
-   <Page/>
       <Content
-      
         style={{
           backgroundColor: "white",
           borderRadius: "8px",
           padding: "40px",
         }}
       >
-         
         <Tabs
           activeKey={activeTab}
           onChange={(key) => setActiveTab(key as "customer")}
@@ -420,9 +415,10 @@ return (
           >
             {renderCustomers()}
           </TabPane>
-          
         </Tabs>
       </Content>
     </Layout>
   );
-}
+};
+
+export default CustomerList;
