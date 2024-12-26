@@ -43,6 +43,7 @@ interface PaymentHistory {
   invoiceId: string;
   time: string;
   employeeName: string;
+  status: string;
   amount: number;
 }
 
@@ -83,12 +84,14 @@ const sampleCustomers: customerData[] = [
         invoiceId: "HD001",
         time: "2023-06-10 14:30",
         employeeName: "Nguyễn Thị B",
+        status: "Đã hoàn thành",
         amount: 500000,
       },
       {
         invoiceId: "HD002",
         time: "2023-08-15 10:00",
         employeeName: "Nguyễn Văn C",
+        status: "Đã hoàn thành",
         amount: 300000,
       },
     ],
@@ -105,9 +108,9 @@ const sampleCustomers: customerData[] = [
     updatedAt: "2024-11-20",
     imageUrl: "https://via.placeholder.com/150", // Placeholder image
     note: "Khách hàng tiềm năng, chưa có giao dịch gần đây.",
-    debt: 0,
+    debt: 100000,
     total: 200000,
-    final: 200000,
+    final: 100000,
     detail: [
       {
         customerId: "KH002",
@@ -128,6 +131,7 @@ const sampleCustomers: customerData[] = [
         invoiceId: "HD003",
         time: "2023-03-10 09:00",
         employeeName: "Nguyễn Văn D",
+        status: "Đang xử lý",
         amount: 1000000,
       },
     ],
@@ -206,11 +210,10 @@ const CustomerList = () => {
         <div style={{ width: "15%" }}>
           <strong>Nợ hiện tại</strong>
         </div>
-
         <div style={{ width: "15%" }}>
           <strong>Tổng bán</strong>
         </div>
-        <div style={{ width: "10%" }}>
+        <div style={{ width: "15%" }}>
           <strong>Tổng trừ nợ</strong>
         </div>
       </div>
@@ -228,12 +231,16 @@ const CustomerList = () => {
         <div style={{ width: "15%" }}></div>
         <div style={{ width: "15%" }}></div>
         <div style={{ width: "15%" }}></div>
-        <div style={{ width: "15%" }}></div>
+        <div
+          style={{
+            width: "15%",
+            color: totalAmounts.debt !== 0 ? "red" : "inherit",
+          }}
+        >
+          {totalAmounts.debt.toLocaleString("vi-VN")}
+        </div>
         <div style={{ width: "15%" }}>
           {totalAmounts.total.toLocaleString("vi-VN")}
-        </div>
-        <div style={{ width: "10%" }}>
-          {totalAmounts.debt.toLocaleString("vi-VN")}
         </div>
         <div style={{ width: "15%" }}>
           {totalAmounts.final.toLocaleString("vi-VN")}
@@ -249,6 +256,7 @@ const CustomerList = () => {
               padding: "10px 0",
               borderBottom: "1px solid #eee",
               cursor: "pointer",
+           
             }}
             onClick={() => handleExpandChange(customer.customerId)}
           >
@@ -266,10 +274,16 @@ const CustomerList = () => {
             <div style={{ width: "15%", fontSize: "13px" }}>
               {customer.phone}
             </div>
-            <div style={{ width: "15%", fontSize: "13px" }}>
+            <div
+              style={{
+                width: "15%",
+                fontSize: "13px",
+                color: customer.debt !== 0 ? "red" : "inherit",
+              }}
+            >
               {customer.debt.toLocaleString("vi-VN")}
             </div>
-            <div style={{ width: "10%", fontSize: "13px" }}>
+            <div style={{ width: "15%", fontSize: "13px" }}>
               {customer.total.toLocaleString("vi-VN")}
             </div>
             <div style={{ width: "15%", fontSize: "13px" }}>
@@ -283,65 +297,71 @@ const CustomerList = () => {
                   <div
                     style={{
                       display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "10px",
-                      fontSize: "15px",
+                      gap: "20px",
                     }}
                   >
-                    <div
-                      style={{
-                        flex: 1,
-                        marginRight: "10px",
-                        fontSize: "15px",
-                      }}
-                    >
-                      <strong>Mã khách hàng:</strong> {customer.customerId}
-                      <br />
-                      <strong>Tên khách hàng:</strong> {customer.name}
-                      <br />
-                      <br />
-                      <strong>Giới tính:</strong> {customer.sex}
-                      <br />
-                      <strong>Số điện thoại:</strong> {customer.phone}
-                      <br />
-                      <br />
-                      <strong>Ngày sinh:</strong> {customer.dob}
-                      <br />
-                      <br />
-                      <strong>Email:</strong> {customer.email}
-                      <br />
+                    {/* Phần 1: Ảnh */}
+                    <div style={{ width: "35%" }}>
+                      <img
+                        src={customer.imageUrl}
+                        alt={customer.name}
+                        style={{
+                          width: "90%",
+                          height: "200px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        marginRight: "10px",
-                        fontSize: "15px",
-                      }}
-                    >
-                      <br />
-                      <strong>Điện thoại:</strong> {customer.phone}
-                      <br />
-                      <strong>Quốc tịch:</strong> {customer.detail[0].nation}
-                      <br />
-                      <strong>Tỉnh thành:</strong> {customer.detail[0].province}
-                      <br />
-                      <br />
-                      <strong>Quận huyện:</strong> {customer.detail[0].district}
-                      <br />
-                      <br />
-                      <strong>Phường xã:</strong> {customer.detail[0].ward}
-                      <br />
-                      <br />
-                      <strong>Thôn:</strong> {customer.detail[0].village}
-                      <br />
+
+                    {/* Section 2: Basic Information */}
+                    <div style={{ width: "30%" }}>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Mã khách hàng:</strong> {customer.customerId}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Tên khách hàng:</strong> {customer.name}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Giới tính:</strong> {customer.sex}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Số điện thoại:</strong> {customer.phone}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Ngày sinh:</strong> {customer.dob}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Email:</strong> {customer.email}
+                      </div>
                     </div>
-                    <div style={{ flex: 1, fontSize: "15  px" }}>
-                      <strong>Ghi chú:</strong>
-                      <br />
-                      {customer.note || "..."}
+
+                    {/* Section 3: Additional Information */}
+                    <div style={{ width: "30%" }}>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Quốc tịch:</strong> {customer.detail[0].nation}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Tỉnh thành:</strong>{" "}
+                        {customer.detail[0].province}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Quận huyện:</strong>{" "}
+                        {customer.detail[0].district}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Phường xã:</strong> {customer.detail[0].ward}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Thôn:</strong> {customer.detail[0].village}
+                      </div>
+                      <div style={{ marginBottom: "10px" }}>
+                        <strong>Ghi chú:</strong>
+                        <br />
+                        {customer.note || "..."}
+                      </div>
                     </div>
                   </div>
-                  {/* Buttons */}
                   <div style={{ marginTop: "10px", textAlign: "end" }}>
                     <button
                       style={{
@@ -383,6 +403,111 @@ const CustomerList = () => {
                     </button>
                   </div>
                 </TabPane>
+
+                {/* Tab: Lịch sử giao dịch */}
+                <TabPane tab="Lịch sử giao dịch" key="2">
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ backgroundColor: "#e6f7ff" }}>
+                        {[
+                          "Mã hóa đơn",
+                          "Thời gian",
+                          "Thu ngân",
+                          "Trạng thái",
+                          "Tổng cộng",
+                        ].map((header) => (
+                          <th
+                            key={header}
+                            style={{
+                              border: "1px solid #ccc",
+                              padding: "8px",
+                              textAlign: "center",
+                            }}
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customer.paymentHistory.length > 0 ? (
+                        customer.paymentHistory.map((payment) => (
+                          <tr key={payment.invoiceId}>
+                            <td
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "8px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {payment.invoiceId}
+                            </td>
+                            <td
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "8px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {payment.time}
+                            </td>
+                            <td
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "8px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {payment.employeeName}
+                            </td>
+                            <td
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "8px",
+                                textAlign: "center",
+                                color:
+                                  payment.status === "Đang xử lý"
+                                    ? "red"
+                                    : "green",
+                              }}
+                            >
+                              {payment.status}
+                            </td>
+                            <td
+                              style={{
+                                border: "1px solid #ccc",
+                                padding: "8px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {payment.amount.toLocaleString("vi-VN")}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            style={{
+                              border: "1px solid #ccc",
+                              padding: "8px",
+                              textAlign: "center",
+                              color: "#888",
+                            }}
+                          >
+                            Không có dữ liệu
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </TabPane>
               </Tabs>
             </div>
           )}
@@ -392,13 +517,12 @@ const CustomerList = () => {
   );
 
   return (
-    
     <Layout style={{ minHeight: "100vh", padding: "20px" }}>
       <Content
         style={{
           backgroundColor: "white",
           borderRadius: "8px",
-          padding: "40px",
+          padding: "20px",
         }}
       >
         <Tabs
