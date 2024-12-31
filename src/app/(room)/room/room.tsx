@@ -2,13 +2,17 @@
 
 import React, { useState } from "react";
 import { Layout, Tabs, Checkbox } from "antd";
+import UpdateTypeRoom from "@/components/update/updateTypeRoom";
 import { DateTime } from "next-auth/providers/kakao";
 import { UUID } from "crypto";
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
-// Định nghĩa các interface
+interface UpdateProps {
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+}
 
 // Danh sách Hạng Phòng
 interface RoomType {
@@ -19,8 +23,8 @@ interface RoomType {
   dailyPrice: number;
   status: string;
   description: string;
-  standardCapacity: string;
-  maxCapacity: string;
+  maxAdults: string;
+  maxChildren: string;
   imageUrl: string;
   cleanStatus: string;
   roomTypeDetail: RoomTypeTable[];
@@ -89,8 +93,8 @@ const sampleRoomTypes: RoomType[] = [
     dailyPrice: 500000,
     status: "Đang kinh doanh",
     description: "Phòng đơn view biển 1m8",
-    standardCapacity: "2 người lớn, 1 trẻ em",
-    maxCapacity: "3 người lớn, 2 trẻ em",
+    maxAdults: "2 người lớn",
+    maxChildren: "1 trẻ em",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Standard",
     cleanStatus: "Clean",
     roomTypeDetail: [
@@ -121,8 +125,8 @@ const sampleRoomTypes: RoomType[] = [
     dailyPrice: 800000,
     status: "Đang kinh doanh",
     description: "Phòng đôi view biển 1m6",
-    standardCapacity: "3 người lớn, 2 trẻ em",
-    maxCapacity: "4 người lớn, 2 trẻ em",
+    maxAdults: "2 người lớn",
+    maxChildren: "0",
     imageUrl: "https://via.placeholder.com/300x200?text=Phòng+Deluxe",
     cleanStatus: "Dirty",
     roomTypeDetail: [
@@ -344,6 +348,7 @@ const RoomTypeList = () => {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"roomTypes" | "rooms">(
     "roomTypes"
@@ -383,6 +388,11 @@ const RoomTypeList = () => {
   React.useEffect(() => {
     setIsAllSelected(selectedIds.length === sampleRoomTypes.length);
   }, [selectedIds]);
+
+  const handleSave = (data: any) => {
+    console.log("Dữ liệu đã lưu:", data);
+    setIsModalVisible(false);
+  };
 
   // Hiển thị danh sách hạng phòng
   const renderRoomTypes = () => (
@@ -517,12 +527,11 @@ const RoomTypeList = () => {
                     {/* Phần 3: Sức chứa và mô tả */}
                     <div style={{ width: "30%" }}>
                       <p>
-                        <strong>Sức chứa tiêu chuẩn:</strong>{" "}
-                        {roomType.standardCapacity}
+                        <strong>Sức chứa tối đa:</strong> {roomType.maxAdults}
+                        {", "}
+                        {roomType.maxChildren}
                       </p>
-                      <p>
-                        <strong>Sức chứa tối đa:</strong> {roomType.maxCapacity}
-                      </p>
+
                       <p>
                         <strong>Mô tả:</strong> {roomType.description}
                       </p>
@@ -531,6 +540,7 @@ const RoomTypeList = () => {
                   {/* Buttons */}
                   <div style={{ marginTop: "10px", textAlign: "end" }}>
                     <button
+                      onClick={() => setIsModalVisible(true)}
                       style={{
                         padding: "8px 12px",
                         marginRight: "10px",
@@ -543,6 +553,11 @@ const RoomTypeList = () => {
                     >
                       Cập nhật
                     </button>
+                    <UpdateTypeRoom
+                      visible={isModalVisible}
+                      onClose={() => setIsModalVisible(false)}
+                      onSave={handleSave}
+                    />
                     <button
                       style={{
                         padding: "8px 12px",
@@ -555,18 +570,6 @@ const RoomTypeList = () => {
                       }}
                     >
                       Ngừng kinh doanh
-                    </button>
-                    <button
-                      style={{
-                        padding: "8px 12px",
-                        backgroundColor: "#d9534f",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Xóa
                     </button>
                   </div>
                 </TabPane>
@@ -753,7 +756,7 @@ const RoomTypeList = () => {
               style={{
                 width: "15%",
                 fontSize: "13px",
-                color: room.status === "Ngừng kinh doanh" ? "red" : "green",
+                color: room.status === "Ngừng hoạt động" ? "red" : "green",
               }}
             >
               {room.status}
@@ -848,19 +851,7 @@ const RoomTypeList = () => {
                         cursor: "pointer",
                       }}
                     >
-                      Ngừng kinh doanh
-                    </button>
-                    <button
-                      style={{
-                        padding: "8px 12px",
-                        backgroundColor: "#d9534f",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Xóa
+                      Ngừng hoạt động
                     </button>
                   </div>
                 </TabPane>
@@ -1105,3 +1096,4 @@ const RoomTypeList = () => {
 };
 
 export default RoomTypeList;
+// TÔM ĂN CỨT
