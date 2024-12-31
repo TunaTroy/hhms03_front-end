@@ -76,12 +76,16 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
         form={form}
         layout="vertical"
         initialValues={{
-          name: roomTypeData?.name || '', // Tên hạng phòng
+          name: roomTypeData?.name || "", // Tên hạng phòng
           hourlyPrice: roomTypeData?.hourlyPrice, // Giá giờ
           dailyPrice: roomTypeData?.dailyPrice, // Giá ngày
-          maxAdults: roomTypeData ? parseInt(roomTypeData.maxAdults.split(" ")[0]) : 2, // Số người lớn tối đa
-          maxChildren: roomTypeData ? parseInt(roomTypeData.maxChildren.split(" ")[0]) : 1, // Số trẻ em tối đa
-          description: roomTypeData?.description || '', // Mô tả
+          maxAdults: roomTypeData
+            ? parseInt(roomTypeData.maxAdults.split(" ")[0])
+            : 2, // Số người lớn tối đa
+          maxChildren: roomTypeData
+            ? parseInt(roomTypeData.maxChildren.split(" ")[0])
+            : 1, // Số trẻ em tối đa
+          description: roomTypeData?.description || "", // Mô tả
         }}
       >
         {/* Tab Thông tin */}
@@ -91,7 +95,9 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
             <Form.Item
               label="Sửa tên hạng phòng"
               name="name"
-              rules={[{ required: true, message: "Tên hạng phòng là bắt buộc" }]}
+              rules={[
+                { required: true, message: "Tên hạng phòng là bắt buộc" },
+              ]}
               style={{ display: "flex", alignItems: "center" }}
             >
               <Input
@@ -143,7 +149,7 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
                 style={{
                   border: "none",
                   borderBottom: "1px solid #d9d9d9",
-                  borderRadius: 0,
+                  borderRadius: "none",
                   outline: "none",
                   boxShadow: "none",
                   marginLeft: "8px",
@@ -158,7 +164,9 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
             <Form.Item
               label="Tối đa người lớn"
               name="maxAdults"
-              rules={[{ required: true, message: "Tối đa người lớn là bắt buộc" }]}
+              rules={[
+                { required: true, message: "Tối đa người lớn là bắt buộc" },
+              ]}
               style={{ display: "flex", alignItems: "center" }}
             >
               <InputNumber
@@ -198,7 +206,9 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           </Col>
           <Col span={8}>
             <Form.Item label="Thời gian nhận - trả quy định" name="timePolicy">
-              <div style={{ fontSize: "14px", color: "#555", marginTop: "8px" }}>
+              <div
+                style={{ fontSize: "14px", color: "#555", marginTop: "8px" }}
+              >
                 <p style={{ margin: 0 }}>• Cả ngày tính từ 14:00 đến 12:00</p>
                 <p style={{ margin: 0 }}>• Giá giờ tính 2 giờ đầu</p>
               </div>

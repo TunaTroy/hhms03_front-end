@@ -1090,11 +1090,9 @@ const RoomTypeList = () => {
             {renderRooms()}
           </TabPane>
         </Tabs>
-       
       </Content>
     </Layout>
   );
 };
 
 export default RoomTypeList;
-// TÔM ĂN CỨT

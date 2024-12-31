@@ -1,5 +1,10 @@
 import React from "react";
+import EmployeeTypeList from "./employee";
 
 export default function Home() {
-  return <div>Tao đep trai</div>;
+  return (
+    <div>
+     <EmployeeTypeList/>
+    </div>
+  );
 }
