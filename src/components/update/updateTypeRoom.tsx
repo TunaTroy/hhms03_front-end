@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   Form,
@@ -12,25 +12,54 @@ import {
   Select,
 } from "antd";
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 interface UpdateTypeRoomProps {
   visible: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
+  roomTypeData?: {
+    typeId: string;
+    name: string;
+    hourlyPrice: number;
+    dailyPrice: number;
+    maxAdults: string;
+    maxChildren: string;
+    description: string;
+  }; // Dữ liệu của hạng phòng được truyền vào từ component cha
 }
 
 const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
   visible,
   onClose,
   onSave,
+  roomTypeData,
 }) => {
   const [form] = Form.useForm();
 
+  // Khi `roomTypeData` thay đổi hoặc modal được mở, đặt giá trị ban đầu cho form
+  useEffect(() => {
+    if (roomTypeData) {
+      form.setFieldsValue({
+        name: roomTypeData.name,
+        hourlyPrice: roomTypeData.hourlyPrice,
+        dailyPrice: roomTypeData.dailyPrice,
+        maxAdults: parseInt(roomTypeData.maxAdults.split(" ")[0]), // Lấy số từ chuỗi "2 người lớn"
+        maxChildren: parseInt(roomTypeData.maxChildren.split(" ")[0]), // Lấy số từ chuỗi "1 trẻ em"
+        description: roomTypeData.description,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [roomTypeData, visible]);
+
   const handleSave = () => {
     form.validateFields().then((values) => {
-      onSave(values);
+      // Gọi hàm `onSave` với dữ liệu từ form
+      onSave({
+        ...roomTypeData, // Bao gồm dữ liệu cũ (ví dụ: `typeId`)
+        ...values, // Giá trị mới từ form
+      });
       form.resetFields();
     });
   };
@@ -47,29 +76,22 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
         form={form}
         layout="vertical"
         initialValues={{
-          hourlyPrice: 0,
-          dailyPrice: 0,
-          overnightPrice: 0,
-          earlyCheckInPrice: 0,
-          lateCheckOutPrice: 0,
-          standardAdults: 2,
-          standardChildren: 1,
-          maxAdults: 2,
-          maxChildren: 1,
+          name: roomTypeData?.name || '', // Tên hạng phòng
+          hourlyPrice: roomTypeData?.hourlyPrice, // Giá giờ
+          dailyPrice: roomTypeData?.dailyPrice, // Giá ngày
+          maxAdults: roomTypeData ? parseInt(roomTypeData.maxAdults.split(" ")[0]) : 2, // Số người lớn tối đa
+          maxChildren: roomTypeData ? parseInt(roomTypeData.maxChildren.split(" ")[0]) : 1, // Số trẻ em tối đa
+          description: roomTypeData?.description || '', // Mô tả
         }}
       >
         {/* Tab Thông tin */}
         <Divider orientation="left">Thông tin</Divider>
         <Row gutter={16}>
           <Col span={12}>
-            {" "}
-            {/* Cột 1: Tên hạng phòng */}
             <Form.Item
               label="Sửa tên hạng phòng"
               name="name"
-              rules={[
-                { required: true, message: "Tên hạng phòng là bắt buộc" },
-              ]}
+              rules={[{ required: true, message: "Tên hạng phòng là bắt buộc" }]}
               style={{ display: "flex", alignItems: "center" }}
             >
               <Input
@@ -88,8 +110,6 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           </Col>
 
           <Col span={6}>
-            {" "}
-            {/* Cột 2: Giá giờ */}
             <Form.Item
               label="Sửa giá giờ"
               name="hourlyPrice"
@@ -112,8 +132,6 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           </Col>
 
           <Col span={6}>
-            {" "}
-            {/* Cột 3: Giá cả ngày */}
             <Form.Item
               label="Sửa giá ngày"
               name="dailyPrice"
@@ -139,10 +157,8 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           <Col span={8}>
             <Form.Item
               label="Tối đa người lớn"
-              name="maxAdults" // Đổi tên biến cho đúng
-              rules={[
-                { required: true, message: "Tối đa người lớn là bắt buộc" },
-              ]}
+              name="maxAdults"
+              rules={[{ required: true, message: "Tối đa người lớn là bắt buộc" }]}
               style={{ display: "flex", alignItems: "center" }}
             >
               <InputNumber
@@ -162,7 +178,7 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           <Col span={8}>
             <Form.Item
               label="Tối đa trẻ em"
-              name="maxChildren" // Đổi tên biến cho đúng
+              name="maxChildren"
               rules={[{ required: true, message: "Tối đa trẻ em là bắt buộc" }]}
               style={{ display: "flex", alignItems: "center" }}
             >
@@ -182,9 +198,7 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
           </Col>
           <Col span={8}>
             <Form.Item label="Thời gian nhận - trả quy định" name="timePolicy">
-              <div
-                style={{ fontSize: "14px", color: "#555", marginTop: "8px" }}
-              >
+              <div style={{ fontSize: "14px", color: "#555", marginTop: "8px" }}>
                 <p style={{ margin: 0 }}>• Cả ngày tính từ 14:00 đến 12:00</p>
                 <p style={{ margin: 0 }}>• Giá giờ tính 2 giờ đầu</p>
               </div>
@@ -239,7 +253,6 @@ const UpdateTypeRoom: React.FC<UpdateTypeRoomProps> = ({
               Lưu
             </Button>
           </Col>
-          <Col></Col>
         </Row>
       </Form>
     </Modal>

@@ -1090,6 +1090,7 @@ const RoomTypeList = () => {
             {renderRooms()}
           </TabPane>
         </Tabs>
+       
       </Content>
     </Layout>
   );
