@@ -4,7 +4,6 @@ import {
   LeftOutlined,
   RightOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
@@ -34,7 +33,7 @@ const WeeklySchedule = () => {
         },
         {
           date: dayjs().startOf("isoWeek").add(1, "day"),
-          status: "Nghỉ",
+          status: "Đi làm",
           shift: "",
           time: "",
         },
@@ -64,7 +63,7 @@ const WeeklySchedule = () => {
         },
         {
           date: dayjs().startOf("isoWeek").add(6, "day"),
-          status: "Nghỉ",
+          status: "Đi làm",
           shift: "",
           time: "",
         },
@@ -72,8 +71,7 @@ const WeeklySchedule = () => {
     },
   ];
 
-  const onDateSelect = (date: Dayjs) => {
-    setSelectedDate(date);
+  const showModal = () => {
     setIsModalVisible(true);
   };
 
@@ -161,7 +159,6 @@ const WeeklySchedule = () => {
                       flexDirection: "row",
                       alignItems: "center",
                       justifyContent: "flex-start",
-               
                     }}
                   >
                     <div style={{ marginRight: "5px" }}>
@@ -197,7 +194,7 @@ const WeeklySchedule = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
-                    backgroundColor: "white", // Đặt màu nền trắng cho ô
+                    backgroundColor: "white",
                   }}
                 >
                   <div style={{ fontWeight: "bold" }}>
@@ -211,6 +208,10 @@ const WeeklySchedule = () => {
                   const shift = employee.shifts.find((s) =>
                     s.date.isSame(day, "day")
                   );
+                  const isFutureDate = day.isAfter(
+                    dayjs().startOf("day"),
+                    "day"
+                  );
                   return (
                     <td
                       key={index}
@@ -218,22 +219,14 @@ const WeeklySchedule = () => {
                         padding: "10px",
                         border: "1px solid #ddd",
                         textAlign: "center",
-                        backgroundColor: "white", // Đặt màu nền trắng cho ô
-                        cursor: "pointer",
+                        backgroundColor: "white",
                       }}
-                      onClick={() => onDateSelect(day)}
                     >
-                      <div>
-                        {shift?.status === "Đi làm" ? (
-                          <CheckCircleOutlined
-                            style={{ color: "green", fontSize: "24px" }}
-                          />
-                        ) : (
-                          <CloseCircleOutlined
-                            style={{ color: "red", fontSize: "24px" }}
-                          />
-                        )}
-                      </div>
+                      {!isFutureDate && shift?.status === "Đi làm" ? (
+                        <CheckCircleOutlined
+                          style={{ color: "green", fontSize: "24px" }}
+                        />
+                      ) : null}
                     </td>
                   );
                 })}
@@ -241,17 +234,16 @@ const WeeklySchedule = () => {
             ))}
           </tbody>
         </table>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ textAlign: "right", marginTop: "20px" }}>
           <Button
+            style={{
+              backgroundColor: "#4caf50",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
             type="primary"
-            style={{ backgroundColor: "green" }}
-            onClick={() => console.log("Cập nhật")}
           >
             Cập nhật
           </Button>
@@ -260,43 +252,7 @@ const WeeklySchedule = () => {
     );
   };
 
-  return (
-    <div style={{ padding: "20px" }}>
-      {renderWeekView()}
-
-      <Modal
-        title={`Thiết lập lịch làm việc cho ${
-          selectedDate ? dayjs(selectedDate).format("DD/MM/YYYY") : ""
-        }`}
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Tên nhân viên"
-            name="employeeName"
-            rules={[
-              { required: true, message: "Vui lòng nhập tên nhân viên!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Ca làm việc"
-            name="shift"
-            rules={[{ required: true, message: "Vui lòng chọn ca làm việc!" }]}
-          >
-            <Select placeholder="Chọn ca">
-              <Option value="morning">Ca sáng</Option>
-              <Option value="afternoon">Ca chiều</Option>
-              <Option value="night">Ca tối</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
-  );
+  return <div style={{ padding: "20px" }}>{renderWeekView()}</div>;
 };
 
 export default WeeklySchedule;

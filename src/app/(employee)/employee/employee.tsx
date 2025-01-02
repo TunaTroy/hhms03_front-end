@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { Layout, Tabs, Checkbox } from "antd";
 import UpdateTypeRoom from "@/components/update/updateTypeRoom";
-import MonthlySchedule from "@/components/schedule";
+import WeeklySchedule from "@/components/schedule";
+import SalaryComponent from "@/components/setSalary";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
@@ -96,7 +97,6 @@ const EmployeeTypeList = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
   const [activeTab, setActiveTab] = useState<"roomTypes" | "rooms">(
     "roomTypes"
   );
@@ -138,6 +138,14 @@ const EmployeeTypeList = () => {
 
   const handleSave = (data: any) => {
     console.log("Dữ liệu đã lưu:", data);
+    setIsModalVisible(false);
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleClose = () => {
     setIsModalVisible(false);
   };
 
@@ -342,11 +350,12 @@ const EmployeeTypeList = () => {
 
                 {/* Tab: Danh sách phòng */}
                 <TabPane tab="Lịch làm việc" key="2">
-                  <MonthlySchedule />
+                  <WeeklySchedule />
                 </TabPane>
-                <TabPane tab="Thiết lập lương" key="3"></TabPane>
-                <TabPane tab="Phiếu lương" key="4"></TabPane>
-                <TabPane tab="Nợ lương" key="5"></TabPane>
+                <TabPane tab="Thiết lập lương" key="3">
+                <SalaryComponent />
+                </TabPane>
+                <TabPane tab="Nợ và tạm ứng" key="4"></TabPane>
               </Tabs>
             </div>
           )}
