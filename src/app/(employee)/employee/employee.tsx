@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Layout, Tabs, Checkbox } from "antd";
 import UpdateTypeRoom from "@/components/update/updateTypeRoom";
-
+import MonthlySchedule from "@/components/schedule";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
@@ -215,9 +215,7 @@ const EmployeeTypeList = () => {
             <div style={{ width: "15%", fontSize: "13px" }}>
               {employee.employeeName}
             </div>
-            <div style={{ width: "20%", fontSize: "13px" }}>
-            
-            </div>
+            <div style={{ width: "20%", fontSize: "13px" }}></div>
             <div style={{ width: "15%", fontSize: "13px" }}>
               {employee.employeePhone}
             </div>
@@ -343,7 +341,9 @@ const EmployeeTypeList = () => {
                 </TabPane>
 
                 {/* Tab: Danh sách phòng */}
-                <TabPane tab="Lịch làm việc" key="2"></TabPane>
+                <TabPane tab="Lịch làm việc" key="2">
+                  <MonthlySchedule />
+                </TabPane>
                 <TabPane tab="Thiết lập lương" key="3"></TabPane>
                 <TabPane tab="Phiếu lương" key="4"></TabPane>
                 <TabPane tab="Nợ lương" key="5"></TabPane>
