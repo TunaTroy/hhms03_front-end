@@ -5,6 +5,7 @@ import { Layout, Tabs, Checkbox } from "antd";
 import UpdateTypeRoom from "@/components/update/updateTypeRoom";
 import WeeklySchedule from "@/components/schedule";
 import SalaryComponent from "@/components/setSalary";
+import EmployeeSchedule from "@/components/schedulePage";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
@@ -97,9 +98,9 @@ const EmployeeTypeList = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<"roomTypes" | "rooms">(
-    "roomTypes"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "information" | "schedule" | "attended" | "salary"
+  >("information");
 
   // Xử lý mở rộng/thu gọn
   const handleExpandChange = (id: string) => {
@@ -193,7 +194,6 @@ const EmployeeTypeList = () => {
         </div>
       </div>
 
-      {/* Room Types */}
       {sampleEmployee.map((employee) => (
         <div key={employee.employeeId}>
           <div
@@ -353,7 +353,7 @@ const EmployeeTypeList = () => {
                   <WeeklySchedule />
                 </TabPane>
                 <TabPane tab="Thiết lập lương" key="3">
-                <SalaryComponent />
+                  <SalaryComponent />
                 </TabPane>
                 <TabPane tab="Nợ và tạm ứng" key="4"></TabPane>
               </Tabs>
@@ -364,381 +364,11 @@ const EmployeeTypeList = () => {
     </>
   );
 
-  //   const renderRooms = () => (
-  //     <>
-  //       {/* Header */}
-  //       <div
-  //         style={{
-  //           display: "flex",
-  //           justifyContent: "space-between",
-  //           padding: "10px 0",
-  //           borderBottom: "1px solid #000",
-  //         }}
-  //       >
-  //         <div style={{ width: "5%", textAlign: "left" }}>
-  //           <Checkbox
-  //             checked={isAllSelected}
-  //             onChange={handleHeaderCheckboxChange}
-  //           />
-  //         </div>
-  //         <div style={{ width: "20%" }}>
-  //           <strong>Tên phòng</strong>
-  //         </div>
-  //         <div style={{ width: "30%" }}>
-  //           <strong>Hạng phòng</strong>
-  //         </div>
-  //         <div style={{ width: "15%" }}>
-  //           <strong>Khu vực</strong>
-  //         </div>
-  //         <div style={{ width: "15%" }}>
-  //           <strong>Giá giờ</strong>
-  //         </div>
-  //         <div style={{ width: "15%" }}>
-  //           <strong>Giá ngày</strong>
-  //         </div>
-  //         <div style={{ width: "15%" }}>
-  //           <strong>Trạng thái</strong>
-  //         </div>
-  //         <div style={{ width: "30%" }}>
-  //           <strong>Mô tả</strong>
-  //         </div>
-  //       </div>
-
-  //       {/* Employee */}
-  //       {sampleEmployee.map((employee) => (
-  //         <div key={room.name}>
-  //           <div
-  //             style={{
-  //               display: "flex",
-  //               justifyContent: "space-between",
-  //               padding: "10px 0",
-  //               borderBottom: "1px solid #eee",
-  //               cursor: "pointer",
-  //             }}
-  //             onClick={() => handleExpandChange(room.name)}
-  //           >
-  //             <Checkbox
-  //               checked={selectedIds.includes(room.name)}
-  //               onChange={(e) => {
-  //                 e.stopPropagation();
-  //                 handleCheckboxChange(room.name);
-  //               }}
-  //               style={{ width: "5%" }}
-  //             />
-  //             <div style={{ width: "20%", fontSize: "13px" }}>{room.name}</div>
-  //             <div style={{ width: "30%", fontSize: "13px" }}>
-  //               {room.typeName}
-  //             </div>
-  //             <div style={{ width: "15%", fontSize: "13px" }}>{room.floor}</div>
-  //             <div style={{ width: "15%", fontSize: "13px" }}>
-  //               {room.hourlyPrice.toLocaleString("vi-VN")}
-  //             </div>
-  //             <div style={{ width: "15%", fontSize: "13px" }}>
-  //               {room.dailyPrice.toLocaleString("vi-VN")}
-  //             </div>
-  //             <div
-  //               style={{
-  //                 width: "15%",
-  //                 fontSize: "13px",
-  //                 color: room.status === "Ngừng hoạt động" ? "red" : "green",
-  //               }}
-  //             >
-  //               {room.status}
-  //             </div>
-  //             <div style={{ width: "30%", fontSize: "13px" }}>
-  //               {room.description}
-  //             </div>
-  //           </div>
-
-  //           {/* Expanded Row */}
-  //           {expandedIds.includes(room.name) && (
-  //             <div style={{ padding: "10px", backgroundColor: "#FFFEFA" }}>
-  //               <Tabs defaultActiveKey="1">
-  //                 {/* Tab: Thông tin */}
-  //                 <TabPane tab="Thông tin" key="1">
-  //                   <div style={{ display: "flex", gap: "20px" }}>
-  //                     {/* Phần 1: Ảnh */}
-  //                     <div style={{ width: "35%" }}>
-  //                       <img
-  //                         src={room.imageUrl}
-  //                         alt={room.name}
-  //                         style={{
-  //                           width: "90%",
-  //                           height: "200px",
-  //                           objectFit: "cover",
-  //                           borderRadius: "8px",
-  //                         }}
-  //                       />
-  //                     </div>
-
-  //                     {/* Phần 2: Các field cơ bản */}
-  //                     <div style={{ width: "30%" }}>
-  //                       <p>
-  //                         <strong>Tên phòng:</strong> {room.name}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Hạng phòng:</strong> {room.typeName}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Khu vực:</strong> {room.floor}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Giá giờ:</strong>{" "}
-  //                         {room.hourlyPrice.toLocaleString("vi-VN")}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Giá ngày:</strong>{" "}
-  //                         {room.dailyPrice.toLocaleString("vi-VN")}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Phụ thu quá giờ:</strong>{" "}
-  //                         {room.penaltyPrice.toLocaleString("vi-VN")}
-  //                       </p>
-  //                     </div>
-
-  //                     {/* Phần 3: Sức chứa và mô tả */}
-  //                     <div style={{ width: "30%" }}>
-  //                       <p>
-  //                         <strong>Bắt đầu sử dụng:</strong> {room.timeStart}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Vệ sinh:</strong> {room.cleanStatus}
-  //                       </p>
-  //                       <p>
-  //                         <strong>Mô tả:</strong> {room.description}
-  //                       </p>
-  //                     </div>
-  //                   </div>
-  //                   {/* Buttons */}
-  //                   <div style={{ marginTop: "10px", textAlign: "end" }}>
-  //                     <button
-  //                       style={{
-  //                         padding: "8px 12px",
-  //                         marginRight: "10px",
-  //                         backgroundColor: "#4caf50",
-  //                         color: "#fff",
-  //                         border: "none",
-  //                         borderRadius: "4px",
-  //                         cursor: "pointer",
-  //                       }}
-  //                     >
-  //                       Cập nhật
-  //                     </button>
-  //                     <button
-  //                       style={{
-  //                         padding: "8px 12px",
-  //                         marginRight: "10px",
-  //                         backgroundColor: "#f44336",
-  //                         color: "#fff",
-  //                         border: "none",
-  //                         borderRadius: "4px",
-  //                         cursor: "pointer",
-  //                       }}
-  //                     >
-  //                       Ngừng hoạt động
-  //                     </button>
-  //                   </div>
-  //                 </TabPane>
-
-  //                 {/* Tab: Lịch sử đặt phòng */}
-  //                 <TabPane tab="Lịch sử đặt phòng" key="2">
-  //                   <table
-  //                     style={{
-  //                       width: "100%",
-  //                       borderCollapse: "collapse",
-  //                       marginTop: "10px",
-  //                     }}
-  //                   >
-  //                     <thead>
-  //                       <tr style={{ backgroundColor: "#e6f7ff" }}>
-  //                         {[
-  //                           "Mã đặt phòng",
-  //                           "Thời gian đặt",
-  //                           "Nhân viên đặt",
-  //                           "Tổng cộng",
-  //                           "Trạng thái",
-  //                         ].map((header) => (
-  //                           <th
-  //                             key={header}
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {header}
-  //                           </th>
-  //                         ))}
-  //                       </tr>
-  //                     </thead>
-  //                     <tbody>
-  //                       {room.roomBooking.map((booking) => (
-  //                         <tr key={booking.bookingTime}>
-  //                           <td
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {booking.bookingId}
-  //                           </td>
-  //                           <td
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {booking.bookingTime}
-  //                           </td>
-  //                           <td
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {booking.bookingEmployee}
-  //                           </td>
-  //                           <td
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {booking.bookingTotal.toLocaleString("vi-VN")}
-  //                           </td>
-  //                           <td
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                               color:
-  //                                 booking.bookingStatus === "Đang xử lý"
-  //                                   ? "red"
-  //                                   : "green",
-  //                             }}
-  //                           >
-  //                             {booking.bookingStatus}
-  //                           </td>
-  //                         </tr>
-  //                       ))}
-  //                     </tbody>
-  //                   </table>
-  //                 </TabPane>
-  //                 {/* Tab: Lịch sử giao dịch */}
-  //                 <TabPane tab="Lịch sử giao dịch" key="3">
-  //                   <table
-  //                     style={{
-  //                       width: "100%",
-  //                       borderCollapse: "collapse",
-  //                       marginTop: "10px",
-  //                     }}
-  //                   >
-  //                     <thead>
-  //                       <tr style={{ backgroundColor: "#e6f7ff" }}>
-  //                         {[
-  //                           "Mã hóa đơn",
-  //                           "Thời gian",
-  //                           "Thu ngân",
-  //                           "Trạng thái",
-  //                           "Tổng cộng",
-  //                         ].map((header) => (
-  //                           <th
-  //                             key={header}
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                             }}
-  //                           >
-  //                             {header}
-  //                           </th>
-  //                         ))}
-  //                       </tr>
-  //                     </thead>
-  //                     <tbody>
-  //                       {room.roomPayment.length > 0 ? (
-  //                         room.roomPayment.map((payment) => (
-  //                           <tr key={payment.invoiceId}>
-  //                             <td
-  //                               style={{
-  //                                 border: "1px solid #ccc",
-  //                                 padding: "8px",
-  //                                 textAlign: "center",
-  //                               }}
-  //                             >
-  //                               {payment.invoiceId}
-  //                             </td>
-  //                             <td
-  //                               style={{
-  //                                 border: "1px solid #ccc",
-  //                                 padding: "8px",
-  //                                 textAlign: "center",
-  //                               }}
-  //                             >
-  //                               {payment.invoiceTime}
-  //                             </td>
-  //                             <td
-  //                               style={{
-  //                                 border: "1px solid #ccc",
-  //                                 padding: "8px",
-  //                                 textAlign: "center",
-  //                               }}
-  //                             >
-  //                               {payment.invoiceEmployee}
-  //                             </td>
-  //                             <td
-  //                               style={{
-  //                                 border: "1px solid #ccc",
-  //                                 padding: "8px",
-  //                                 textAlign: "center",
-  //                                 color:
-  //                                   payment.invoiceStatus === "Đang xử lý"
-  //                                     ? "red"
-  //                                     : "green",
-  //                               }}
-  //                             >
-  //                               {payment.invoiceStatus}
-  //                             </td>
-  //                             <td
-  //                               style={{
-  //                                 border: "1px solid #ccc",
-  //                                 padding: "8px",
-  //                                 textAlign: "center",
-  //                               }}
-  //                             >
-  //                               {payment.invoiceTotal.toLocaleString("vi-VN")}
-  //                             </td>
-  //                           </tr>
-  //                         ))
-  //                       ) : (
-  //                         <tr>
-  //                           <td
-  //                             colSpan={5}
-  //                             style={{
-  //                               border: "1px solid #ccc",
-  //                               padding: "8px",
-  //                               textAlign: "center",
-  //                               color: "#888",
-  //                             }}
-  //                           >
-  //                             Không có dữ liệu
-  //                           </td>
-  //                         </tr>
-  //                       )}
-  //                     </tbody>
-  //                   </table>
-  //                 </TabPane>
-  //               </Tabs>
-  //             </div>
-  //           )}
-  //         </div>
-  //       ))}
-  //     </>
-  //   );
+  const renderSchedule = () => (
+    <>
+      <EmployeeSchedule />
+    </>
+  );
 
   return (
     <Layout style={{ minHeight: "100vh", padding: "20px" }}>
@@ -751,7 +381,11 @@ const EmployeeTypeList = () => {
       >
         <Tabs
           activeKey={activeTab}
-          onChange={(key) => setActiveTab(key as "roomTypes" | "rooms")}
+          onChange={(key) =>
+            setActiveTab(
+              key as "information" | "schedule" | "attended" | "salary"
+            )
+          }
         >
           <TabPane
             tab={
@@ -759,7 +393,7 @@ const EmployeeTypeList = () => {
                 Danh sách
               </span>
             }
-            key="roomTypes"
+            key="information"
           >
             {renderEmployees()}
           </TabPane>
@@ -767,8 +401,10 @@ const EmployeeTypeList = () => {
             tab={
               <span style={{ fontWeight: "bold", fontSize: "20px" }}>Lịch</span>
             }
-            key="2"
-          ></TabPane>
+            key="schedule"
+          >
+            {renderSchedule()}
+          </TabPane>
           <TabPane
             tab={
               <span style={{ fontWeight: "bold", fontSize: "20px" }}>
