@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Form,
@@ -35,7 +35,7 @@ type Employee = {
 };
 
 // Mock data
-const initialEmployees: Employee[] = [
+const mockEmployees: Employee[] = [
   {
     name: "Nghiêm Tuấn Đạt",
     id: "NV000001",
@@ -69,50 +69,14 @@ const initialEmployees: Employee[] = [
       },
     ],
   },
-  {
-    name: "Trần Văn An",
-    id: "NV000003",
-    shifts: [
-      {
-        date: dayjs().startOf("isoWeek").add(3, "day"),
-        shift: "Ca đêm",
-        time: "19:00 - 07:00",
-        status: "confirmed",
-        employeeId: "NV000003",
-      },
-    ],
-  },
-  {
-    name: "Lê Thị Bình",
-    id: "NV000004",
-    shifts: [
-      {
-        date: dayjs().startOf("isoWeek").add(4, "day"),
-        shift: "Ca ngày",
-        time: "07:00 - 19:00",
-        status: "confirmed",
-        employeeId: "NV000004",
-      },
-      {
-        date: dayjs().startOf("isoWeek").add(5, "day"),
-        shift: "Ca đêm",
-        time: "19:00 - 07:00",
-        status: "confirmed",
-        employeeId: "NV000004",
-      },
-    ],
-  },
-  {
-    name: "Phạm Văn Cường",
-    id: "NV000005",
-    shifts: [],
-  },
+  // Thêm các nhân viên mock khác...
 ];
 
 const shiftOptions = [
   { label: "Ca ngày (07:00 - 19:00)", value: "Ca ngày" },
   { label: "Ca đêm (19:00 - 07:00)", value: "Ca đêm" },
 ];
+
 const weekDays = [
   "Thứ 2",
   "Thứ 3",
@@ -130,7 +94,7 @@ const EmployeeSchedule: React.FC = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     dayjs().startOf("isoWeek")
   );
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [currentEditing, setCurrentEditing] = useState<{
     employeeId: string;
@@ -143,40 +107,40 @@ const EmployeeSchedule: React.FC = () => {
     date: Dayjs;
   } | null>(null);
 
-  // Load data from localStorage on mount
-  useEffect(() => {
-    const savedData = localStorage.getItem("employeeSchedule");
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData, (key, value) => {
-          if (key === "date" || key.includes("date")) {
-            return dayjs(value);
-          }
-          return value;
-        });
-        console.log("Loaded data:", parsedData); // Thêm log để debug
-        setEmployees(parsedData);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        setEmployees(initialEmployees);
-      }
-    } else {
-      setEmployees(initialEmployees);
-    }
-  }, []);
+  //   // Load data from localStorage on mount
+  //   useEffect(() => {
+  //     const savedData = localStorage.getItem("employeeSchedule");
+  //     if (savedData) {
+  //       try {
+  //         const parsedData = JSON.parse(savedData, (key, value) => {
+  //           if (key === "date" || key.includes("date")) {
+  //             return dayjs(value);
+  //           }
+  //           return value;
+  //         });
+  //         console.log("Loaded data:", parsedData); // Thêm log để debug
+  //         setEmployees(parsedData);
+  //       } catch (error) {
+  //         console.error("Error loading data:", error);
+  //         setEmployees(mockEmployees);
+  //       }
+  //     } else {
+  //       setEmployees(mockEmployees);
+  //     }
+  //   }, []);
 
-  // Save to localStorage whenever employees change
-  useEffect(() => {
-    if (employees.length > 0) {
-      const dataToSave = JSON.stringify(employees, (key, value) => {
-        if (dayjs.isDayjs(value)) {
-          return value.format();
-        }
-        return value;
-      });
-      localStorage.setItem("employeeSchedule", dataToSave);
-    }
-  }, [employees]);
+  //   // Save to localStorage whenever employees change
+  //   useEffect(() => {
+  //     if (employees.length > 0) {
+  //       const dataToSave = JSON.stringify(employees, (key, value) => {
+  //         if (dayjs.isDayjs(value)) {
+  //           return value.format();
+  //         }
+  //         return value;
+  //       });
+  //       localStorage.setItem("employeeSchedule", dataToSave);
+  //     }
+  //   }, [employees]);
 
   const handleAddShift = (employeeId: string, date: Dayjs) => {
     setCurrentEditing({ employeeId, date });
