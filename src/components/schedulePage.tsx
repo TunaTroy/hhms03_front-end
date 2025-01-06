@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { Modal, Form, Select, Button, Tooltip } from "antd";
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Form,
+  Button,
+  Tooltip,
+  DatePicker,
+  Checkbox,
+  Switch,
+  message,
+} from "antd";
 import {
   LeftOutlined,
   PlusCircleOutlined,
@@ -11,14 +20,12 @@ import isoWeek from "dayjs/plugin/isoWeek";
 
 dayjs.extend(isoWeek);
 
-const { Option } = Select;
-
 type Shift = {
   date: Dayjs;
   shift: string;
   time: string;
   status: string;
-  employeeId: string; // Thêm trường employeeId
+  employeeId: string;
 };
 
 type Employee = {
@@ -27,6 +34,95 @@ type Employee = {
   shifts: Shift[];
 };
 
+// Mock data
+const initialEmployees: Employee[] = [
+  {
+    name: "Nghiêm Tuấn Đạt",
+    id: "NV000001",
+    shifts: [
+      {
+        date: dayjs().startOf("isoWeek"),
+        shift: "Ca ngày",
+        time: "07:00 - 19:00",
+        status: "confirmed",
+        employeeId: "NV000001",
+      },
+      {
+        date: dayjs().startOf("isoWeek").add(1, "day"),
+        shift: "Ca đêm",
+        time: "19:00 - 07:00",
+        status: "confirmed",
+        employeeId: "NV000001",
+      },
+    ],
+  },
+  {
+    name: "Nguyễn Quang Khải",
+    id: "NV000002",
+    shifts: [
+      {
+        date: dayjs().startOf("isoWeek").add(2, "day"),
+        shift: "Ca ngày",
+        time: "07:00 - 19:00",
+        status: "confirmed",
+        employeeId: "NV000002",
+      },
+    ],
+  },
+  {
+    name: "Trần Văn An",
+    id: "NV000003",
+    shifts: [
+      {
+        date: dayjs().startOf("isoWeek").add(3, "day"),
+        shift: "Ca đêm",
+        time: "19:00 - 07:00",
+        status: "confirmed",
+        employeeId: "NV000003",
+      },
+    ],
+  },
+  {
+    name: "Lê Thị Bình",
+    id: "NV000004",
+    shifts: [
+      {
+        date: dayjs().startOf("isoWeek").add(4, "day"),
+        shift: "Ca ngày",
+        time: "07:00 - 19:00",
+        status: "confirmed",
+        employeeId: "NV000004",
+      },
+      {
+        date: dayjs().startOf("isoWeek").add(5, "day"),
+        shift: "Ca đêm",
+        time: "19:00 - 07:00",
+        status: "confirmed",
+        employeeId: "NV000004",
+      },
+    ],
+  },
+  {
+    name: "Phạm Văn Cường",
+    id: "NV000005",
+    shifts: [],
+  },
+];
+
+const shiftOptions = [
+  { label: "Ca ngày (07:00 - 19:00)", value: "Ca ngày" },
+  { label: "Ca đêm (19:00 - 07:00)", value: "Ca đêm" },
+];
+const weekDays = [
+  "Thứ 2",
+  "Thứ 3",
+  "Thứ 4",
+  "Thứ 5",
+  "Thứ 6",
+  "Thứ 7",
+  "Chủ nhật",
+];
+
 const EmployeeSchedule: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -34,40 +130,12 @@ const EmployeeSchedule: React.FC = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     dayjs().startOf("isoWeek")
   );
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      name: "Nghiêm Tuấn Đạt",
-      id: "NV000001",
-      shifts: [
-        {
-          date: dayjs().startOf("isoWeek"),
-          shift: "Ca ngày",
-          time: "07:00 - 19:00",
-          status: "confirmed",
-          employeeId: "NV000001", // Gắn employeeId
-        },
-      ],
-    },
-    {
-      name: "Nguyễn Quang Khải",
-      id: "NV000002",
-      shifts: [
-        {
-          date: dayjs().startOf("isoWeek"),
-          shift: "Ca đêm",
-          time: "19:00 - 07:00",
-          status: "confirmed",
-          employeeId: "NV000002", // Gắn employeeId
-        },
-      ],
-    },
-  ]);
-
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [currentEditing, setCurrentEditing] = useState<{
     employeeId: string;
     date: Dayjs;
   } | null>(null);
-
   const [currentDeletingShift, setCurrentDeletingShift] =
     useState<Shift | null>(null);
   const [hoveredCell, setHoveredCell] = useState<{
@@ -75,61 +143,106 @@ const EmployeeSchedule: React.FC = () => {
     date: Dayjs;
   } | null>(null);
 
-  const shiftTimes: Record<string, string> = {
-    "Ca ngày": "07:00 - 19:00",
-    "Ca đêm": "19:00 - 07:00",
-  };
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem("employeeSchedule");
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData, (key, value) => {
+          if (key === "date" || key.includes("date")) {
+            return dayjs(value);
+          }
+          return value;
+        });
+        console.log("Loaded data:", parsedData); // Thêm log để debug
+        setEmployees(parsedData);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        setEmployees(initialEmployees);
+      }
+    } else {
+      setEmployees(initialEmployees);
+    }
+  }, []);
+
+  // Save to localStorage whenever employees change
+  useEffect(() => {
+    if (employees.length > 0) {
+      const dataToSave = JSON.stringify(employees, (key, value) => {
+        if (dayjs.isDayjs(value)) {
+          return value.format();
+        }
+        return value;
+      });
+      localStorage.setItem("employeeSchedule", dataToSave);
+    }
+  }, [employees]);
 
   const handleAddShift = (employeeId: string, date: Dayjs) => {
     setCurrentEditing({ employeeId, date });
     setIsModalVisible(true);
   };
 
+  const createShiftForDate = (date: Dayjs, shifts: string[]) => {
+    const updatedEmployees = employees.map((employee) => {
+      if (employee.id === currentEditing?.employeeId) {
+        const newShifts = shifts.map((shift: string) => ({
+          date: date.clone(),
+          shift,
+          time: shift === "Ca ngày" ? "07:00 - 19:00" : "19:00 - 07:00",
+          status: "pending",
+          employeeId: employee.id,
+        }));
+
+        const filteredShifts = employee.shifts.filter(
+          (shift) => !shift.date.isSame(date, "day")
+        );
+
+        return {
+          ...employee,
+          shifts: [...filteredShifts, ...newShifts],
+        };
+      }
+      return employee;
+    });
+
+    setEmployees(updatedEmployees);
+  };
+
   const handleModalOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        const { shift } = values;
-        const time = shiftTimes[shift];
+    form.validateFields().then((values) => {
+      const { shifts, endDate } = values;
 
-        const updatedEmployees = employees.map((employee) => {
-          if (employee.id === currentEditing?.employeeId) {
-            const existingShift = employee.shifts.some(
-              (s) =>
-                s.date.isSame(currentEditing.date, "day") && s.shift === shift
-            );
+      if (!selectedDays.length) {
+        createShiftForDate(currentEditing?.date as Dayjs, shifts);
+      } else {
+        const startDate = currentEditing?.date as Dayjs;
+        const endDateTime = endDate
+          ? endDate.endOf("day")
+          : startDate.add(4, "week").endOf("day");
 
-            if (!existingShift) {
-              const updatedShifts = [
-                ...employee.shifts,
-                {
-                  date: currentEditing.date,
-                  shift,
-                  time,
-                  status: "pending",
-                  employeeId: employee.id, // Gắn employeeId
-                },
-              ];
-              return { ...employee, shifts: updatedShifts };
-            } else {
-              alert("Ca làm đã tồn tại cho nhân viên này vào ngày đã chọn.");
-            }
+        let currentDate = startDate.startOf("day");
+        while (currentDate.isBefore(endDateTime)) {
+          const dayName =
+            weekDays[currentDate.day() === 0 ? 6 : currentDate.day() - 1];
+          if (selectedDays.includes(dayName)) {
+            createShiftForDate(currentDate, shifts);
           }
-          return employee;
-        });
+          currentDate = currentDate.add(1, "day");
+        }
+      }
 
-        setEmployees(updatedEmployees);
-        setIsModalVisible(false);
-        form.resetFields();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+      setIsModalVisible(false);
+      form.resetFields();
+      setSelectedDays([]);
+      message.success("Đã cập nhật lịch làm việc");
+    });
   };
 
   const handleModalCancel = () => {
     setIsModalVisible(false);
     form.resetFields();
+    setSelectedDays([]);
   };
 
   const handleDeleteShift = () => {
@@ -151,6 +264,7 @@ const EmployeeSchedule: React.FC = () => {
       setEmployees(updatedEmployees);
       setIsDeleteModalVisible(false);
       setCurrentDeletingShift(null);
+      message.success("Đã xóa ca làm việc");
     }
   };
 
@@ -162,8 +276,23 @@ const EmployeeSchedule: React.FC = () => {
     setCurrentWeekStart(newWeekStart);
   };
 
+  const handleDaySelection = (day: string) => {
+    setSelectedDays((prev) => {
+      if (prev.includes(day)) {
+        return prev.filter((d) => d !== day);
+      }
+      return [...prev, day];
+    });
+  };
+
+  const handleSelectAll = () => {
+    setSelectedDays((prev) =>
+      prev.length === weekDays.length ? [] : [...weekDays]
+    );
+  };
+
   const renderWeekView = () => {
-    const weekDays = Array.from({ length: 7 }).map((_, index) =>
+    const weekDates = Array.from({ length: 7 }).map((_, index) =>
       currentWeekStart.add(index, "day")
     );
 
@@ -202,7 +331,7 @@ const EmployeeSchedule: React.FC = () => {
               >
                 Nhân viên
               </th>
-              {weekDays.map((day, index) => (
+              {weekDates.map((day, index) => (
                 <th
                   key={index}
                   style={{
@@ -228,11 +357,10 @@ const EmployeeSchedule: React.FC = () => {
                 >
                   {employee.name}
                 </td>
-                {weekDays.map((day, index) => {
+                {weekDates.map((day, index) => {
                   const shifts = employee.shifts.filter((s) =>
                     s.date.isSame(day, "day")
                   );
-                  const shiftCount = shifts.length; // Đếm số ca đã làm
 
                   return (
                     <td
@@ -242,83 +370,60 @@ const EmployeeSchedule: React.FC = () => {
                         border: "1px solid #ddd",
                         textAlign: "left",
                         height: "80px",
+                        verticalAlign: "top",
                       }}
                       onMouseEnter={() =>
                         setHoveredCell({ employeeId: employee.id, date: day })
                       }
                       onMouseLeave={() => setHoveredCell(null)}
                     >
-                     {shifts.length > 0
-  ? shifts.map((shift, idx) => {
-      let textColor, backgroundColor;
-      let closeIconColor; // Biến để lưu màu cho icon
+                      {shifts.map((shift, idx) => {
+                        let textColor, backgroundColor;
 
-      if (shift.shift === "Ca ngày") {
-        textColor = "#0000ff";
-        backgroundColor = "#B0E0E6";
-        closeIconColor = "black"; // Màu cho icon Ca ngày
-      } else if (shift.shift === "Ca đêm") {
-        textColor = "#00cc00";
-        backgroundColor = "#98FB98";
-        closeIconColor = "black"; // Màu cho icon Ca đêm
-      } else {
-        textColor = "#606266";
-        backgroundColor = "#F2F2F2";
-        closeIconColor = "black"; // Màu cho icon mặc định
-      }
+                        if (shift.shift === "Ca ngày") {
+                          textColor = "#0000ff";
+                          backgroundColor = "#B0E0E6";
+                        } else if (shift.shift === "Ca đêm") {
+                          textColor = "#00cc00";
+                          backgroundColor = "#98FB98";
+                        }
 
-      return (
-        <div key={idx} style={{ marginBottom: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Tooltip title={shift.time}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontWeight: "bold",
-                cursor: "pointer",
-                color: textColor,
-                backgroundColor: backgroundColor,
-                fontSize: "13px",
-                padding: "5px 8px",
-                borderRadius: "5px",
-                width: "100%",
-              }}
-              className="hover:bg-[#F2F2F2]"
-            >
-              {shift.shift}
-              <CloseCircleOutlined
-                style={{
-                  cursor: "pointer",
-                  color: textColor, 
-                  marginLeft: "10px",
-                }}
-                onClick={() => {
-                  setCurrentDeletingShift(shift);
-                  setIsDeleteModalVisible(true);
-                }}
-              />
-            </div>
-          </Tooltip>
-        </div>
-      );
-    })
-  : null}
+                        return (
+                          <div key={idx} style={{ marginBottom: "5px" }}>
+                            <Tooltip title={shift.time}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  color: textColor,
+                                  backgroundColor: backgroundColor,
+                                  padding: "5px 8px",
+                                  borderRadius: "5px",
+                                }}
+                              >
+                                {shift.shift}
+                                <CloseCircleOutlined
+                                  style={{
+                                    cursor: "pointer",
+                                    color: textColor,
+                                  }}
+                                  onClick={() => {
+                                    setCurrentDeletingShift(shift);
+                                    setIsDeleteModalVisible(true);
+                                  }}
+                                />
+                              </div>
+                            </Tooltip>
+                          </div>
+                        );
+                      })}
                       {hoveredCell?.employeeId === employee.id &&
-                        hoveredCell.date.isSame(day, "day") &&
-                        shiftCount < 2 && ( // Kiểm tra số ca đã làm
+                        hoveredCell.date.isSame(day, "day") && (
                           <Button
                             size="small"
-                            style={{
-                              marginTop: "5px",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              width: "65%",
-                              marginLeft: "auto",
-                              marginRight: "auto",
-                              padding: "5px 10px",
-                            }}
                             onClick={() => handleAddShift(employee.id, day)}
                           >
                             <PlusCircleOutlined /> Thêm ca
@@ -338,33 +443,96 @@ const EmployeeSchedule: React.FC = () => {
   return (
     <div style={{ padding: "20px" }}>
       {renderWeekView()}
+
+      {/* Modal thêm ca làm việc */}
       <Modal
-        title="Thêm lịch làm việc"
-        visible={isModalVisible}
+        title={
+          currentEditing
+            ? `${
+                employees.find((e) => e.id === currentEditing.employeeId)?.name
+              }, ${currentEditing.date.format("dddd, DD/MM/YYYY")}`
+            : "Thêm lịch làm việc"
+        }
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
+        width={600}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" initialValues={{ weekDays: [] }}>
           <Form.Item
-            name="shift"
-            label="Ca làm"
-            rules={[{ required: true, message: "Vui lòng chọn ca làm!" }]}
+            label="Chọn ca làm việc"
+            name="shifts"
+            rules={[{ required: true, message: "Vui lòng chọn ca làm việc!" }]}
           >
-            <Select>
-              <Option value="Ca ngày">Ca ngày</Option>
-              <Option value="Ca đêm">Ca đêm</Option>
-            </Select>
+            <Checkbox.Group options={shiftOptions} />
+          </Form.Item>
+          <div style={{ marginBottom: "15px", fontWeight: "bold" }}>
+            Thiết lập
+          </div>
+          <Form.Item name="repeatWeekly" valuePropName="checked">
+            <Switch defaultChecked /> Lặp lại hàng tuần
+          </Form.Item>
+          <Form.Item name="weekDays">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "4px",
+              }}
+            >
+              {weekDays.map((day) => (
+                <Button
+                  key={day}
+                  type={selectedDays.includes(day) ? "primary" : "default"}
+                  onClick={() => handleDaySelection(day)}
+                >
+                  {day}
+                </Button>
+              ))}
+              <Button
+                type={
+                  selectedDays.length === weekDays.length
+                    ? "primary"
+                    : "default"
+                }
+                onClick={handleSelectAll}
+              >
+                Chọn tất cả
+              </Button>
+            </div>
+          </Form.Item>
+          <Form.Item name="endDate" label="Ngày kết thúc">
+            <DatePicker placeholder="Chọn ngày kết thúc" />
           </Form.Item>
         </Form>
       </Modal>
 
+      {/* Modal xác nhận xóa ca làm việc */}
       <Modal
-        title="Xác nhận hủy ca làm"
-        visible={isDeleteModalVisible}
+        title="Xác nhận xóa ca làm việc"
+        open={isDeleteModalVisible}
         onOk={handleDeleteShift}
-        onCancel={() => setIsDeleteModalVisible(false)}
+        onCancel={() => {
+          setIsDeleteModalVisible(false);
+          setCurrentDeletingShift(null);
+        }}
+        okText="Xóa"
+        cancelText="Hủy"
       >
-        <p>Bạn có chắc chắn muốn hủy ca làm này không?</p>
+        <p>
+          Bạn có chắc chắn muốn xóa ca làm việc{" "}
+          <strong>{currentDeletingShift?.shift}</strong> ngày{" "}
+          <strong>{currentDeletingShift?.date.format("DD/MM/YYYY")}</strong> của
+          nhân viên{" "}
+          <strong>
+            {
+              employees.find((e) => e.id === currentDeletingShift?.employeeId)
+                ?.name
+            }
+          </strong>
+          ?
+        </p>
       </Modal>
     </div>
   );
