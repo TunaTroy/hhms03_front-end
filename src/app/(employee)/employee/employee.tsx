@@ -6,6 +6,7 @@ import UpdateTypeRoom from "@/components/update/updateTypeRoom";
 import WeeklySchedule from "@/components/schedule";
 import SalaryComponent from "@/components/setSalary";
 import EmployeeSchedule from "@/components/schedulePage";
+import EmployeeAttended from "@/components/attended";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
@@ -370,6 +371,12 @@ const EmployeeTypeList = () => {
     </>
   );
 
+  const renderAttended = () => (
+    <>
+      <EmployeeAttended />
+    </>
+  );
+
   return (
     <Layout style={{ minHeight: "100vh", padding: "20px" }}>
       <Content
@@ -411,8 +418,10 @@ const EmployeeTypeList = () => {
                 Chấm công
               </span>
             }
-            key="3"
-          ></TabPane>
+            key="attended"
+          >
+            {renderAttended()}
+          </TabPane>
           <TabPane
             tab={
               <span style={{ fontWeight: "bold", fontSize: "20px" }}>

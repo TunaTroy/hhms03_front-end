@@ -462,7 +462,7 @@ const EmployeeSchedule: React.FC = () => {
                 }
                 onClick={handleSelectAll}
               >
-                Chọn tất cả
+                All
               </Button>
             </div>
           </Form.Item>
