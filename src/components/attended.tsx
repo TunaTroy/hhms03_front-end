@@ -3,6 +3,8 @@ import { Button, Select, Space } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
+import CancelShift from "./cancelAttended";
+import UpdateAttended from "./updateAttended";
 
 dayjs.extend(isoWeek);
 
@@ -441,6 +443,21 @@ const EmployeeAttended: React.FC<EmployeeAttendedProps> = ({
     </table>
   );
 
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+
+  const handleUpdate = () => {
+    setModalOpen(true); // Mở modal khi nhấn nút
+  };
+
+  const handleCancelShift = () => {
+    // Logic hủy ca làm việc
+    console.log("Hủy ca làm việc");
+  };
+
+  const closeModal = () => {
+    setModalOpen(false); // Đóng modal
+  };
+
   return (
     <div style={{ padding: 24 }}>
       <div style={{ width: "100%", overflowX: "auto" }}>
@@ -474,6 +491,19 @@ const EmployeeAttended: React.FC<EmployeeAttendedProps> = ({
               <Select.Option value="employee">Xem theo nhân viên</Select.Option>
             </Select>
           </Space>
+          <Space>
+            <Button style={{ width: 75 }} onClick={handleUpdate}>
+              Cập nhật
+            </Button>
+            <Button style={{ width: 75 }} onClick={handleCancelShift}>
+              Hủy ca
+            </Button>
+          </Space>
+          <UpdateAttended isOpen={isModalOpen} onClose={closeModal} />
+          {/* <CancelShift
+            visible={isCancelModalVisible}
+            onClose={() => setCancelModalVisible(false)}
+          /> */}
         </div>
 
         <div
